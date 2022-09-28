@@ -1,0 +1,65 @@
+# C-PAC Testing Data Configuration File
+# v1.6.2
+# 
+# this is a cross-section of Site-CBIC datasets meant for the C-PAC release regression test
+
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/anat/sub-NDARAA504CRN_acq-VNavNorm_T1w.nii.gz
+  fmap:
+    epi_AP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/fmap/sub-NDARAA504CRN_dir-AP_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/fmap/sub-NDARAA504CRN_dir-AP_acq-fMRI_epi.json
+    epi_PA:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/fmap/sub-NDARAA504CRN_dir-PA_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/fmap/sub-NDARAA504CRN_dir-PA_acq-fMRI_epi.json
+  func:
+    task-movieTP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/func/sub-NDARAA504CRN_task-movieTP_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/func/sub-NDARAA504CRN_task-movieTP_bold.json
+  site_id: Site-CBIC
+  subject_id: sub-NDARAA504CRN
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/anat/sub-NDARAA947ZG5_acq-VNavNorm_T1w.nii.gz
+  fmap:
+    epi_AP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/fmap/sub-NDARAA947ZG5_dir-AP_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/fmap/sub-NDARAA947ZG5_dir-AP_acq-fMRI_epi.json
+    epi_PA:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/fmap/sub-NDARAA947ZG5_dir-PA_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/fmap/sub-NDARAA947ZG5_dir-PA_acq-fMRI_epi.json
+  func:
+    task-movieTP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/func/sub-NDARAA947ZG5_task-movieTP_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/func/sub-NDARAA947ZG5_task-movieTP_bold.json
+  site_id: Site-CBIC
+  subject_id: sub-NDARAA947ZG5
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/anat/sub-NDARAB348EWR_acq-VNavNorm_run-01_T1w.nii.gz
+  fmap:
+    epi_AP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/fmap/sub-NDARAB348EWR_dir-AP_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/fmap/sub-NDARAB348EWR_dir-AP_acq-fMRI_epi.json
+    epi_PA:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/fmap/sub-NDARAB348EWR_dir-PA_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/fmap/sub-NDARAB348EWR_dir-PA_acq-fMRI_epi.json
+  func:
+    task-movieTP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/func/sub-NDARAB348EWR_task-movieTP_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/func/sub-NDARAB348EWR_task-movieTP_bold.json
+  site_id: Site-CBIC
+  subject_id: sub-NDARAB348EWR
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/anat/sub-NDARAB458VK9_acq-VNavNorm_run-01_T1w.nii.gz
+  fmap:
+    epi_AP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/fmap/sub-NDARAB458VK9_dir-AP_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/fmap/sub-NDARAB458VK9_dir-AP_acq-fMRI_epi.json
+    epi_PA:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/fmap/sub-NDARAB458VK9_dir-PA_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/fmap/sub-NDARAB458VK9_dir-PA_acq-fMRI_epi.json
+  func:
+    task-movieTP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/func/sub-NDARAB458VK9_task-movieTP_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/func/sub-NDARAB458VK9_task-movieTP_bold.json
+  site_id: Site-CBIC
+  subject_id: sub-NDARAB458VK9
+  unique_id: '1'

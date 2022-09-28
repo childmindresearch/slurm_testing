@@ -1,0 +1,589 @@
+# C-PAC Testing Data Configuration File
+# v1.6.2
+# 
+# this is a cross-section of multiple datasets meant for the C-PAC release regression test
+
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-1019436/ses-1/anat/sub-1019436_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-1_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-1019436/ses-1/func/sub-1019436_ses-1_task-rest_acq-1_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-1_bold.json
+  site_id: KKI
+  subject_id: '1019436'
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-2014113/ses-1/anat/sub-2014113_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-2_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-2014113/ses-1/func/sub-2014113_ses-1_task-rest_acq-2_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-2_bold.json
+  site: KKI
+  subject_id: '2014113'
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3154996/ses-1/anat/sub-3154996_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-2_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3154996/ses-1/func/sub-3154996_ses-1_task-rest_acq-2_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-2_bold.json
+  site_id: KKI
+  subject_id: '3154996'
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3699991/ses-1/anat/sub-3699991_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-1_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3699991/ses-1/func/sub-3699991_ses-1_task-rest_acq-1_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-1_bold.json
+  site_id: KKI
+  subject_id: '3699991'
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3884955/ses-1/anat/sub-3884955_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-2_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3884955/ses-1/func/sub-3884955_ses-1_task-rest_acq-2_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-2_bold.json
+  site_id: KKI
+  subject_id: '3884955'
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/anat/sub-NDARAA504CRN_acq-VNavNorm_T1w.nii.gz
+  fmap:
+    epi_AP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/fmap/sub-NDARAA504CRN_dir-AP_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/fmap/sub-NDARAA504CRN_dir-AP_acq-fMRI_epi.json
+    epi_PA:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/fmap/sub-NDARAA504CRN_dir-PA_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/fmap/sub-NDARAA504CRN_dir-PA_acq-fMRI_epi.json
+  func:
+    task-movieTP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/func/sub-NDARAA504CRN_task-movieTP_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/func/sub-NDARAA504CRN_task-movieTP_bold.json
+  site_id: Site-CBIC
+  subject_id: sub-NDARAA504CRN
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/anat/sub-NDARAA947ZG5_acq-VNavNorm_T1w.nii.gz
+  fmap:
+    epi_AP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/fmap/sub-NDARAA947ZG5_dir-AP_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/fmap/sub-NDARAA947ZG5_dir-AP_acq-fMRI_epi.json
+    epi_PA:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/fmap/sub-NDARAA947ZG5_dir-PA_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/fmap/sub-NDARAA947ZG5_dir-PA_acq-fMRI_epi.json
+  func:
+    task-movieTP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/func/sub-NDARAA947ZG5_task-movieTP_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/func/sub-NDARAA947ZG5_task-movieTP_bold.json
+  site_id: Site-CBIC
+  subject_id: sub-NDARAA947ZG5
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/anat/sub-NDARAB348EWR_acq-VNavNorm_run-01_T1w.nii.gz
+  fmap:
+    epi_AP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/fmap/sub-NDARAB348EWR_dir-AP_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/fmap/sub-NDARAB348EWR_dir-AP_acq-fMRI_epi.json
+    epi_PA:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/fmap/sub-NDARAB348EWR_dir-PA_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/fmap/sub-NDARAB348EWR_dir-PA_acq-fMRI_epi.json
+  func:
+    task-movieTP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/func/sub-NDARAB348EWR_task-movieTP_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/func/sub-NDARAB348EWR_task-movieTP_bold.json
+  site_id: Site-CBIC
+  subject_id: sub-NDARAB348EWR
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/anat/sub-NDARAB458VK9_acq-VNavNorm_run-01_T1w.nii.gz
+  fmap:
+    epi_AP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/fmap/sub-NDARAB458VK9_dir-AP_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/fmap/sub-NDARAB458VK9_dir-AP_acq-fMRI_epi.json
+    epi_PA:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/fmap/sub-NDARAB458VK9_dir-PA_acq-fMRI_epi.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/fmap/sub-NDARAB458VK9_dir-PA_acq-fMRI_epi.json
+  func:
+    task-movieTP:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/func/sub-NDARAB458VK9_task-movieTP_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/func/sub-NDARAB458VK9_task-movieTP_bold.json
+  site_id: Site-CBIC
+  subject_id: sub-NDARAB458VK9
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/anat/sub-NDARAD481FXF_T1w.nii.gz
+  fmap:
+    diffmag:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude1.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude1.json
+    diffmag_two: 
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude2.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude2.json
+    diffphase: 
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_phasediff.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_phasediff.json
+  func:
+    task-rest:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/func/sub-NDARAD481FXF_task-rest_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/func/sub-NDARAD481FXF_task-rest_bold.json
+  site_id: Site-SI
+  subject_id: sub-NDARAD481FXF
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/anat/sub-NDARAV894XWD_T1w.nii.gz
+  fmap:
+    diffmag:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude1.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude1.json
+    diffmag_two:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude2.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude2.json
+    diffphase:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_phasediff.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_phasediff.json
+  func:
+    task-rest:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/func/sub-NDARAV894XWD_task-rest_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/func/sub-NDARAV894XWD_task-rest_bold.json
+  site_id: Site-SI
+  subject_id: sub-NDARAV894XWD
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/anat/sub-NDARCA186WGH_T1w.nii.gz
+  fmap:
+    diffmag:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude1.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude1.json
+    diffmag_two:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude2.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude2.json
+    diffphase:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_phasediff.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_phasediff.json
+  func:
+    task-rest:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/func/sub-NDARCA186WGH_task-rest_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/func/sub-NDARCA186WGH_task-rest_bold.json
+  site_id: Site-SI
+  subject_id: sub-NDARCA186WGH
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025453/ses-1/anat/sub-0025453_ses-1_run-1_T1w.nii.gz
+  creds_path: null
+  func:
+    rest_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025453/ses-1/func/sub-0025453_ses-1_task-rest_run-1_bold.nii.gz
+      scan_parameters:
+        AcquisitionDuration: '10:00'
+        AcquisitionMatrix: 64x64
+        EchoTime: 0.03
+        FieldofViewDimensions: 220x220
+        FieldofViewShape: Rectangle
+        FlipAngle: 90
+        Instructions: '''Relax and remain still with your eyes open. Do not fall asleep
+          and do not think about anything in particular.'''
+        MagneicFieldSrengh: 3
+        Manufacturer: GE
+        ManufacturersModelName: Discovery MR750
+        NumberOfSlices: 43
+        NumberofMeasurements: 300
+        ParallelAcquisition: 'Yes'
+        ParallelAcquisitionTechnique: ASSET
+        PhaseEncodingDirection: j-
+        PixelBandwidth: 3437.5
+        PixelSpacing: 3.4x3.4
+        PlaneOrientationSequence: Axial
+        PulseSequenceType: EPI
+        ReceiveCoilName: 8 Chan
+        ReceiveCoilType: Head
+        RepetitionTime: 2.0
+        ScanOptions: FS
+        SliceAcquisitionOrder: Interleaved Ascending
+        SliceEncodingDirection: k
+        SliceThickness: 3.4
+        SliceTiming:
+        - 0.0
+        - 1023.26
+        - 46.51
+        - 1069.77
+        - 93.02
+        - 1116.28
+        - 139.53
+        - 1162.79
+        - 186.05
+        - 1209.3
+        - 232.56
+        - 1255.81
+        - 279.07
+        - 1302.33
+        - 325.58
+        - 1348.84
+        - 372.09
+        - 1395.35
+        - 418.6
+        - 1441.86
+        - 465.12
+        - 1488.37
+        - 511.63
+        - 1534.88
+        - 558.14
+        - 1581.4
+        - 604.65
+        - 1627.91
+        - 651.16
+        - 1674.42
+        - 697.67
+        - 1720.93
+        - 744.19
+        - 1767.44
+        - 790.7
+        - 1813.95
+        - 837.21
+        - 1860.47
+        - 883.72
+        - 1906.98
+        - 930.23
+        - 1953.49
+        - 976.74
+        SpacingBetweenSlices: 3.4
+        TaskDescription: ' During functional scanning, subjects were presented with
+          a fixation cross and were instructed to keep their eyes open, relax and
+          move as little as possible while observing the fixation cross. Subjects
+          were also instructed not to engage in breath counting or meditation.'
+        TaskName: rest
+  site_id: HNU_1
+  subject_id: sub-0025453
+  unique_id: ses-1
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025428/ses-1/anat/sub-0025428_ses-1_run-1_T1w.nii.gz
+  creds_path: null
+  func:
+    rest_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025428/ses-1/func/sub-0025428_ses-1_task-rest_run-1_bold.nii.gz
+      scan_parameters:
+        AcquisitionDuration: '10:00'
+        AcquisitionMatrix: 64x64
+        EchoTime: 0.03
+        FieldofViewDimensions: 220x220
+        FieldofViewShape: Rectangle
+        FlipAngle: 90
+        Instructions: '''Relax and remain still with your eyes open. Do not fall asleep
+          and do not think about anything in particular.'''
+        MagneicFieldSrengh: 3
+        Manufacturer: GE
+        ManufacturersModelName: Discovery MR750
+        NumberOfSlices: 43
+        NumberofMeasurements: 300
+        ParallelAcquisition: 'Yes'
+        ParallelAcquisitionTechnique: ASSET
+        PhaseEncodingDirection: j-
+        PixelBandwidth: 3437.5
+        PixelSpacing: 3.4x3.4
+        PlaneOrientationSequence: Axial
+        PulseSequenceType: EPI
+        ReceiveCoilName: 8 Chan
+        ReceiveCoilType: Head
+        RepetitionTime: 2.0
+        ScanOptions: FS
+        SliceAcquisitionOrder: Interleaved Ascending
+        SliceEncodingDirection: k
+        SliceThickness: 3.4
+        SliceTiming:
+        - 0.0
+        - 1023.26
+        - 46.51
+        - 1069.77
+        - 93.02
+        - 1116.28
+        - 139.53
+        - 1162.79
+        - 186.05
+        - 1209.3
+        - 232.56
+        - 1255.81
+        - 279.07
+        - 1302.33
+        - 325.58
+        - 1348.84
+        - 372.09
+        - 1395.35
+        - 418.6
+        - 1441.86
+        - 465.12
+        - 1488.37
+        - 511.63
+        - 1534.88
+        - 558.14
+        - 1581.4
+        - 604.65
+        - 1627.91
+        - 651.16
+        - 1674.42
+        - 697.67
+        - 1720.93
+        - 744.19
+        - 1767.44
+        - 790.7
+        - 1813.95
+        - 837.21
+        - 1860.47
+        - 883.72
+        - 1906.98
+        - 930.23
+        - 1953.49
+        - 976.74
+        SpacingBetweenSlices: 3.4
+        TaskDescription: ' During functional scanning, subjects were presented with
+          a fixation cross and were instructed to keep their eyes open, relax and
+          move as little as possible while observing the fixation cross. Subjects
+          were also instructed not to engage in breath counting or meditation.'
+        TaskName: rest
+  site_id: HNU_1
+  subject_id: sub-0025428
+  unique_id: ses-1
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025429/ses-1/anat/sub-0025429_ses-1_run-1_T1w.nii.gz
+  creds_path: null
+  func:
+    rest_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025429/ses-1/func/sub-0025429_ses-1_task-rest_run-1_bold.nii.gz
+      scan_parameters:
+        AcquisitionDuration: '10:00'
+        AcquisitionMatrix: 64x64
+        EchoTime: 0.03
+        FieldofViewDimensions: 220x220
+        FieldofViewShape: Rectangle
+        FlipAngle: 90
+        Instructions: '''Relax and remain still with your eyes open. Do not fall asleep
+          and do not think about anything in particular.'''
+        MagneicFieldSrengh: 3
+        Manufacturer: GE
+        ManufacturersModelName: Discovery MR750
+        NumberOfSlices: 43
+        NumberofMeasurements: 300
+        ParallelAcquisition: 'Yes'
+        ParallelAcquisitionTechnique: ASSET
+        PhaseEncodingDirection: j-
+        PixelBandwidth: 3437.5
+        PixelSpacing: 3.4x3.4
+        PlaneOrientationSequence: Axial
+        PulseSequenceType: EPI
+        ReceiveCoilName: 8 Chan
+        ReceiveCoilType: Head
+        RepetitionTime: 2.0
+        ScanOptions: FS
+        SliceAcquisitionOrder: Interleaved Ascending
+        SliceEncodingDirection: k
+        SliceThickness: 3.4
+        SliceTiming:
+        - 0.0
+        - 1023.26
+        - 46.51
+        - 1069.77
+        - 93.02
+        - 1116.28
+        - 139.53
+        - 1162.79
+        - 186.05
+        - 1209.3
+        - 232.56
+        - 1255.81
+        - 279.07
+        - 1302.33
+        - 325.58
+        - 1348.84
+        - 372.09
+        - 1395.35
+        - 418.6
+        - 1441.86
+        - 465.12
+        - 1488.37
+        - 511.63
+        - 1534.88
+        - 558.14
+        - 1581.4
+        - 604.65
+        - 1627.91
+        - 651.16
+        - 1674.42
+        - 697.67
+        - 1720.93
+        - 744.19
+        - 1767.44
+        - 790.7
+        - 1813.95
+        - 837.21
+        - 1860.47
+        - 883.72
+        - 1906.98
+        - 930.23
+        - 1953.49
+        - 976.74
+        SpacingBetweenSlices: 3.4
+        TaskDescription: ' During functional scanning, subjects were presented with
+          a fixation cross and were instructed to keep their eyes open, relax and
+          move as little as possible while observing the fixation cross. Subjects
+          were also instructed not to engage in breath counting or meditation.'
+        TaskName: rest
+  site_id: HNU_1
+  subject_id: sub-0025429
+  unique_id: ses-1
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025452/ses-1/anat/sub-0025452_ses-1_run-1_T1w.nii.gz
+  creds_path: null
+  func:
+    rest_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025452/ses-1/func/sub-0025452_ses-1_task-rest_run-1_bold.nii.gz
+      scan_parameters:
+        AcquisitionDuration: '10:00'
+        AcquisitionMatrix: 64x64
+        EchoTime: 0.03
+        FieldofViewDimensions: 220x220
+        FieldofViewShape: Rectangle
+        FlipAngle: 90
+        Instructions: '''Relax and remain still with your eyes open. Do not fall asleep
+          and do not think about anything in particular.'''
+        MagneicFieldSrengh: 3
+        Manufacturer: GE
+        ManufacturersModelName: Discovery MR750
+        NumberOfSlices: 43
+        NumberofMeasurements: 300
+        ParallelAcquisition: 'Yes'
+        ParallelAcquisitionTechnique: ASSET
+        PhaseEncodingDirection: j-
+        PixelBandwidth: 3437.5
+        PixelSpacing: 3.4x3.4
+        PlaneOrientationSequence: Axial
+        PulseSequenceType: EPI
+        ReceiveCoilName: 8 Chan
+        ReceiveCoilType: Head
+        RepetitionTime: 2.0
+        ScanOptions: FS
+        SliceAcquisitionOrder: Interleaved Ascending
+        SliceEncodingDirection: k
+        SliceThickness: 3.4
+        SliceTiming:
+        - 0.0
+        - 1023.26
+        - 46.51
+        - 1069.77
+        - 93.02
+        - 1116.28
+        - 139.53
+        - 1162.79
+        - 186.05
+        - 1209.3
+        - 232.56
+        - 1255.81
+        - 279.07
+        - 1302.33
+        - 325.58
+        - 1348.84
+        - 372.09
+        - 1395.35
+        - 418.6
+        - 1441.86
+        - 465.12
+        - 1488.37
+        - 511.63
+        - 1534.88
+        - 558.14
+        - 1581.4
+        - 604.65
+        - 1627.91
+        - 651.16
+        - 1674.42
+        - 697.67
+        - 1720.93
+        - 744.19
+        - 1767.44
+        - 790.7
+        - 1813.95
+        - 837.21
+        - 1860.47
+        - 883.72
+        - 1906.98
+        - 930.23
+        - 1953.49
+        - 976.74
+        SpacingBetweenSlices: 3.4
+        TaskDescription: ' During functional scanning, subjects were presented with
+          a fixation cross and were instructed to keep their eyes open, relax and
+          move as little as possible while observing the fixation cross. Subjects
+          were also instructed not to engage in breath counting or meditation.'
+        TaskName: rest
+  site_id: HNU_1
+  subject_id: sub-0025452
+  unique_id: ses-1
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025448/ses-1/anat/sub-0025448_ses-1_run-1_T1w.nii.gz
+  creds_path: null
+  func:
+    rest_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025448/ses-1/func/sub-0025448_ses-1_task-rest_run-1_bold.nii.gz
+      scan_parameters:
+        AcquisitionDuration: '10:00'
+        AcquisitionMatrix: 64x64
+        EchoTime: 0.03
+        FieldofViewDimensions: 220x220
+        FieldofViewShape: Rectangle
+        FlipAngle: 90
+        Instructions: '''Relax and remain still with your eyes open. Do not fall asleep
+          and do not think about anything in particular.'''
+        MagneicFieldSrengh: 3
+        Manufacturer: GE
+        ManufacturersModelName: Discovery MR750
+        NumberOfSlices: 43
+        NumberofMeasurements: 300
+        ParallelAcquisition: 'Yes'
+        ParallelAcquisitionTechnique: ASSET
+        PhaseEncodingDirection: j-
+        PixelBandwidth: 3437.5
+        PixelSpacing: 3.4x3.4
+        PlaneOrientationSequence: Axial
+        PulseSequenceType: EPI
+        ReceiveCoilName: 8 Chan
+        ReceiveCoilType: Head
+        RepetitionTime: 2.0
+        ScanOptions: FS
+        SliceAcquisitionOrder: Interleaved Ascending
+        SliceEncodingDirection: k
+        SliceThickness: 3.4
+        SliceTiming:
+        - 0.0
+        - 1023.26
+        - 46.51
+        - 1069.77
+        - 93.02
+        - 1116.28
+        - 139.53
+        - 1162.79
+        - 186.05
+        - 1209.3
+        - 232.56
+        - 1255.81
+        - 279.07
+        - 1302.33
+        - 325.58
+        - 1348.84
+        - 372.09
+        - 1395.35
+        - 418.6
+        - 1441.86
+        - 465.12
+        - 1488.37
+        - 511.63
+        - 1534.88
+        - 558.14
+        - 1581.4
+        - 604.65
+        - 1627.91
+        - 651.16
+        - 1674.42
+        - 697.67
+        - 1720.93
+        - 744.19
+        - 1767.44
+        - 790.7
+        - 1813.95
+        - 837.21
+        - 1860.47
+        - 883.72
+        - 1906.98
+        - 930.23
+        - 1953.49
+        - 976.74
+        SpacingBetweenSlices: 3.4
+        TaskDescription: ' During functional scanning, subjects were presented with
+          a fixation cross and were instructed to keep their eyes open, relax and
+          move as little as possible while observing the fixation cross. Subjects
+          were also instructed not to engage in breath counting or meditation.'
+        TaskName: rest
+  site_id: HNU_1
+  subject_id: sub-0025448
+  unique_id: ses-1

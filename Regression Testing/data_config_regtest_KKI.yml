@@ -1,0 +1,45 @@
+# C-PAC Testing Data Configuration File
+# v1.6.2
+# 
+# this is a cross-section of KKI datasets meant for the C-PAC release regression test
+
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-1019436/ses-1/anat/sub-1019436_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-1_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-1019436/ses-1/func/sub-1019436_ses-1_task-rest_acq-1_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-1_bold.json
+  site_id: KKI
+  subject_id: '1019436'
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-2014113/ses-1/anat/sub-2014113_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-2_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-2014113/ses-1/func/sub-2014113_ses-1_task-rest_acq-2_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-2_bold.json
+  site: KKI
+  subject_id: '2014113'
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3154996/ses-1/anat/sub-3154996_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-2_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3154996/ses-1/func/sub-3154996_ses-1_task-rest_acq-2_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-2_bold.json
+  site_id: KKI
+  subject_id: '3154996'
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3699991/ses-1/anat/sub-3699991_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-1_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3699991/ses-1/func/sub-3699991_ses-1_task-rest_acq-1_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-1_bold.json
+  site_id: KKI
+  subject_id: '3699991'
+  unique_id: '1'
+- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3884955/ses-1/anat/sub-3884955_ses-1_run-1_T1w.nii.gz
+  func:
+    rest_acq-2_run-1:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3884955/ses-1/func/sub-3884955_ses-1_task-rest_acq-2_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/task-rest_acq-2_bold.json
+  site_id: KKI
+  subject_id: '3884955'
+  unique_id: '1'
