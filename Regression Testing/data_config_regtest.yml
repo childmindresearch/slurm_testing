@@ -3,7 +3,8 @@
 # 
 # this is a cross-section of multiple datasets meant for the C-PAC release regression test
 
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-1019436/ses-1/anat/sub-1019436_ses-1_run-1_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-1019436/ses-1/anat/sub-1019436_ses-1_run-1_T1w.nii.gz
   func:
     rest_acq-1_run-1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-1019436/ses-1/func/sub-1019436_ses-1_task-rest_acq-1_run-1_bold.nii.gz
@@ -11,7 +12,8 @@
   site_id: KKI
   subject_id: '1019436'
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-2014113/ses-1/anat/sub-2014113_ses-1_run-1_T1w.nii.gz
+- anat: 
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-2014113/ses-1/anat/sub-2014113_ses-1_run-1_T1w.nii.gz
   func:
     rest_acq-2_run-1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-2014113/ses-1/func/sub-2014113_ses-1_task-rest_acq-2_run-1_bold.nii.gz
@@ -19,7 +21,8 @@
   site: KKI
   subject_id: '2014113'
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3154996/ses-1/anat/sub-3154996_ses-1_run-1_T1w.nii.gz
+- anat: 
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3154996/ses-1/anat/sub-3154996_ses-1_run-1_T1w.nii.gz
   func:
     rest_acq-2_run-1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3154996/ses-1/func/sub-3154996_ses-1_task-rest_acq-2_run-1_bold.nii.gz
@@ -27,7 +30,8 @@
   site_id: KKI
   subject_id: '3154996'
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3699991/ses-1/anat/sub-3699991_ses-1_run-1_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3699991/ses-1/anat/sub-3699991_ses-1_run-1_T1w.nii.gz
   func:
     rest_acq-1_run-1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3699991/ses-1/func/sub-3699991_ses-1_task-rest_acq-1_run-1_bold.nii.gz
@@ -35,7 +39,8 @@
   site_id: KKI
   subject_id: '3699991'
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3884955/ses-1/anat/sub-3884955_ses-1_run-1_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3884955/ses-1/anat/sub-3884955_ses-1_run-1_T1w.nii.gz
   func:
     rest_acq-2_run-1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/ADHD200/RawDataBIDS/KKI/sub-3884955/ses-1/func/sub-3884955_ses-1_task-rest_acq-2_run-1_bold.nii.gz
@@ -43,7 +48,8 @@
   site_id: KKI
   subject_id: '3884955'
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/anat/sub-NDARAA504CRN_acq-VNavNorm_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/anat/sub-NDARAA504CRN_acq-VNavNorm_T1w.nii.gz
   fmap:
     epi_AP:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA504CRN/fmap/sub-NDARAA504CRN_dir-AP_acq-fMRI_epi.nii.gz
@@ -58,7 +64,8 @@
   site_id: Site-CBIC
   subject_id: sub-NDARAA504CRN
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/anat/sub-NDARAA947ZG5_acq-VNavNorm_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/anat/sub-NDARAA947ZG5_acq-VNavNorm_T1w.nii.gz
   fmap:
     epi_AP:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAA947ZG5/fmap/sub-NDARAA947ZG5_dir-AP_acq-fMRI_epi.nii.gz
@@ -73,7 +80,8 @@
   site_id: Site-CBIC
   subject_id: sub-NDARAA947ZG5
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/anat/sub-NDARAB348EWR_acq-VNavNorm_run-01_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/anat/sub-NDARAB348EWR_acq-VNavNorm_run-01_T1w.nii.gz
   fmap:
     epi_AP:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB348EWR/fmap/sub-NDARAB348EWR_dir-AP_acq-fMRI_epi.nii.gz
@@ -88,7 +96,8 @@
   site_id: Site-CBIC
   subject_id: sub-NDARAB348EWR
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/anat/sub-NDARAB458VK9_acq-VNavNorm_run-01_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/anat/sub-NDARAB458VK9_acq-VNavNorm_run-01_T1w.nii.gz
   fmap:
     epi_AP:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-CBIC/sub-NDARAB458VK9/fmap/sub-NDARAB458VK9_dir-AP_acq-fMRI_epi.nii.gz
@@ -103,61 +112,65 @@
   site_id: Site-CBIC
   subject_id: sub-NDARAB458VK9
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/anat/sub-NDARAD481FXF_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/anat/sub-NDARAD481FXF_T1w.nii.gz
   fmap:
-    diffmag:
+    magnitude1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude1.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude1.json
-    diffmag_two: 
+    magnitude2: 
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude2.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude2.json
-    diffphase: 
+    phasediff: 
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_phasediff.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_phasediff.json
   func:
-    task-rest:
+    rest:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/func/sub-NDARAD481FXF_task-rest_bold.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/func/sub-NDARAD481FXF_task-rest_bold.json
   site_id: Site-SI
   subject_id: sub-NDARAD481FXF
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/anat/sub-NDARAV894XWD_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/anat/sub-NDARAV894XWD_T1w.nii.gz
   fmap:
-    diffmag:
+    magnitude1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude1.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude1.json
-    diffmag_two:
+    magnitude2:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude2.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude2.json
-    diffphase:
+    phasediff:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_phasediff.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_phasediff.json
   func:
-    task-rest:
+    rest:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/func/sub-NDARAV894XWD_task-rest_bold.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/func/sub-NDARAV894XWD_task-rest_bold.json
   site_id: Site-SI
   subject_id: sub-NDARAV894XWD
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/anat/sub-NDARCA186WGH_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/anat/sub-NDARCA186WGH_T1w.nii.gz
   fmap:
-    diffmag:
+    magnitude1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude1.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude1.json
-    diffmag_two:
+    magnitude2:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude2.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude2.json
-    diffphase:
+    phasediff:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_phasediff.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_phasediff.json
   func:
-    task-rest:
+    rest:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/func/sub-NDARCA186WGH_task-rest_bold.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/func/sub-NDARCA186WGH_task-rest_bold.json
   site_id: Site-SI
   subject_id: sub-NDARCA186WGH
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025453/ses-1/anat/sub-0025453_ses-1_run-1_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025453/ses-1/anat/sub-0025453_ses-1_run-1_T1w.nii.gz
   creds_path: null
   func:
     rest_run-1:
@@ -243,7 +256,8 @@
   site_id: HNU_1
   subject_id: sub-0025453
   unique_id: ses-1
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025428/ses-1/anat/sub-0025428_ses-1_run-1_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025428/ses-1/anat/sub-0025428_ses-1_run-1_T1w.nii.gz
   creds_path: null
   func:
     rest_run-1:
@@ -329,7 +343,8 @@
   site_id: HNU_1
   subject_id: sub-0025428
   unique_id: ses-1
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025429/ses-1/anat/sub-0025429_ses-1_run-1_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025429/ses-1/anat/sub-0025429_ses-1_run-1_T1w.nii.gz
   creds_path: null
   func:
     rest_run-1:
@@ -415,7 +430,8 @@
   site_id: HNU_1
   subject_id: sub-0025429
   unique_id: ses-1
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025452/ses-1/anat/sub-0025452_ses-1_run-1_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025452/ses-1/anat/sub-0025452_ses-1_run-1_T1w.nii.gz
   creds_path: null
   func:
     rest_run-1:
@@ -501,7 +517,8 @@
   site_id: HNU_1
   subject_id: sub-0025452
   unique_id: ses-1
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025448/ses-1/anat/sub-0025448_ses-1_run-1_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/CORR/RawDataBIDS/HNU_1/sub-0025448/ses-1/anat/sub-0025448_ses-1_run-1_T1w.nii.gz
   creds_path: null
   func:
     rest_run-1:
