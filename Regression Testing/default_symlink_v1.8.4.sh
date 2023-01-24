@@ -29,41 +29,47 @@ cd anat
 
 # from symtemplate to T1w transforms
 ln -s ${subject}_${session1}_from-symtemplate_to-T1w_mode-image_desc-linear_xfm.nii.gz ${subject}_${session2}_from-MNI152NLin6Sym_to-T1w_mode-image_desc-linear_xfm.nii.gz
-
 ln -s ${subject}_${session1}_from-symtemplate_to-T1w_mode-image_desc-nonlinear_xfm.nii.gz ${subject}_${session2}_from-MNI152NLin6Sym_to-T1w_mode-image_desc-nonlinear_xfm.nii.gz
-
 ln -s ${subject}_${session1}_from-symtemplate_to-T1w_mode-image_xfm.nii.gz ${subject}_${session2}_from-MNI152NLin6Sym_to-T1w_mode-image_xfm.nii.gz
 
 # from t1w to symtemplate
 ln -s ${subject}_${session1}_from-T1w_to-symtemplate_mode-image_desc-linear_xfm.nii.gz ${subject}_${session2}_from-T1w_to-MNI152NLin6Sym_mode-image_desc-linear_xfm.nii.gz
-
 ln -s ${subject}_${session1}_from-T1w_to-symtemplate_mode-image_desc-nonlinear_xfm.nii.gz ${subject}_${session2}_from-T1w_to-MNI152NLin6Sym_mode-image_desc-nonlinear_xfm.nii.gz
-
 ln -s ${subject}_${session1}_from-T1w_to-symtemplate_mode-image_xfm.nii.gz ${subject}_${session2}_from-T1w_to-MNI152NLin6Sym_mode-image_xfm.nii.gz
 
 # from t1w to template
 ln -s ${subject}_${session1}_from-T1w_to-template_mode-image_desc-linear_xfm.nii.gz ${subject}_${session2}_from-T1w_to-MNI152NLin6ASym_mode-image_desc-linear_xfm.nii.gz
-
 ln -s ${subject}_${session1}_from-T1w_to-template_mode-image_desc-nonlinear_xfm.nii.gz ${subject}_${session2}_from-T1w_to-MNI152NLin6ASym_mode-image_desc-nonlinear_xfm.nii.gz
-
 ln -s ${subject}_${session1}_from-T1w_to-template_mode-image_xfm.nii.gz ${subject}_${session2}_from-T1w_to-MNI152NLin6ASym_mode-image_xfm.nii.gz
 
 # from template to t1w
 ln -s ${subject}_${session1}_from-template_to-T1w_mode-image_desc-linear_xfm.nii.gz ${subject}_${session2}_from-MNI152NLin6ASym_to-T1w_mode-image_desc-linear_xfm.nii.gz
-
 ln -s ${subject}_${session1}_from-template_to-T1w_mode-image_desc-nonlinear_xfm.nii.gz ${subject}_${session2}_from-MNI152NLin6ASym_to-T1w_mode-image_desc-nonlinear_xfm.nii.gz
-
 ln -s ${subject}_${session1}_from-template_to-T1w_mode-image_xfm.nii.gz ${subject}_${session2}_from-MNI152NLin6ASym_to-T1w_mode-image_xfm.nii.gz
+
+# native space regressors
+ln -s ${subject}_${session1}_label-CSF_desc-preproc_mask.nii.gz ${subject}_${session2}_label-CSF_desc-preproc_mask.nii.gz
+ln -s ${subject}_${session1}_label-CSF_mask.nii.gz ${subject}_${session2}_label-CSF_mask.nii.gz
+ln -s ${subject}_${session1}_label-CSF_probseg.nii.gz ${subject}_${session2}_label-CSF_probseg.nii.gz
+
+ln -s ${subject}_${session1}_label-GM_desc-preproc_mask.nii.gz ${subject}_${session2}_label-GM_desc-preproc_mask.nii.gz
+ln -s ${subject}_${session1}_label-GM_mask.nii.gz ${subject}_${session2}_label-GM_mask.nii.gz
+ln -s ${subject}_${session1}_label-GM_probseg.nii.gz ${subject}_${session2}_label-GM_probseg.nii.gz
+
+ln -s ${subject}_${session1}_label-WM_desc-preproc_mask.nii.gz ${subject}_${session2}_label-WM_desc-preproc_mask.nii.gz
+ln -s ${subject}_${session1}_label-WM_mask.nii.gz ${subject}_${session2}_label-WM_mask.nii.gz
+ln -s ${subject}_${session1}_label-WM_probseg.nii.gz ${subject}_${session2}_label-WM_probseg.nii.gz
 
 # space template regressors
 ln -s ${subject}_${session1}_space-template_label-CSF_mask.nii.gz ${subject}_${session2}_space-MNI152NLin6ASym_label-CSF_mask.nii.gz
-
 ln -s ${subject}_${session1}_space-template_label-GM_mask.nii.gz ${subject}_${session2}_space-MNI152NLin6ASym_label-GM_mask.nii.gz
-
 ln -s ${subject}_${session1}_space-template_label-WM_mask.nii.gz ${subject}_${session2}_space-MNI152NLin6ASym_label-WM_mask.nii.gz
 
 # brain mask
-ln -s ${subject}_${session1}_space-T1w_desc-brain_mask.nii.gz ${subject}_${session2}_desc-brain_mask.nii.gz
+ln -s ${subject}_${session1}_space-T1w_desc-brain_mask.nii.gz ${subject}_${session2}_space-MNI152NLin6ASym_desc-brain_mask.nii.gz
+
+# desc preproc T1w
+ln -s ${subject}_${session1}_desc-preproc_T1w.nii.gz ${subject}_${session2}_desc-preproc_T1w.nii.gz
 
 echo "anat symlink finished...."
 echo "........................."
@@ -74,10 +80,12 @@ cd ..
 cd func
 
 # templates
+
+#aalmaskpad
 ln -s ${subject}_${session1}_${func_run1}_atlas-aalmaskpad_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-aal_space-MNI152NLin6ASym_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-aalmaskpad_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-aal_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
-ln -s ${subject}_${session1}_${func_run1}_atlas-aalmaskpad_desc-ndmg-1_correlations.csv s${subject}_${session2}_${func_run2}_atlas-aal_space-MNI152NLin6ASymMNI152NLin6ASym_reg-default_desc-ndmg_correlations.csv
+ln -s ${subject}_${session1}_${func_run1}_atlas-aalmaskpad_desc-ndmg-1_correlations.csv ${subject}_${session2}_${func_run2}_atlas-aal_space-MNI152NLin6ASymMNI152NLin6ASym_reg-default_desc-ndmg_correlations.csv
 ln -s ${subject}_${session1}_${func_run1}_atlas-aalmaskpad_desc-ndmg-2_correlations.csv ${subject}_${session2}_${func_run2}_atlas-aal_space-MNI152NLin6ASymMNI152NLin6ASym_reg-defaultNoGSR_desc-ndmg_correlations.csv
 
 ln -s ${subject}_${session1}_${func_run1}_atlas-aalmaskpad_desc-PartialNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-aal_space-MNI152NLin6ASym_reg-default_desc-PartialNilearn_correlations.tsv
@@ -86,6 +94,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-aalmaskpad_desc-PartialNilearn-2
 ln -s ${subject}_${session1}_${func_run1}_atlas-aalmaskpad_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-aal_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-aalmaskpad_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-aal_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# AALspace
 ln -s ${subject}_${session1}_${func_run1}_atlas-AALspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-AAL_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-AALspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-AAL_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -98,6 +107,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-AALspace-MNI152NLin6res-1x1x1_de
 ln -s ${subject}_${session1}_${func_run1}_atlas-AALspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-AAL_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-AALspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-AAL_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Brodmann
 ln -s ${subject}_${session1}_${func_run1}_atlas-Brodmannspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Brodmann_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Brodmannspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Brodmann_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -110,6 +120,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Brodmannspace-MNI152NLin6res-1x1
 ln -s ${subject}_${session1}_${func_run1}_atlas-Brodmannspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Brodmann_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Brodmannspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Brodmann_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# CAPRSC
 ln -s ${subject}_${session1}_${func_run1}_atlas-CAPRSCspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-CAPRSC_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-CAPRSCspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-CAPRSC_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -122,6 +133,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-CAPRSCspace-MNI152NLin6res-1x1x1
 ln -s ${subject}_${session1}_${func_run1}_atlas-CAPRSCspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-CAPRSC_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-CAPRSCspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-CAPRSC_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# CC200
 ln -s ${subject}_${session1}_${func_run1}_atlas-CC200_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-CC200_space-MNI152NLin6ASym_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-CC200_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-CC200_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -134,6 +146,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-CC200_desc-PartialNilearn-2_corr
 ln -s ${subject}_${session1}_${func_run1}_atlas-CC200_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-CC200_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-CC200_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-CC200_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# CC400
 ln -s ${subject}_${session1}_${func_run1}_atlas-CC400_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-CC400_space-MNI152NLin6ASym_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-CC400_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-CC400_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -146,6 +159,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-CC400_desc-PartialNilearn-2_corr
 ln -s ${subject}_${session1}_${func_run1}_atlas-CC400_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-CC400_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-CC400_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-CC400_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# DesikanKlein
 ln -s ${subject}_${session1}_${func_run1}_atlas-DesikanKleinspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-DesikanKlein_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-DesikanKleinspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-DesikanKlein_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -158,6 +172,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-DesikanKleinspace-MNI152NLin6res
 ln -s ${subject}_${session1}_${func_run1}_atlas-DesikanKleinspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-DesikanKlein_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-DesikanKleinspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-DesikanKlein_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Desikan
 ln -s ${subject}_${session1}_${func_run1}_atlas-Desikanspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Desikan_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Desikanspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Desikan_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -170,6 +185,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Desikanspace-MNI152NLin6res-1x1x
 ln -s ${subject}_${session1}_${func_run1}_atlas-Desikanspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Desikan_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Desikanspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Desikan_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# DKT
 ln -s ${subject}_${session1}_${func_run1}_atlas-DKTspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-DKT_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-DKTspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-DKT_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -182,6 +198,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-DKTspace-MNI152NLin6res-1x1x1_de
 ln -s ${subject}_${session1}_${func_run1}_atlas-DKTspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-DKT_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-DKTspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-DKT_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Glasser
 ln -s ${subject}_${session1}_${func_run1}_atlas-Glasserspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Glasser_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Glasserspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Glasser_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -194,6 +211,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Glasserspace-MNI152NLin6res-1x1x
 ln -s ${subject}_${session1}_${func_run1}_atlas-Glasserspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Glasser_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Glasserspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Glasser_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# HarvardOxfordcort
 ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordcort-maxprob-thr25space-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-HarvardOxfordcortMaxprobThr25_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordcort-maxprob-thr25space-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-HarvardOxfordcortMaxprobThr25_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -206,6 +224,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordcort-maxprob-thr25s
 ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordcort-maxprob-thr25space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-HarvardOxfordcortMaxprobThr25_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordcort-maxprob-thr25space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-HarvardOxfordcortMaxprobThr25_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# HarvardOxfordsub
 ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordsub-maxprob-thr25space-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-HarvardOxfordsubMaxprobThr25_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordsub-maxprob-thr25space-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-HarvardOxfordsubMaxprobThr25_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -218,6 +237,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordsub-maxprob-thr25sp
 ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordsub-maxprob-thr25space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-HarvardOxfordsubMaxprobThr25_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-HarvardOxfordsub-maxprob-thr25space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-HarvardOxfordsubMaxprobThr25_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# homaskpad
 ln -s ${subject}_${session1}_${func_run1}_atlas-homaskpad_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-ho_space-MNI152NLin6ASym_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-homaskpad_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-ho_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -230,6 +250,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-homaskpad_desc-PartialNilearn-2_
 ln -s ${subject}_${session1}_${func_run1}_atlas-homaskpad_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-ho_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-homaskpad_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-ho_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Juelich
 ln -s ${subject}_${session1}_${func_run1}_atlas-Juelichspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Juelich_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Juelichspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Juelich_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -242,6 +263,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Juelichspace-MNI152NLin6res-1x1x
 ln -s ${subject}_${session1}_${func_run1}_atlas-Juelichspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Juelich_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Juelichspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Juelich_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# MICCAI
 ln -s ${subject}_${session1}_${func_run1}_atlas-MICCAIspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-MICCAI_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-MICCAIspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-MICCAI_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -254,9 +276,11 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-MICCAIspace-MNI152NLin6res-1x1x1
 ln -s ${subject}_${session1}_${func_run1}_atlas-MICCAIspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-MICCAI_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-MICCAIspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-MICCAI_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# PNASSmith09rsn10
 ln -s ${subject}_${session1}_${func_run1}_atlas-PNASSmith09rsn10_desc-SpatReg-1_timeseries.txt ${subject}_${session2}_${func_run2}_atlas-PNAS_reg-default_desc-SpatReg_timeseries.txt
 ln -s ${subject}_${session1}_${func_run1}_atlas-PNASSmith09rsn10_desc-SpatReg-2_timeseries.txt ${subject}_${session2}_${func_run2}_atlas-PNAS_reg-defaultNoGSR_desc-SpatReg_timeseries.txt
 
+# rois3mm
 ln -s ${subject}_${session1}_${func_run1}_atlas-rois3mm_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-rois_space-MNI152NLin6ASym_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-rois3mm_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-rois_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -269,6 +293,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-rois3mm_desc-PartialNilearn-2_co
 ln -s ${subject}_${session1}_${func_run1}_atlas-rois3mm_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-rois_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-rois3mm_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-rois_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Schaefer1000
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer1000space-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p1000n17_space-MNI152NLin6ASymMNI152NLin6ASym_reg-default_desc-ndmg_correlations.csv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer1000space-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p1000n17_space-MNI152NLin6ASymMNI152NLin6ASym_reg-defaultNoGSR_desc-ndmg_correlations.csv
 
@@ -281,6 +306,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer1000space-MNI152NLin6res
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer1000space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p1000n17_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer1000space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p1000n17_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Schaefer200
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer200space-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p200n17_space-MNI152NLin6ASym_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer200space-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p200n17_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -293,6 +319,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer200space-MNI152NLin6res-
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer200space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p200n17_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer200space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p200n17_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Schaefer300
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer300space-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p300n17_space-MNI152NLin6ASym_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer300space-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p300n17_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -305,6 +332,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer300space-MNI152NLin6res-
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer300space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p300n17_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer300space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p300n17_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Schaefer400
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer400space-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p400n17_space-MNI152NLin6ASym_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer400space-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p400n17_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -317,6 +345,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer400space-MNI152NLin6res-
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer400space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p400n17_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Schaefer400space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Schaefer2018p400n17_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Slab907
 ln -s ${subject}_${session1}_${func_run1}_atlas-Slab907space-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Slab907_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Slab907space-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Slab907_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -329,6 +358,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Slab907space-MNI152NLin6res-1x1x
 ln -s ${subject}_${session1}_${func_run1}_atlas-Slab907space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Slab907_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Slab907space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Slab907_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Talairach
 ln -s ${subject}_${session1}_${func_run1}_atlas-Talairachspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Talairach_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Talairachspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Talairach_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -341,6 +371,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Talairachspace-MNI152NLin6res-1x
 ln -s ${subject}_${session1}_${func_run1}_atlas-Talairachspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Talairach_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Talairachspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Talairach_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# ttmaskpad
 ln -s ${subject}_${session1}_${func_run1}_atlas-ttmaskpad_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-tt_space-MNI152NLin6ASym_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-ttmaskpad_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-tt_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -353,6 +384,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-ttmaskpad_desc-PartialNilearn-2_
 ln -s ${subject}_${session1}_${func_run1}_atlas-ttmaskpad_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-tt_space-MNI152NLin6ASym_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-ttmaskpad_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-tt_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Yeo-17-liberalspace
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17-liberalspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Yeo17Liberal_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17-liberalspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Yeo17Liberal_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -365,6 +397,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17-liberalspace-MNI152NLin6r
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17-liberalspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Yeo17Liberal_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17-liberalspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Yeo17Liberal_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Yeo-17space
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17space-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Yeo17_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17space-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Yeo17_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -377,6 +410,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17space-MNI152NLin6res-1x1x1
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Yeo17_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-17space-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Yeo17_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Yeo-7-liberalspace
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-7-liberalspace-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Yeo7Liberal_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-7-liberalspace-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Yeo7Liberal_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -389,6 +423,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-7-liberalspace-MNI152NLin6re
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-7-liberalspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-1_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Yeo7Liberal_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-PearsonNilearn_correlations.tsv
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-7-liberalspace-MNI152NLin6res-1x1x1_desc-PearsonNilearn-2_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-Yeo7Liberal_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-PearsonNilearn_correlations.tsv
 
+# Yeo-7space
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-7space-MNI152NLin6res-1x1x1_desc-Mean-1_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Yeo7_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-default_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-Yeo-7space-MNI152NLin6res-1x1x1_desc-Mean-2_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Yeo7_space-MNI152NLin6MNI152NLin6ASym_res-1x1x1_reg-defaultNoGSR_desc-Mean_timeseries.1D
 
@@ -446,13 +481,9 @@ ln -s ${subject}_${session1}_${func_run1}_power-params.txt ${subject}_${session2
 
 # Bold to template and template to bold
 ln -s ${subject}_${session1}_${func_run1}_from-bold_to-symtemplate_mode-image_xfm.nii.gz ${subject}_${session2}_${func_run2}_from-bold_to-MNI152NLin6Sym_mode-image_xfm.nii.gz
-
-#ln -s ${subject}_${session}_task-rest_run-1_from-bold_to-T1w_mode-image_desc-linear_xfm.mat ${subject}_${session}_task-rest_run-1_from-bold_to-T1w_mode-image_desc-linear_xfm.mat
-
+ln -s ${subject}_${session}_task-rest_run-1_from-bold_to-T1w_mode-image_desc-linear_xfm.mat ${subject}_${session}_task-rest_run-1_from-bold_to-T1w_mode-image_desc-linear_xfm.mat
 ln -s ${subject}_${session1}_${func_run1}_from-bold_to-template_mode-image_xfm.nii.gz ${subject}_${session2}_${func_run2}_from-bold_to-MNI152NLin6ASym_mode-image_xfm.nii.gz
-
 ln -s ${subject}_${session1}_${func_run1}_from-symtemplate_to-bold_mode-image_xfm.nii.gz ${subject}_${session2}_${func_run2}_from-MNI152NLin6Sym_to-bold_mode-image_xfm.nii.gz
-
 ln -s ${subject}_${session1}_${func_run1}_from-template_to-bold_mode-image_xfm.nii.gz ${subject}_${session2}_${func_run2}_from-MNI152NLin6ASym_to-bold_mode-image_xfm.nii.gz
 
 # space T1w brain mask
@@ -462,8 +493,12 @@ ln -s ${subject}_${session1}_${func_run1}_space-bold_desc-brain_mask.nii.gz ${su
 ln -s ${subject}_${session1}_${func_run1}_space-T1w_desc-mean_bold.nii.gz ${subject}_${session2}_${func_run2}_space-T1w_sbref.nii.gz
 
 # space desc preproc bold
-ln -s ${subject}_${session1}_${func_run1}_space-template_desc-preproc-1_bold.nii.gz ${subject}_${session2}_${func_run2}_reg-default_desc-preproc_bold.nii.gz
-ln -s ${subject}_${session1}_${func_run1}_space-template_desc-preproc-2_bold.nii.gz ${subject}_${session2}_${func_run2}_reg-defaultNoGSR_desc-preproc_bold.nii.gz
+ln -s ${subject}_${session1}_${func_run1}_space-template_desc-preproc-1_bold.nii.gz ${subject}_${session2}_${func_run2}_space-MNI152NLin6ASym_reg-default_desc-preproc_bold.nii.gz
+ln -s ${subject}_${session1}_${func_run1}_space-template_desc-preproc-2_bold.nii.gz ${subject}_${session2}_${func_run2}_space-MNI152NLin6ASym_reg-defaultNoGSR_desc-preproc_bold.nii.gz
+
+# native desc preproc bold
+ln -s ${subject}_${session1}_${func_run1}_desc-preproc-1_bold.nii.gz ${subject}_${session2}_${func_run2}_reg-default_desc-preproc_bold.nii.gz
+ln -s ${subject}_${session1}_${func_run1}_desc-preproc-2_bold.nii.gz ${subject}_${session2}_${func_run2}_reg-defaultNoGSR_desc-preproc_bold.nii.gz
 
 # degree centrality, lfcd, eigenvector centrality
 ln -s ${subject}_${session1}_${func_run1}_space-template_desc-binarized-sm-zstd-1_degree-centrality.nii.gz ${subject}_${session2}_${func_run2}_space-MNI152NLin6ASym_reg-default_desc-smZstd_dcb.nii.gz
@@ -518,6 +553,7 @@ ln -s ${subject}_${session1}_${func_run1}_space-template_desc-zstd-2_reho.nii.gz
 
 # bold mask
 ln -s ${subject}_${session1}_${func_run1}_space-template_res-derivative_desc-bold_mask.nii.gz ${subject}_${session2}_${func_run2}_space-MNI152NLin6ASym_res-3mm_desc-bold_mask.nii.gz
+ln -s ${subject}_${session1}_${func_run1}__space-template_desc-mean_bold.nii.gz ${subject}_${session2}_${func_run2}_space-MNI152NLin6ASym_sbref.nii.gz
 
 # qc
 ln -s ${subject}_${session1}_${func_run1}_bold-snr-qc.txt ${subject}_${session2}_${func_run2}_reg-default_desc-boldSnr_quality.txt
