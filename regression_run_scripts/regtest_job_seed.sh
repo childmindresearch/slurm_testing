@@ -2,11 +2,12 @@
 
 MED=/ocean/projects/med220004p
 HOME=${MED}/agutierr
+GIT_REPO=${HOME}/automate_testing
 DATA=${MED}/shared/data_raw/CPAC-Regression
 OUT=${HOME}/reg_test_1.8.5/all_pipelines_final
-CONFIG=${HOME}/configs
+CONFIG=${GIT_REPO}/data_configs
 IMAGE=${HOME}/c-pac_nightly-v1.8.5.sif
-PIPELINE_CONFIGS=${HOME}/seed_pipelines
+PIPELINE_CONFIGS=${GIT_REPO}/pipeline_configs
 PRECONFIGS="default benchmark-FNIRT fmriprep-options ndmg fx-options abcd-options ccs-options rodent monkey"
 DATA_SOURCE="KKI Site-CBIC Site-SI HNU_1"
 
