@@ -3,55 +3,58 @@
 # 
 # this is a cross-section of Site-SI datasets meant for the C-PAC release regression test
 
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/anat/sub-NDARAD481FXF_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/anat/sub-NDARAD481FXF_T1w.nii.gz
   fmap:
-    diffmag:
+    magnitude1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude1.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude1.json
-    diffmag_two: 
+    magnitude2: 
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude2.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_magnitude2.json
-    diffphase: 
+    phasediff: 
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_phasediff.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/fmap/sub-NDARAD481FXF_phasediff.json
   func:
-    task-rest:
+    rest:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/func/sub-NDARAD481FXF_task-rest_bold.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAD481FXF/func/sub-NDARAD481FXF_task-rest_bold.json
   site_id: Site-SI
   subject_id: sub-NDARAD481FXF
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/anat/sub-NDARAV894XWD_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/anat/sub-NDARAV894XWD_T1w.nii.gz
   fmap:
-    diffmag:
+    magnitude1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude1.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude1.json
-    diffmag_two:
+    magnitude2:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude2.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_magnitude2.json
-    diffphase:
+    phasediff:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_phasediff.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/fmap/sub-NDARAV894XWD_phasediff.json
   func:
-    task-rest:
+    rest:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/func/sub-NDARAV894XWD_task-rest_bold.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARAV894XWD/func/sub-NDARAV894XWD_task-rest_bold.json
   site_id: Site-SI
   subject_id: sub-NDARAV894XWD
   unique_id: '1'
-- anat: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/anat/sub-NDARCA186WGH_T1w.nii.gz
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/anat/sub-NDARCA186WGH_T1w.nii.gz
   fmap:
-    diffmag:
+    magnitude1:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude1.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude1.json
-    diffmag_two:
+    magnitude2:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude2.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_magnitude2.json
-    diffphase:
+    phasediff:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_phasediff.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/fmap/sub-NDARCA186WGH_phasediff.json
   func:
-    task-rest:
+    rest:
       scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/func/sub-NDARCA186WGH_task-rest_bold.nii.gz
       scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/HBN/MRI/Site-SI/sub-NDARCA186WGH/func/sub-NDARCA186WGH_task-rest_bold.json
   site_id: Site-SI

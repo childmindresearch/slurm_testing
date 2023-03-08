@@ -1,0 +1,14 @@
+# C-PAC Testing Data Configuration File
+# v1.6.2
+# 
+# this is a cross-section of Rodent dataset meant for the C-PAC release regression test
+
+- anat:
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/rodent/sub-ag150519a/anat/sub-ag150519a_T1w.nii.gz
+  func:
+    task-rest:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/rodent/sub-ag150519a/func/sub-ag150519a_task-rest_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/rodent/sub-ag150519a/func/sub-ag150519a_task-rest_bold.json
+  site_id: rodent
+  subject_id: sub-ag150519a
+  unique_id: '1'

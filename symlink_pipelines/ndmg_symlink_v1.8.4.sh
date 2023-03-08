@@ -76,7 +76,7 @@ ln -s ${subject}_${session1}_${func_run1}_atlas-Brodmannspace-MNI152NLin6res-2x2
 ln -s ${subject}_${session1}_${func_run1}_atlas-CPAC200space-MNI152NLin6res-2x2x2_desc-Mean_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-CPAC200_space-MNI152NLin6MNI152NLin6ASym_res-2x2x2_desc-Mean_timeseries.1D
 ln -s ${subject}_${session1}_${func_run1}_atlas-CPAC200space-MNI152NLin6res-2x2x2_desc-ndmg_correlations.csv ${subject}_${session2}_${func_run2}_atlas-CPAC200_space-MNI152NLin6MNI152NLin6ASymMNI152NLin6ASym_res-2x2x2_desc-ndmg_correlations.csv
 ln -s ${subject}_${session1}_${func_run1}_atlas-CPAC200space-MNI152NLin6res-2x2x2_desc-PartialNilearn_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-CPAC200_space-MNI152NLin6MNI152NLin6ASym_res-2x2x2_desc-PartialNilearn_correlations.tsv
-ln -s ${subject}_${session1}_${func_run1}_atlas-CPAC200space-MNI152NLin6res-2x2x2_desc-PearsonNilearn_correlations ${subject}_${session2}_${func_run2}_atlas-CPAC200_space-MNI152NLin6MNI152NLin6ASym_res-2x2x2_desc-PearsonNilearn_correlations.tsv
+ln -s ${subject}_${session1}_${func_run1}_atlas-CPAC200space-MNI152NLin6res-2x2x2_desc-PearsonNilearn_correlations.tsv ${subject}_${session2}_${func_run2}_atlas-CPAC200_space-MNI152NLin6MNI152NLin6ASym_res-2x2x2_desc-PearsonNilearn_correlations.tsv
 
 # Deskian
 ln -s ${subject}_${session1}_${func_run1}_atlas-Desikanspace-MNI152NLin6res-2x2x2_desc-Mean_timeseries.1D ${subject}_${session2}_${func_run2}_atlas-Desikan_space-MNI152NLin6MNI152NLin6ASym_res-2x2x2_desc-Mean_timeseries.1D
@@ -203,7 +203,7 @@ ln -s ${subject}_${session1}_${func_run1}_movement-parameters.1D ${subject}_${se
 ln -s ${subject}_${session1}_${func_run1}_power-params.txt ${subject}_${session2}_${func_run2}_desc-powerParams_motion.txt
 
 # Bold to template and template to bold
-ln -s ${subject}_${session}_${func_run1}_from-bold_to-T1w_mode-image_desc-linear_xfm.mat ${subject}_${session2}_${func_run2}_from-bold_to-T1w_mode-image_desc-linear_xfm.mat
+ln -s ${subject}_${session1}_${func_run1}_from-bold_to-T1w_mode-image_desc-linear_xfm.mat ${subject}_${session2}_${func_run2}_from-bold_to-T1w_mode-image_desc-linear_xfm.mat
 
 ln -s ${subject}_${session1}_${func_run1}_from-bold_to-template_mode-image_xfm.nii.gz ${subject}_${session2}_${func_run2}_from-bold_to-MNI152NLin6ASym_mode-image_xfm.nii.gz
 

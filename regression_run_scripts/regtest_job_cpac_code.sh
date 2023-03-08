@@ -3,9 +3,10 @@
 MED=/ocean/projects/med220004p
 HOME=${MED}/agutierr
 DATA=${MED}/shared/data_raw/CPAC-Regression
-OUT=${HOME}/reg_test_1.8.4/fixed_seed
+OUT=${HOME}/reg_test_1.8.5/all_pipelines_final_branch
 CONFIG=${HOME}/configs
-IMAGE=${HOME}/c-pac_release-v1.8.4.sif
+IMAGE=${HOME}/c-pac_nightly-v1.8.5.sif
+CPAC=${HOME}/C-PAC
 PIPELINE_CONFIGS=${HOME}/seed_pipelines
 PRECONFIGS="default benchmark-FNIRT fmriprep-options ndmg fx-options abcd-options ccs-options rodent monkey"
 DATA_SOURCE="KKI Site-CBIC Site-SI HNU_1"
@@ -24,15 +25,24 @@ do
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 1:00:00
-#SBATCH --ntasks-per-node=7
+#SBATCH --ntasks-per-node=20
 
+HOME=${HOME} \
 singularity run \
+    --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
+    -B ${CPAC}:/code \
+    -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
+    -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
     -B ${CONFIG}:${CONFIG} \
     -B ${PIPELINE_CONFIGS}:${PIPELINE_CONFIGS} \
-    ${IMAGE} ${DATA} ${OUTPUT} participant --save_working_dir --skip_bids_validator --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml --data_config_file ${CONFIG}/data_config_regtest_rodent.yml --n_cpus 6 --mem_gb 12
+    ${IMAGE} ${DATA} ${OUTPUT} participant \
+    --save_working_dir --skip_bids_validator \
+    --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml \
+    --data_config_file ${CONFIG}/data_config_regtest_rodent.yml \
+    --n_cpus 18 --mem_gb 40
 
 TMP
         chmod +x regtest_${pipeline}.sh
@@ -45,15 +55,24 @@ TMP
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 2:00:00
-#SBATCH --ntasks-per-node=7
+#SBATCH --ntasks-per-node=20
 
+HOME=${HOME} \
 singularity run \
+    --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
+    -B ${CPAC}:/code \
+    -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
+    -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
     -B ${CONFIG}:${CONFIG} \
     -B ${PIPELINE_CONFIGS}:${PIPELINE_CONFIGS} \
-    ${IMAGE} ${DATA} ${OUTPUT} participant --save_working_dir --skip_bids_validator --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml --data_config_file ${CONFIG}/data_config_regtest_nhp.yml --n_cpus 6 --mem_gb 20
+    ${IMAGE} ${DATA} ${OUTPUT} participant \
+    --save_working_dir --skip_bids_validator \
+    --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml \
+    --data_config_file ${CONFIG}/data_config_regtest_nhp.yml \
+    --n_cpus 18 --mem_gb 40
 
 TMP
         chmod +x regtest_${pipeline}.sh
@@ -73,16 +92,25 @@ TMP
 #!/usr/bin/bash
 #SBATCH -N 1
 #SBATCH -p RM-shared
-#SBATCH -t 46:00:00
-#SBATCH --ntasks-per-node=10
+#SBATCH -t 47:00:00
+#SBATCH --ntasks-per-node=20
 
+HOME=${HOME} \
 singularity run \
+    --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
+    -B ${CPAC}:/code \
+    -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
+    -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
     -B ${CONFIG}:${CONFIG} \
     -B ${PIPELINE_CONFIGS}:${PIPELINE_CONFIGS} \
-    ${IMAGE} ${DATA} ${OUTPUT} participant --save_working_dir --skip_bids_validator --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml --data_config_file ${CONFIG}/data_config_regtest_${data}.yml --n_cpus 9 --mem_gb 20
+    ${IMAGE} ${DATA} ${OUTPUT} participant \
+    --save_working_dir --skip_bids_validator \
+    --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml \
+    --data_config_file ${CONFIG}/data_config_regtest_${data}.yml \
+    --n_cpus 18 --mem_gb 40
 
 TMP
             chmod +x regtest_${pipeline}_${data}.sh
@@ -95,15 +123,24 @@ TMP
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 20:00:00
-#SBATCH --ntasks-per-node=7
+#SBATCH --ntasks-per-node=20
 
+HOME=${HOME} \
 singularity run \
+    --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
+    -B ${CPAC}:/code \
+    -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
+    -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
     -B ${CONFIG}:${CONFIG} \
     -B ${PIPELINE_CONFIGS}:${PIPELINE_CONFIGS} \
-    ${IMAGE} ${DATA} ${OUTPUT} participant --save_working_dir --skip_bids_validator --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml --data_config_file ${CONFIG}/data_config_regtest_${data}.yml --n_cpus 6 --mem_gb 12
+    ${IMAGE} ${DATA} ${OUTPUT} participant \
+    --save_working_dir --skip_bids_validator \
+    --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml \
+    --data_config_file ${CONFIG}/data_config_regtest_${data}.yml \
+    --n_cpus 18 --mem_gb 40
 
 TMP
             chmod +x regtest_${pipeline}_${data}.sh
@@ -114,16 +151,25 @@ TMP
 #!/usr/bin/bash
 #SBATCH -N 1
 #SBATCH -p RM-shared
-#SBATCH -t 10:00:00
-#SBATCH --ntasks-per-node=7
+#SBATCH -t 20:00:00
+#SBATCH --ntasks-per-node=20
 
+HOME=${HOME} \
 singularity run \
+    --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
+    -B ${CPAC}:/code \
+    -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
+    -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
     -B ${CONFIG}:${CONFIG} \
     -B ${PIPELINE_CONFIGS}:${PIPELINE_CONFIGS} \
-    ${IMAGE} ${DATA} ${OUTPUT} participant --save_working_dir --skip_bids_validator --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml --data_config_file ${CONFIG}/data_config_regtest_${data}.yml --n_cpus 6 --mem_gb 12
+    ${IMAGE} ${DATA} ${OUTPUT} participant \
+    --save_working_dir --skip_bids_validator \
+    --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml \
+    --data_config_file ${CONFIG}/data_config_regtest_${data}.yml \
+    --n_cpus 18 --mem_gb 40
 
 TMP
             chmod +x regtest_${pipeline}_${data}.sh

@@ -1,0 +1,14 @@
+# C-PAC Testing Data Configuration File
+# v1.6.2
+# 
+# this is a cross-section of NHP dataset meant for the C-PAC release regression test
+
+- anat: 
+    T1w: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/nhp/oxford/sub-032167/ses-001/anat/sub-032167_ses-001_run-1_T1w.nii.gz
+  func:
+    task-rest:
+      scan: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/nhp/oxford/sub-032167/ses-001/func/sub-032167_ses-001_task-resting_run-1_bold.nii.gz
+      scan_parameters: /ocean/projects/med220004p/shared/data_raw/CPAC-Regression/nhp/oxford/sub-032167/ses-001/func/sub-032167_ses-001_task-resting_run-1_bold.json
+  site_id: nhp
+  subject_id: sub-032167
+  unique_id: '1'

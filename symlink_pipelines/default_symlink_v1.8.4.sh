@@ -481,7 +481,7 @@ ln -s ${subject}_${session1}_${func_run1}_power-params.txt ${subject}_${session2
 
 # Bold to template and template to bold
 ln -s ${subject}_${session1}_${func_run1}_from-bold_to-symtemplate_mode-image_xfm.nii.gz ${subject}_${session2}_${func_run2}_from-bold_to-MNI152NLin6Sym_mode-image_xfm.nii.gz
-ln -s ${subject}_${session}_task-rest_run-1_from-bold_to-T1w_mode-image_desc-linear_xfm.mat ${subject}_${session}_task-rest_run-1_from-bold_to-T1w_mode-image_desc-linear_xfm.mat
+ln -s ${subject}_${session}_${func_run1}_from-bold_to-T1w_mode-image_desc-linear_xfm.mat ${subject}_${session}_${func_run2}_from-bold_to-T1w_mode-image_desc-linear_xfm.mat
 ln -s ${subject}_${session1}_${func_run1}_from-bold_to-template_mode-image_xfm.nii.gz ${subject}_${session2}_${func_run2}_from-bold_to-MNI152NLin6ASym_mode-image_xfm.nii.gz
 ln -s ${subject}_${session1}_${func_run1}_from-symtemplate_to-bold_mode-image_xfm.nii.gz ${subject}_${session2}_${func_run2}_from-MNI152NLin6Sym_to-bold_mode-image_xfm.nii.gz
 ln -s ${subject}_${session1}_${func_run1}_from-template_to-bold_mode-image_xfm.nii.gz ${subject}_${session2}_${func_run2}_from-MNI152NLin6ASym_to-bold_mode-image_xfm.nii.gz
@@ -553,7 +553,7 @@ ln -s ${subject}_${session1}_${func_run1}_space-template_desc-zstd-2_reho.nii.gz
 
 # bold mask
 ln -s ${subject}_${session1}_${func_run1}_space-template_res-derivative_desc-bold_mask.nii.gz ${subject}_${session2}_${func_run2}_space-MNI152NLin6ASym_res-3mm_desc-bold_mask.nii.gz
-ln -s ${subject}_${session1}_${func_run1}__space-template_desc-mean_bold.nii.gz ${subject}_${session2}_${func_run2}_space-MNI152NLin6ASym_sbref.nii.gz
+ln -s ${subject}_${session1}_${func_run1}_space-template_desc-mean_bold.nii.gz ${subject}_${session2}_${func_run2}_space-MNI152NLin6ASym_sbref.nii.gz
 
 # qc
 ln -s ${subject}_${session1}_${func_run1}_bold-snr-qc.txt ${subject}_${session2}_${func_run2}_reg-default_desc-boldSnr_quality.txt
