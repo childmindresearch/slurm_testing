@@ -33,7 +33,7 @@ singularity run \
     --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
-    -B ${CPAC}:/code \
+    -B ${CPAC}/CPAC:/code/CPAC \
     -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
     -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
@@ -63,7 +63,7 @@ singularity run \
     --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
-    -B ${CPAC}:/code \
+    -B ${CPAC}/CPAC:/code/CPAC \
     -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
     -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
@@ -101,7 +101,7 @@ singularity run \
     --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
-    -B ${CPAC}:/code \
+    -B ${CPAC}/CPAC:/code/CPAC \
     -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
     -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
@@ -131,7 +131,7 @@ singularity run \
     --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
-    -B ${CPAC}:/code \
+    -B ${CPAC}/CPAC:/code/CPAC \
     -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
     -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
@@ -160,7 +160,7 @@ singularity run \
     --cleanenv \
     -B ${MED} \
     -B ${DATA}:${DATA} \
-    -B ${CPAC}:/code \
+    -B ${CPAC}/CPAC:/code/CPAC \
     -B ${CPAC}/dev/docker_data/run.py:/code/run.py \
     -B ${CPAC}/dev/docker_data/run-with-freesurfer.sh:/code/run-with-freesurfer.sh \
     -B ${OUTPUT}:${OUTPUT} \
