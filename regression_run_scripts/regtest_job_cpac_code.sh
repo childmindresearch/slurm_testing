@@ -1,13 +1,23 @@
 #!/usr/bin/bash
 
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --username) Path="$2"; shift ;;
+        --out_dir) Subject="$2"; shift ;;
+		--image_dir) LowResMesh="$2"; shift ;;
+		--cpac_dir) FinalfMRIResolution="$2"; shift ;;
+    esac
+    shift
+done
+
 MED=/ocean/projects/med220004p
-HOME=${MED}/agutierr
-GIT_REPO=${HOME}/automate_testing
+HOME=${MED}/${user}
+GIT_REPO=${HOME}/slurm_testing
 DATA=${MED}/shared/data_raw/CPAC-Regression
-OUT=${HOME}/reg_test_1.8.5/all_pipelines_final_branch
+OUT=${out_dir}
 CONFIG=${GIT_REPO}/data_configs
-IMAGE=${HOME}/c-pac_nightly-v1.8.5.sif
-CPAC=${HOME}/C-PAC
+IMAGE=${image_dir}
+CPAC=${cpac_dir}
 PIPELINE_CONFIGS=${GIT_REPO}/pipeline_configs
 PRECONFIGS="default benchmark-FNIRT fmriprep-options ndmg fx-options abcd-options ccs-options rodent monkey"
 DATA_SOURCE="KKI Site-CBIC Site-SI HNU_1"
