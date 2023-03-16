@@ -5,7 +5,6 @@ while [[ "$#" -gt 0 ]]; do
         --username) Path="$2"; shift ;;
         --out_dir) Subject="$2"; shift ;;
 		--image_dir) LowResMesh="$2"; shift ;;
-		--cpac_dir) FinalfMRIResolution="$2"; shift ;;
     esac
     shift
 done
