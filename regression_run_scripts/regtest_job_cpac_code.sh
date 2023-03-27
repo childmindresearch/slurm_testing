@@ -2,10 +2,10 @@
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --username) Path="$2"; shift ;;
-        --out_dir) Subject="$2"; shift ;;
-		--image_dir) LowResMesh="$2"; shift ;;
-		--cpac_dir) FinalfMRIResolution="$2"; shift ;;
+        --username) user="$2"; shift ;;
+        --out_dir) out_dir="$2"; shift ;;
+		--image_dir) image_dir="$2"; shift ;;
+		--cpac_dir) cpac_dir="$2"; shift ;;
     esac
     shift
 done
