@@ -4,7 +4,7 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         --username) user="$2"; shift ;;
         --out_dir) out_dir="$2"; shift ;;
-		--image_dir) image_dir="$2"; shift ;;
+	--image_dir) image_dir="$2"; shift ;;
     esac
     shift
 done
