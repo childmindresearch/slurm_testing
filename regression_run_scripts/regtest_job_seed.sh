@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-while [[ "$#" -gt 0 ]]; do
+while [[ "$#" != "" ]]; do
     case $1 in
         --username) user="$2"; shift ;;
         --out_dir) out_dir="$2"; shift ;;
@@ -81,6 +81,7 @@ TMP
         chmod +x regtest_${pipeline}.sh
         sbatch regtest_${pipeline}.sh
         fi
+    else
 
         for data in ${DATA_SOURCE}
         do
