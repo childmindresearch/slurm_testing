@@ -8,7 +8,7 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-image_name = ${image#*:}
+image_name=${image#*:}
 
 cat << TMP > job.sh
 #!/usr/bin/bash
