@@ -8,7 +8,7 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-cat << TMP > build_${image}.sh
+cat << TMP > job.sh
 #!/usr/bin/bash
 #SBATCH -N 1
 #SBATCH -p RM-shared
@@ -21,5 +21,6 @@ singularity build ${image}.sif docker://${image}
 
 TMP
 
-chmod +x build_${image}.sh
-sbatch build_${image}.sh
+chmod +x job.sh
+sbatch job.sh
+rm job.sh
