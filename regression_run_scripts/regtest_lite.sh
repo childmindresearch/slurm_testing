@@ -23,13 +23,13 @@ for pipeline in ${PRECONFIGS}; do
     for data in ${DATA_SOURCE}; do
         if [ ${data} == 'HNU_1' ]; then
             subject="sub-0025428"
-            datapath=${DATA_DIR}/HNU_1
+            datapath=${DATA}/data/HNU_1
         elif [ ${data} == 'Site-CBIC' ]; then
             subject="sub-NDARAA947ZG5"
-            datapath=${DATA_DIR}/Site-CBIC
+            datapath=${DATA}/data/Site-CBIC
         elif [ ${data} == 'Site-SI' ]; then
             subject="sub-NDARAD481FXF"
-            datapath=${DATA_DIR}/Site-SI
+            datapath=${DATA}/data/Site-SI
         fi
 
         OUTPUT=${OUT}/${pipeline}/${data}
