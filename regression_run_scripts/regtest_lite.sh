@@ -54,7 +54,7 @@ singularity run --rm \
     --n_cpus 10 --mem_gb 40
 TMP
         chmod +x reglite_${IMAGE_NAME}.sh
-        bash reglite_${IMAGE_NAME}.sh
+        sbatch reglite_${IMAGE_NAME}.sh
         echo "Finished reglite_${IMAGE_NAME}.sh.sh
     done
 done
