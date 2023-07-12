@@ -8,6 +8,8 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
+image_name = ${image#*:}
+
 cat << TMP > job.sh
 #!/usr/bin/bash
 #SBATCH -N 1
@@ -17,7 +19,7 @@ cat << TMP > job.sh
 
 SINGULARITY_CACHEDIR=${working_dir}/.singularity/cache \
 SINGULARITY_LOCALCACHEDIR=${working_dir}/.singularity/tmp \
-singularity build ${image}.sif docker://${image}
+singularity build ${image_name}.sif docker://${image}
 
 TMP
 
