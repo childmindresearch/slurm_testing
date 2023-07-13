@@ -23,7 +23,7 @@ for pipeline in ${PRECONFIGS}; do
             subject="sub-0025428"
             datapath=${DATA}/data/HNU_1
         elif [ ${data} == 'Site-CBIC' ]; then
-            subject="sub-NDARAA947ZG5"
+            subject="sub-NDARAB348EWR"
             datapath=${DATA}/data/Site-CBIC
         elif [ ${data} == 'Site-SI' ]; then
             subject="sub-NDARAD481FXF"
