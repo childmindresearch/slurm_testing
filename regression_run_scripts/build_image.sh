@@ -27,4 +27,22 @@ TMP
 chmod +x job.sh
 sbatch job.sh
 rm job.sh
+
+# After 10 minutes the loop will exit
+timeout=600
+
+while [ ! -f build_image.out ];
+do
+  # When the timeout is equal to zero, show an error and leave the loop.
+  if [ "$timeout" == 0 ]; then
+    echo "ERROR: Timeout while waiting for slurm job to execute"
+    exit 1
+  fi
+
+  sleep 1
+
+  # Decrease the timeout of one
+  ((timeout--))
+done
+
 tail -f build_image.out
