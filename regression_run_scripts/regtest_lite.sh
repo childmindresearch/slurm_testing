@@ -51,8 +51,8 @@ singularity run --rm \
     --participant_label ${subject} \
     --n_cpus 10 --mem_gb 40
 TMP
-        chmod +x reglite_${IMAGE_NAME}${pipeline}_${data}.sh
-        sbatch reglite_${IMAGE_NAME}${pipeline}_${data}.sh
+        chmod +x reglite_${IMAGE_NAME}_${pipeline}_${data}.sh
+        sbatch reglite_${IMAGE_NAME}_${pipeline}_${data}.sh
         echo "Finished reglite_${IMAGE_NAME}_${pipeline}_${data}.sh"
     done
 done
