@@ -40,8 +40,9 @@ for pipeline in ${PRECONFIGS}; do
 #SBATCH -t 10:00:00
 #SBATCH --ntasks-per-node=11
 
-singularity run --rm \
-    -B ${REG_DATA}:/reg-data \
+singularity run \
+    --cleanenv \
+    -B ${home_dir} \
     -B ${datapath}:/data \
     -B ${OUTPUT}:/outputs \
     -B ${PIPELINE_CONFIGS}:/pipeline_configs \
@@ -53,6 +54,7 @@ singularity run --rm \
 TMP
         chmod +x reglite_${IMAGE_NAME}_${pipeline}_${data}.sh
         sbatch reglite_${IMAGE_NAME}_${pipeline}_${data}.sh
-        echo "Finished reglite_${IMAGE_NAME}_${pipeline}_${data}.sh"
     done
 done
+
+rm reglite_${IMAGE_NAME}_*.sh
