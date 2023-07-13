@@ -2,8 +2,8 @@
 
 while [[ "$#" != "" ]]; do
     case $1 in
-    --home_dir) HOME="$2"; shift ;;
-	--image) image="$2"; shift ;;
+        --home_dir) HOME="$2"; shift ;;
+        --image) image="$2"; shift ;;
     esac
     shift
 done
@@ -55,6 +55,6 @@ singularity run --rm \
 TMP
         chmod +x reglite_${IMAGE_NAME}.sh
         sbatch reglite_${IMAGE_NAME}.sh
-        echo "Finished reglite_${IMAGE_NAME}.sh.sh
+        echo "Finished reglite_${IMAGE_NAME}.sh
     done
 done
