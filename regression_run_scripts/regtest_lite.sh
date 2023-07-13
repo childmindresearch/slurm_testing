@@ -1,24 +1,22 @@
 #!/usr/bin/bash
 
-while [[ "$#" != "" ]]; do
+while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --home_dir) HOME="$2"; shift ;;
+        --home_dir) home_dir="$2"; shift ;;
         --image) image="$2"; shift ;;
     esac
     shift
 done
 
 IMAGE_NAME=${image#*:}
-GIT_REPO=${HOME}/slurm_testing
-DATA=${HOME}/DATA/reg_5mm_pack
-OUT=${HOME}/${IMAGE_NAME}
+GIT_REPO=${home_dir}/slurm_testing
+DATA=${home_dir}/DATA/reg_5mm_pack
+OUT=${home_dir}/${IMAGE_NAME}
 IMAGE=${IMAGE_NAME}.sif
 PIPELINE_CONFIGS=${DATA}/configs
 PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 
-
-echo "Running lite regression test ..."
 for pipeline in ${PRECONFIGS}; do
     for data in ${DATA_SOURCE}; do
         if [ ${data} == 'HNU_1' ]; then
@@ -35,7 +33,7 @@ for pipeline in ${PRECONFIGS}; do
         OUTPUT=${OUT}/${pipeline}/${data}
         [ ! -d  ${OUTPUT} ] && mkdir -p ${OUTPUT}
 
-        cat << TMP > reglite_${IMAGE_NAME}.sh
+        cat << TMP > reglite_${IMAGE_NAME}_${pipeline}_${data}.sh
 #!/usr/bin/bash
 #SBATCH -N 1
 #SBATCH -p RM-shared
@@ -53,8 +51,8 @@ singularity run --rm \
     --participant_label ${subject} \
     --n_cpus 10 --mem_gb 40
 TMP
-        chmod +x reglite_${IMAGE_NAME}.sh
-        sbatch reglite_${IMAGE_NAME}.sh
-        echo "Finished reglite_${IMAGE_NAME}.sh
+        chmod +x reglite_${IMAGE_NAME}${pipeline}_${data}.sh
+        sbatch reglite_${IMAGE_NAME}${pipeline}_${data}.sh
+        echo "Finished reglite_${IMAGE_NAME}_${pipeline}_${data}.sh"
     done
 done
