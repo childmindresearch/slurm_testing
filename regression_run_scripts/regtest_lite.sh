@@ -39,6 +39,7 @@ for pipeline in ${PRECONFIGS}; do
 #SBATCH -p RM-shared
 #SBATCH -t 10:00:00
 #SBATCH --ntasks-per-node=11
+#SBATCH -o slurm-${pipeline}-${data}.out
 
 singularity run \
     --cleanenv \
@@ -54,6 +55,7 @@ singularity run \
 TMP
         chmod +x reglite_${IMAGE_NAME}_${pipeline}_${data}.sh
         sbatch reglite_${IMAGE_NAME}_${pipeline}_${data}.sh
+        tail -f slurm-${pipeline}-${data}.out
     done
 done
 
