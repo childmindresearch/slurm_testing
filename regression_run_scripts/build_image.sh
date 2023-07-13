@@ -46,3 +46,4 @@ do
 done
 
 tail -f build_image.out
+exit 0
