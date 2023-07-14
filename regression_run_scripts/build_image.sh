@@ -31,7 +31,7 @@ rm job.sh
 # After 10 minutes the loop will exit
 timeout=600
 
-while [ ! -f build_image.out ];
+while ! [ -f build_image.out ];
 do
   # When the timeout is equal to zero, show an error and leave the loop.
   if [ "$timeout" == 0 ]; then
@@ -45,5 +45,7 @@ do
   ((timeout--))
 done
 
-tail -f build_image.out
-exit 0
+if [ -f build_image.out ]; then
+    tail -f build_image.out
+    exit 0
+fi
