@@ -63,3 +63,4 @@ TMP
 done
 
 rm reglite_${IMAGE_NAME}_*.sh
+rm ${IMAGE}
