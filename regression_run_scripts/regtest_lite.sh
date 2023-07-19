@@ -41,6 +41,10 @@ for pipeline in ${PRECONFIGS}; do
 #SBATCH --ntasks-per-node=11
 #SBATCH -o slurm-${pipeline}-${data}.out
 
+SINGULARITY_CACHEDIR=${home_dir}/.singularity/cache \
+SINGULARITY_LOCALCACHEDIR=${home_dir}/.singularity/tmp \
+singularity build ${IMAGE} docker://${image}
+
 singularity run \
     --cleanenv \
     -B ${home_dir} \
@@ -55,7 +59,6 @@ singularity run \
 TMP
         chmod +x reglite_${IMAGE_NAME}_${pipeline}_${data}.sh
         sbatch reglite_${IMAGE_NAME}_${pipeline}_${data}.sh
-        tail -f slurm-${pipeline}-${data}.out
     done
 done
 
