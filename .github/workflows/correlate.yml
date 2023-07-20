@@ -1,0 +1,45 @@
+name: Correlate Regression Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'branch, tag, or SHA'
+        type: string
+        required: true
+      repo:
+        description: 'owner / repository on GitHub'
+        type: string
+        required: false
+        default: "FCP-INDI/C-PAC"
+      environment:
+        description: 'Environment in which to run correlations'
+        type: environment
+        required: false
+        default: ACCESS
+      pipeline1:
+        type: string
+        required: true
+      pipeline2:
+        type: string
+        required: true
+
+
+jobs:
+  correlate:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment}}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Correlating
+        run: |
+          echo "Correlating lite regression runs"
+          echo "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"
+          echo "Correlating ${{ inputs.pipeline1 }} × ${{ inputs.pipeline2 }} for ${{ inputs.repo }}"
+          # python3 reg-suite/main.py correlate --pipeline1 $GITHUB_WORKSPACE/output/default/HNU_1 --pipeline2 $GITHUB_WORKSPACE/lite/default/HNU_1--workspace $GITHUB_WORKSPACE
+      # - uses: actions/upload-artifact@v3
+      #   if: always()
+      #   with:
+      #     name: logs
+      #     path: output/*/*/log/
