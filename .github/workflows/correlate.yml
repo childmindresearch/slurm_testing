@@ -31,7 +31,7 @@ jobs:
     environment: ${{ inputs.environment}}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.5.3
       - name: Correlating
         run: |
           echo "Correlating lite regression runs"
