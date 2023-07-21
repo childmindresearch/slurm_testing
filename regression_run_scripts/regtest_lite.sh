@@ -4,12 +4,11 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         --home_dir) home_dir="$2"; shift ;;
         --image) image="$2"; shift ;;
+        --path-extra) export PATH="$PATH:$2"; shift ;;
         --sha) SHA="$2"; shift ;;
     esac
     shift
 done
-
-source ~/.zshrc
 
 IMAGE_NAME=${image#*:}
 GIT_REPO=${home_dir}/slurm_testing
