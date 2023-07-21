@@ -6,6 +6,8 @@ while [[ "$#" -gt 0 ]]; do
         --image) image="$2"; shift ;;
         --path-extra) export PATH="$PATH:$2"; shift ;;
         --sha) SHA="$2"; shift ;;
+        --owner) OWNER="$2"; shift ;;
+        --repo) REPO="$2"; shift ;;
     esac
     shift
 done
@@ -21,8 +23,13 @@ PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 
 cd $GIT_REPO_TEST
-gh repo set-default shnizzedy/slurm_testing
-gh workflow run "Correlate Regression Test" -F ref=$SHA -F pipeline1="one" -F pipeline2="two"
+gh repo set-default $OWNER/slurm_testing
+if [ $? -ne 0 ]
+then
+  gh workflow run "Test run failed" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F log="$(cat ${home_dir}/logs/${SHA}/error.log)"
+else
+  gh workflow run "Correlate Regression Test" -F ref=$SHA -F pipeline1="one" -F pipeline2="two" -F home=${home_dir} -F repo=$REPO -F owner=$OWNER -F log="$(cat ${home_dir}/logs/${SHA}/output.log)"
+fi
 
 # for pipeline in ${PRECONFIGS}; do
 #     for data in ${DATA_SOURCE}; do
