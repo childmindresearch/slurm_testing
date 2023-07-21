@@ -1,17 +1,18 @@
 #!/usr/bin/bash
 
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --home_dir) home_dir="$2"; shift ;;
+        --image) image="$2"; shift ;;
+        --sha) SHA="$2"; shift ;;
+    esac
+    shift
+done
+
 source ~/.zshrc
 
 gh repo set-default shnizzedy/slurm_testing
-gh workflow run "Correlate Regression Test" -F ref=7fa7093 -F pipeline1="one" -F pipeline2="two"
-
-# while [[ "$#" -gt 0 ]]; do
-#     case $1 in
-#         --home_dir) home_dir="$2"; shift ;;
-#         --image) image="$2"; shift ;;
-#     esac
-#     shift
-# done
+gh workflow run "Correlate Regression Test" -F ref=$SHA -F pipeline1="one" -F pipeline2="two"
 
 # IMAGE_NAME=${image#*:}
 # GIT_REPO=${home_dir}/slurm_testing
