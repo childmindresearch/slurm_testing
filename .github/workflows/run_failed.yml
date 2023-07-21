@@ -37,7 +37,7 @@ jobs:
       - name: Finalize run check
         uses: guibranco/github-status-action-v2@v1.1.7
         with:
-          authToken: ${{ inputs.GITHUB_TOKEN }}
+          authToken: ${{ secrets.GH_PAT }}
           context: Run regression test lite
           description: ${{ inputs.log }}
           owner: ${{ inputs.owner }}
