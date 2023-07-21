@@ -11,17 +11,19 @@ done
 
 source ~/.zshrc
 
+IMAGE_NAME=${image#*:}
+GIT_REPO=${home_dir}/slurm_testing
+GIT_REPO_TEST=${home_dir}/slurm_testing_callback
+DATA=${home_dir}/DATA/reg_5mm_pack
+OUT=${home_dir}/${IMAGE_NAME}
+IMAGE=${IMAGE_NAME}.sif
+PIPELINE_CONFIGS=${DATA}/configs
+PRECONFIGS="default"
+DATA_SOURCE="Site-CBIC Site-SI HNU_1"
+
+cd $GIT_REPO_TEST
 gh repo set-default shnizzedy/slurm_testing
 gh workflow run "Correlate Regression Test" -F ref=$SHA -F pipeline1="one" -F pipeline2="two"
-
-# IMAGE_NAME=${image#*:}
-# GIT_REPO=${home_dir}/slurm_testing
-# DATA=${home_dir}/DATA/reg_5mm_pack
-# OUT=${home_dir}/${IMAGE_NAME}
-# IMAGE=${IMAGE_NAME}.sif
-# PIPELINE_CONFIGS=${DATA}/configs
-# PRECONFIGS="default"
-# DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 
 # for pipeline in ${PRECONFIGS}; do
 #     for data in ${DATA_SOURCE}; do
