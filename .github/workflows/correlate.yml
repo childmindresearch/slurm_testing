@@ -6,7 +6,7 @@ on:
       log:
         description: run log
         type: string
-        required: true
+        required: false
       ref:
         description: 'branch, tag, or SHA'
         type: string
