@@ -28,7 +28,7 @@ if [ $? -ne 0 ]
 then
   gh workflow run "Test run failed" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F log="$(cat ${home_dir}/logs/${SHA}/error.log)"
 else
-  gh workflow run "Correlate Regression Test" -F ref=$SHA -F pipeline1="one" -F pipeline2="two" -F home=${home_dir} -F repo=$REPO -F owner=$OWNER -F log="$(cat ${home_dir}/logs/${SHA}/output.log)"
+  gh workflow run "Correlate Regression Test" -F ref=$SHA -F pipeline1="one" -F pipeline2="two" -F repo=$REPO -F owner=$OWNER -F log="$(cat ${home_dir}/logs/${SHA}/out.log)"
 fi
 
 # for pipeline in ${PRECONFIGS}; do
