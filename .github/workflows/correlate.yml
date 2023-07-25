@@ -3,8 +3,12 @@ name: Correlate Regression Test
 on:
   workflow_dispatch:
     inputs:
-      log:
-        description: run log
+      log_error:
+        description: run log (STDERR)
+        type: string
+        required: false
+      log_output:
+        description: run log (STDOUT)
         type: string
         required: false
       ref:
@@ -46,7 +50,7 @@ jobs:
         with:
           authToken: ${{ secrets.GH_PAT }}
           context: Run regression test lite
-          description: ${{ inputs.log }}
+          description: ${{ inputs.log_output }}\n${{ inputs.log_error }}
           owner: ${{ inputs.owner }}
           repository: ${{ inputs.repo }}
           sha: ${{ inputs.ref }}

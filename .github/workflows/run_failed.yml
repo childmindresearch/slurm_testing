@@ -3,10 +3,14 @@ name: Test run failed
 on:
   workflow_dispatch:
     inputs:
-      log:
-        description: run log
+      log_error:
+        description: run log (STDERR)
         type: string
-        required: true
+        required: false
+      log_output:
+        description: run log (STDOUT)
+        type: string
+        required: false
       ref:
         description: 'branch, tag, or SHA'
         type: string
@@ -39,7 +43,7 @@ jobs:
         with:
           authToken: ${{ secrets.GH_PAT }}
           context: Run regression test lite
-          description: ${{ inputs.log }}
+          description: ${{ inputs.log_error }}\n${{ inputs.log_output }}
           owner: ${{ inputs.owner }}
           repository: ${{ inputs.repo }}
           sha: ${{ inputs.ref }}
