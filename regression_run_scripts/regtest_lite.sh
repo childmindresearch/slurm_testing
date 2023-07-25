@@ -23,6 +23,8 @@ PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 
 cd $GIT_REPO_TEST
+git fetch origin
+git checkout --force origin/regression/after_runs
 
 for PIPELINE in ${PRECONFIGS}; do
     for DATA in ${DATA_SOURCE}; do
