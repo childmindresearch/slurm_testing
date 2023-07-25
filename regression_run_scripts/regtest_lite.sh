@@ -67,7 +67,8 @@ for PIPELINE in ${PRECONFIGS}; do
 #     --n_cpus 10 --mem_gb 40
 TMP
 #         chmod +x reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
-#         sbatch reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
+#         sbatch --job_name=${PIPELINE}-${DATA}-${IMAGE_NAME} reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
+         gh workflow run "Test run initiated" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig=$PIPELINE -F data_source=$DATA
     done
 done
 

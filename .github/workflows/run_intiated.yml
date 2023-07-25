@@ -1,0 +1,52 @@
+name: Test run initiated
+
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: SLURM job
+        type: string
+        required: true
+      ref:
+        description: 'branch, tag, or SHA'
+        type: string
+        required: true
+      owner:
+        description: 'owner on GitHub'
+        type: string
+        required: false
+        default: "FCP-INDI"
+      repo:
+        description: 'repository on GitHub'
+        type: string
+        required: false
+        default: "C-PAC"
+      environment:
+        description: 'Environment in which to run correlations'
+        type: environment
+        required: false
+        default: ACCESS
+      preconfig:
+        type: string
+        required: true
+      data_source:
+        type: string
+        required: true
+
+jobs:
+  correlate:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment}}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3.5.3
+      - name: Initiate run check
+        uses: guibranco/github-status-action-v2@v1.1.7
+        with:
+          authToken: ${{ secrets.GH_PAT }}
+          context: lite run ${{ inputs.preconfig }} ${{ inputs.data_source }}
+          description: ${{ inputs.job }} on ${{ inputs.environment }}
+          owner: ${{ inputs.owner }}
+          repository: ${{ inputs.repo }}
+          sha: ${{ inputs.ref }}
+          state: pending
