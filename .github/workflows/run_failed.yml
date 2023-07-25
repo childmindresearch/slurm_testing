@@ -38,9 +38,10 @@ on:
         required: true
 
 jobs:
-  correlate:
+  failure:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment}}
+    name: Update launch status
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.5.3

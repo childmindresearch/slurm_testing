@@ -37,11 +37,11 @@ on:
           - failure
           - pending
 
-
 jobs:
-  correlate:
+  status_update:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment}}
+    name: Update launch status
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.5.3

@@ -34,9 +34,10 @@ on:
         required: true
 
 jobs:
-  correlate:
+  initiate:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment}}
+    name: Running ${{ inputs.job }} on ${{ inputs.environment }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.5.3
