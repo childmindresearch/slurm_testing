@@ -44,30 +44,30 @@ for PIPELINE in ${PRECONFIGS}; do
 #!/usr/bin/bash
 #SBATCH -N 1
 #SBATCH -p RM-shared
-# #SBATCH -t 10:00:00
-# #SBATCH --ntasks-per-node=11
+#SBATCH -t 10:00:00
+#SBATCH --ntasks-per-node=11
 #SBATCH -o slurm-${PIPELINE}-${DATA}.out
 #SBATCH --error slurm-${PIPELINE}-${DATA}.err
 #SBATCH --wrap "OWNER=$OWNER REPO=$REPO SHA=$SHA HOME_DIR=$HOME_DIR PRECONFIG=$PIPELINE DATA_SOURCE=$DATA ./$GIT_REPO/.github/scripts/status.SLURM"
 
-# SINGULARITY_CACHEDIR=${HOME_DIR}/.singularity/cache \
-# SINGULARITY_LOCALCACHEDIR=${HOME_DIR}/.singularity/tmp \
-# singularity build ${IMAGE} docker://${image}
+SINGULARITY_CACHEDIR=${HOME_DIR}/.singularity/cache \
+SINGULARITY_LOCALCACHEDIR=${HOME_DIR}/.singularity/tmp \
+singularity build ${IMAGE} docker://${image}
 
-# singularity run \
-#     --cleanenv \
-#     -B ${HOME_DIR} \
-#     -B ${datapath}:/data \
-#     -B ${OUTPUT}:/outputs \
-#     -B ${PIPELINE_CONFIGS}:/pipeline_configs \
-#     ${IMAGE} /data /outputs participant \
-#     --save_working_dir --skip_bids_validator \
-#     --pipeline_file /pipeline_configs/${PIPELINE}_lite.yml \
-#     --participant_label ${subject} \
+singularity run \
+    --cleanenv \
+    -B ${HOME_DIR} \
+    -B ${datapath}:/data \
+    -B ${OUTPUT}:/outputs \
+    -B ${PIPELINE_CONFIGS}:/pipeline_configs \
+    ${IMAGE} /data /outputs participant \
+    --save_working_dir --skip_bids_validator \
+    --pipeline_file /pipeline_configs/${PIPELINE}_lite.yml \
+    --participant_label ${subject} \
 #     --n_cpus 10 --mem_gb 40
 TMP
-#         chmod +x reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
-#         sbatch --job_name=${PIPELINE}-${DATA}-${IMAGE_NAME} reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
+        chmod +x reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
+        # sbatch --job_name=${PIPELINE}-${DATA}-${IMAGE_NAME} reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
          gh workflow run "Test run initiated" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig=$PIPELINE -F data_source=$DATA
     done
 done
