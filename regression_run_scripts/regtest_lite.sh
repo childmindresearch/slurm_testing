@@ -30,13 +30,13 @@ for PIPELINE in ${PRECONFIGS}; do
     for DATA in ${DATA_SOURCE}; do
         if [ ${DATA} == 'HNU_1' ]; then
             subject="sub-0025428"
-            datapath=${DATA_DIR}/data/HNU_1
+            DATAPATH=${DATA_DIR}/data/HNU_1
         elif [ ${DATA} == 'Site-CBIC' ]; then
             subject="sub-NDARAB348EWR"
-            datapath=${DATA_DIR}/data/Site-CBIC
+            DATAPATH=${DATA_DIR}/data/Site-CBIC
         elif [ ${DATA} == 'Site-SI' ]; then
             subject="sub-NDARAD481FXF"
-            datapath=${DATA_DIR}/data/Site-SI
+            DATAPATH=${DATA_DIR}/data/Site-SI
         fi
 
         OUTPUT=${OUT}/${PIPELINE}/${DATA}
@@ -59,7 +59,7 @@ singularity build ${IMAGE} docker://${image}
 singularity run \
     --cleanenv \
     -B ${HOME_DIR} \
-    -B ${datapath}:/data \
+    -B ${DATAPATH}:/data \
     -B ${OUTPUT}:/outputs \
     -B ${PIPELINE_CONFIGS}:/pipeline_configs \
     ${IMAGE} /data /outputs participant \

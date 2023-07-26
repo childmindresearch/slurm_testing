@@ -4,10 +4,9 @@
 #SBATCH -p RM-shared
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=4
-#SBATCH --wrap="bash reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh"
 
 gh repo set-default $OWNER/slurm_testing
-
+sbatch --wait --export="PATH=$PATH" reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
 # Update run check on GitHub Actions and correlate if run succeeded
 if [ $? -eq 0 ]; then
     gh workflow run "Correlate Regression Test" -F ref=$SHA -F pipeline1="one" -F pipeline2="two" -F repo=$REPO -F owner=$OWNER -F log_output="$(cat slurm-${PIPELINE}-${DATA}.out)" -F log_error="$(cat slurm-${PIPELINE}-${DATA}.err)" -F preconfig=$PIPELINE -F data_source=$DATA
