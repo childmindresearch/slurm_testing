@@ -69,7 +69,7 @@ singularity run \
 #     --n_cpus 10 --mem_gb 40
 TMP
         chmod +x "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh"
-        sbatch .github/scripts/run_regtest_lite.SLURM
+        sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,PIPELINE=$PIPELINE,DATA=$DATA" .github/scripts/run_regtest_lite.SLURM
         gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA"
     done
 done
