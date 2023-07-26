@@ -12,8 +12,8 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 IMAGE_NAME=${IMAGE#*:}
-GIT_REPO=${HOME_DIR}/slurm_testing
-GIT_REPO_TEST=${HOME_DIR}/slurm_testing_callback
+# GIT_REPO=${HOME_DIR}/slurm_testing
+GIT_REPO=${HOME_DIR}/slurm_testing_callback
 DATA_DIR=${HOME_DIR}/DATA/reg_5mm_pack
 OUT=${HOME_DIR}/${IMAGE_NAME}
 IMAGE=${IMAGE_NAME}.sif
@@ -21,7 +21,7 @@ PIPELINE_CONFIGS=${DATA_DIR}/configs
 PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 
-cd $GIT_REPO_TEST
+cd $GIT_REPO
 gh repo set-default $OWNER/slurm_testing
 git fetch origin
 git checkout --force origin/regression/after_runs
