@@ -4,7 +4,7 @@
 #SBATCH -p RM-shared
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=4
-#SBATCH --wrap "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh"
+#SBATCH --wrap="reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh"
 
 gh repo set-default $OWNER/slurm_testing
 
