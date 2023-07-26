@@ -1,4 +1,5 @@
 name: Test run failed
+run-name: ${{ inputs.preconfig }} ${{ inputs.data_source }} run failed on ${{ inputs.environment }}
 
 on:
   workflow_dispatch:

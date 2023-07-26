@@ -3,7 +3,7 @@
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --home_dir) HOME_DIR="$2"; shift ;;
-        --image) image="$2"; shift ;;
+        --image) IMAGE="$2"; shift ;;
         --path-extra) export PATH="$PATH:$2"; shift ;;
         --sha) SHA="$2"; shift ;;
         --owner) OWNER="$2"; shift ;;
@@ -12,7 +12,8 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-IMAGE_NAME=${image#*:}
+PATH=$PATH:$PATH_EXTRA
+IMAGE_NAME=${IMAGE#*:}
 GIT_REPO=${HOME_DIR}/slurm_testing
 GIT_REPO_TEST=${HOME_DIR}/slurm_testing_callback
 DATA_DIR=${HOME_DIR}/DATA/reg_5mm_pack
@@ -50,7 +51,7 @@ for PIPELINE in ${PRECONFIGS}; do
 #SBATCH --ntasks-per-node=11
 #SBATCH -o slurm-${PIPELINE}-${DATA}.out
 #SBATCH --error slurm-${PIPELINE}-${DATA}.err
-#SBATCH --wrap "OWNER=$OWNER REPO=$REPO SHA=$SHA HOME_DIR=$HOME_DIR PRECONFIG=$PIPELINE DATA_SOURCE=$DATA ./$GIT_REPO_TEST/.github/scripts/status.SLURM"
+#SBATCH --job_name=${PIPELINE}-${DATA}-${IMAGE_NAME}-reglite
 
 SINGULARITY_CACHEDIR=${HOME_DIR}/.singularity/cache \
 SINGULARITY_LOCALCACHEDIR=${HOME_DIR}/.singularity/tmp \
@@ -68,9 +69,9 @@ singularity run \
     --participant_label ${subject} \
 #     --n_cpus 10 --mem_gb 40
 TMP
-        chmod +x reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
-        # sbatch --job_name=${PIPELINE}-${DATA}-${IMAGE_NAME} reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
-         gh workflow run "Test run initiated" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig=$PIPELINE -F data_source=$DATA
+        chmod +x "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh"
+        sbatch .github/scripts/launch_regtest_lite.SLURM
+        gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA"
     done
 done
 
