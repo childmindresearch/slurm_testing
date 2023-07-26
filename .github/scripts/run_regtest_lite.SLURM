@@ -6,6 +6,7 @@
 #SBATCH --ntasks-per-node=4
 
 gh repo set-default $OWNER/slurm_testing
+printenv
 sbatch --wait --export="PATH=$PATH" reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
 # Update run check on GitHub Actions and correlate if run succeeded
 if [ $? -eq 0 ]; then
