@@ -4,7 +4,6 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         --home_dir) HOME_DIR="$2"; shift ;;
         --image) IMAGE="$2"; shift ;;
-        --path-extra) export PATH="$PATH:$2"; shift ;;
         --sha) SHA="$2"; shift ;;
         --owner) OWNER="$2"; shift ;;
         --repo) REPO="$2"; shift ;;
@@ -12,7 +11,6 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-PATH=$PATH:$PATH_EXTRA
 IMAGE_NAME=${IMAGE#*:}
 GIT_REPO=${HOME_DIR}/slurm_testing
 GIT_REPO_TEST=${HOME_DIR}/slurm_testing_callback

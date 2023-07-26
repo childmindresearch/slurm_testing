@@ -6,6 +6,7 @@
 #SBATCH --ntasks-per-node=4
 #SBATCH --wrap "$GIT_REPO_TEST/regression_run_scripts/regtest_lite.sh"
 
+PATH=$PATH:$PATH_EXTRA
 gh repo set-default $OWNER/slurm_testing
 
 # Update run check on GitHub Actions
