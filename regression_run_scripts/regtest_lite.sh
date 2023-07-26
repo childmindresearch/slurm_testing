@@ -10,7 +10,7 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
-
+printenv
 IMAGE_NAME=${IMAGE#*:}
 # GIT_REPO=${HOME_DIR}/slurm_testing
 GIT_REPO=${HOME_DIR}/slurm_testing_callback
