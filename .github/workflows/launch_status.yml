@@ -45,15 +45,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.5.3
+      - name: Load logs
+        run: |
+          printf ${{ inputs.log_output }} > out.log
+          printf ${{ inputs.log_error }} > err.log
+      - name: Store logs
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: launch-logs
+          path: "*.log"
+      - name: Get link to download logs
+        run: |
+          echo LOG_URL="$(curl -s https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts | jq '[.artifacts[] | {name : .name, archive_download_url : .archive_download_url}]' | jq -r '.[] | select (.name == "launch-logs") | .archive_download_url')" >> "$GITHUB_ENV"
       - name: Finalize run check
         uses: guibranco/github-status-action-v2@v1.1.7
         with:
           authToken: ${{ secrets.GH_PAT }}
           context: Run regression test lite
-          description: |
-            ${{ inputs.log_error }}
-            ${{ inputs.log_output }}
           owner: ${{ inputs.owner }}
           repository: ${{ inputs.repo }}
           sha: ${{ inputs.ref }}
           state: ${{ inputs.status }}
+          target_url: ${{ env.LOG_URL }}
