@@ -56,7 +56,10 @@ jobs:
         with:
           authToken: ${{ secrets.GH_PAT }}
           context: lite run ${{ inputs.preconfig }} ${{ inputs.data_source }}
-          description: ${{ inputs.log_output }}\n${{ inputs.log_error }}
+          description: |
+            Run succeeded
+            ${{ inputs.log_output }}
+            ${{ inputs.log_error }}
           owner: ${{ inputs.owner }}
           repository: ${{ inputs.repo }}
           sha: ${{ inputs.ref }}

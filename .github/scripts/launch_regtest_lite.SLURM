@@ -17,4 +17,4 @@ else
     gh workflow run "Run launch status update" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F status="failure" -F log_error="$(cat ${HOME_DIR}/logs/${SHA}/error.log)" -F log_output="$(cat ${HOME_DIR}/logs/${SHA}/out.log)"
 fi
 # Delete local logs after pushing them to GitHub
-# rm -rf ${HOME_DIR}/logs/${SHA}
+rm -rf ${HOME_DIR}/logs/${SHA}

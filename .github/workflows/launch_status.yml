@@ -50,7 +50,9 @@ jobs:
         with:
           authToken: ${{ secrets.GH_PAT }}
           context: Run regression test lite
-          description: ${{ inputs.log_error }}\n${{ inputs.log_output }}
+          description: |
+            ${{ inputs.log_error }}
+            ${{ inputs.log_output }}
           owner: ${{ inputs.owner }}
           repository: ${{ inputs.repo }}
           sha: ${{ inputs.ref }}

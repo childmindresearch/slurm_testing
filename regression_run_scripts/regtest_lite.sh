@@ -76,3 +76,4 @@ done
 
 rm reglite_${IMAGE_NAME}_*.sh
 # rm ${IMAGE}
+echo "Successfully launched reglite_${IMAGE_NAME}"
