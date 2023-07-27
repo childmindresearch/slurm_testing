@@ -63,4 +63,4 @@ jobs:
           repository: ${{ inputs.repo }}
           sha: ${{ inputs.ref }}
           state: ${{ inputs.status }}
-          target_url: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${{ github.run_id }}#artifacts
+          target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts
