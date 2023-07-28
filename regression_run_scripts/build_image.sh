@@ -9,7 +9,10 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 image_name=${image#*:}
-
+for _DIR in cache tmp
+do
+  mkdir -p ${working_dir}/.singularity/${_DIR}
+done
 cat << TMP > job.sh
 #!/usr/bin/bash
 #SBATCH -N 1
@@ -25,7 +28,8 @@ singularity build ${image_name}.sif docker://${image}
 TMP
 
 chmod +x job.sh
-sbatch job.sh
+sbatch --wait job.sh
+EXIT_CODE=$?
 rm job.sh
 
 while : ; do
@@ -36,5 +40,6 @@ done
 
 if [ -f build_image.out ]; then
     tail -f build_image.out
-    exit 0
 fi
+
+exit $EXIT_CODE
