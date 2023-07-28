@@ -11,16 +11,19 @@ gh repo set-default $OWNER/slurm_testing
 
 #
 LAUNCH_SUCCESS=true
-sbatch --wait --export="PATH=$PATH" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" ${HOME_DIR}/slurm_testing_callback/regression_run_scripts/build_image.sh --working_dir=$HOME_DIR --image=$IMAGE
+sbatch --wait --export="PATH=$PATH,working_dir=$HOME_DIR,image=$IMAGE" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" ${HOME_DIR}/slurm_testing_callback/regression_run_scripts/build_image.sh
 if [ $? -ne 0 ]
 then
   LAUNCH_SUCCESS=false
+else
+  # only launch if build succeeded
+  sbatch --wait --export="PATH=$PATH,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,SHA=$SHA,OWNER=$OWNER,REPO=$REPO" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" ${HOME_DIR}/slurm_testing_callback/regression_run_scripts/regtest_lite.sh
+  if [ $? -ne 0 ]
+  then
+    LAUNCH_SUCCESS=false
+  fi
 fi
-sbatch --wait --export="PATH=$PATH,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,SHA=$SHA,OWNER=$OWNER,REPO=$REPO" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" ${HOME_DIR}/slurm_testing_callback/regression_run_scripts/regtest_lite.sh
-if [ $? -ne 0 ]
-then
-  LAUNCH_SUCCESS=false
-fi
+
 # Update run check on GitHub Actions
 if [ "$LAUNCH_SUCCESS" = true ]
 then
