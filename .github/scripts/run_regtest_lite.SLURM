@@ -6,7 +6,6 @@
 #SBATCH --ntasks-per-node=4
 
 gh repo set-default $OWNER/slurm_testing
-printenv
 sbatch --wait --export="PATH=$PATH" reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
 # Update run check on GitHub Actions and correlate if run succeeded
 if [ $? -eq 0 ]; then
@@ -14,5 +13,7 @@ if [ $? -eq 0 ]; then
 else
     gh workflow run "Test run failed" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F log_output="$(cat slurm-${PIPELINE}-${DATA}.out)" -F log_error="$(cat slurm-${PIPELINE}-${DATA}.err)" -F preconfig=$PIPELINE -F data_source=$DATA
 fi
+# Delete run-specific image
+rm ${PIPELINE}-${DATA}-${IMAGE}
 # Delete local logs after pushing them to GitHub
 rm -rf slurm-${PIPELINE}-${DATA}.*

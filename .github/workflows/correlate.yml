@@ -51,19 +51,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.5.3
+      - name: Load logs
+        run: |
+          printf "${{ inputs.log_output }}" > "SLURM-${{ inputs.preconfig }}-${{ inputs.data_source }}.out"
+          printf "${{ inputs.log_error }}" > "SLURM-${{ inputs.preconfig }}-${{ inputs.data_source }}.err"
+      - name: Store run logs
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: lite-run-${{ inputs.preconfig }}-${{ inputs.data_source }}-logs
+          path: "SLURM-${{ inputs.preconfig }}-${{ inputs.data_source }}.*"
       - name: Finalize run check
         uses: guibranco/github-status-action-v2@v1.1.7
         with:
           authToken: ${{ secrets.GH_PAT }}
           context: lite run ${{ inputs.preconfig }} ${{ inputs.data_source }}
-          description: |
-            Run succeeded
-            ${{ inputs.log_output }}
-            ${{ inputs.log_error }}
           owner: ${{ inputs.owner }}
           repository: ${{ inputs.repo }}
           sha: ${{ inputs.ref }}
           state: success
+          target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts
       - name: Correlating
         run: |
           echo "Correlating lite regression runs"

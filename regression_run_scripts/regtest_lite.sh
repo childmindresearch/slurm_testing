@@ -10,7 +10,7 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
-printenv
+
 IMAGE_NAME=${IMAGE#*:}
 # GIT_REPO=${HOME_DIR}/slurm_testing
 GIT_REPO=${HOME_DIR}/slurm_testing_callback
@@ -62,18 +62,22 @@ singularity run \
     -B ${DATAPATH}:/data \
     -B ${OUTPUT}:/outputs \
     -B ${PIPELINE_CONFIGS}:/pipeline_configs \
-    ${IMAGE} /data /outputs participant \
+    ${PIPELINE}-${DATA}-${IMAGE} /data /outputs participant \
     --save_working_dir --skip_bids_validator \
     --pipeline_file /pipeline_configs/${PIPELINE}_lite.yml \
     --participant_label ${subject} \
 #     --n_cpus 10 --mem_gb 40
 TMP
         chmod +x "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh"
+        # Create a hardlink for each run
+        # so we can delete them as we go
+        # and the last one done deletes the image
+        cp -l ${IMAGE} ${PIPELINE}-${DATA}-${IMAGE}
         sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,PIPELINE=$PIPELINE,DATA=$DATA" .github/scripts/run_regtest_lite.SLURM
         gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA"
     done
 done
 
-rm reglite_${IMAGE_NAME}_*.sh
-# rm ${IMAGE}
+# Remove original (non-run-specific) image hardlink & launched runscript
+rm ${IMAGE} reglite_${IMAGE_NAME}_*.sh
 echo "Successfully launched reglite_${IMAGE_NAME}"

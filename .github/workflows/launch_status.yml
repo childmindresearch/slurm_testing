@@ -49,7 +49,7 @@ jobs:
         run: |
           printf "${{ inputs.log_output }}" > "out.log"
           printf "${{ inputs.log_error }}" > "err.log"
-      - name: Store logs
+      - name: Store launch logs
         uses: actions/upload-artifact@v3.1.2
         with:
           name: launch-logs
