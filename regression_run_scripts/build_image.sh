@@ -19,11 +19,11 @@ cat << TMP > job.sh
 #SBATCH -p RM-shared
 #SBATCH -t 1:00:00
 #SBATCH --ntasks-per-node=20
-#SBATCH -o build_image.out
+#SBATCH -o ${working_dir}/build_${image_name}.out
 
 SINGULARITY_CACHEDIR=${working_dir}/.singularity/cache \
 SINGULARITY_LOCALCACHEDIR=${working_dir}/.singularity/tmp \
-singularity build ${image_name}.sif docker://${image}
+singularity build ${working_dir}/${image_name}.sif docker://${image}
 
 TMP
 
@@ -33,13 +33,13 @@ EXIT_CODE=$?
 rm job.sh
 
 while : ; do
-    [[ -f build_image.out ]] && break
+    [[ -f "${working_dir}/build_${image_name}.out" ]] && break
     echo "Pausing until file exists."
     sleep 1
 done
 
-if [ -f build_image.out ]; then
-    tail -f build_image.out
+if [ -f "${working_dir}/build_${image_name}.out" ]; then
+    tail -f "${working_dir}/build_${image_name}.out
 fi
 
 exit $EXIT_CODE
