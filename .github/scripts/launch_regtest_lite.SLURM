@@ -6,8 +6,9 @@
 #SBATCH --ntasks-per-node=4
 
 PATH=$PATH:$PATH_EXTRA
+GH_AVAILABLE=true
 cd ${HOME_DIR}/slurm_testing_callback
-gh repo set-default $OWNER/slurm_testing
+gh repo set-default $OWNER/slurm_testing || GH_AVAILABLE=false
 
 BUILD_SLURM_JOB=$(sbatch --export="PATH=$PATH,working_dir=$HOME_DIR,image=$IMAGE" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" ${HOME_DIR}/slurm_testing_callback/regression_run_scripts/build_image.sh | awk '{print $4}')
 
@@ -15,8 +16,13 @@ BUILD_SLURM_JOB=$(sbatch --export="PATH=$PATH,working_dir=$HOME_DIR,image=$IMAGE
 LAUNCH_SLURM_JOB=$(sbatch --dependency=afterok:$BUILD_SLURM_JOB --export="PATH=$PATH,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,SHA=$SHA,OWNER=$OWNER,REPO=$REPO" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" ${HOME_DIR}/slurm_testing_callback/regression_run_scripts/regtest_lite.sh | awk '{print $4}')
 
 # Update run check on GitHub Actions
-sbatch --dependency=afterok:$LAUNCH_SLURM_JOB --wrap='gh workflow run "Run launch status update" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F status="success" -F log_output="$(cat ${HOME_DIR}/logs/${SHA}/out.log)" -F log_error="$(cat ${HOME_DIR}/logs/${SHA}/error.log)"'
-sbatch --dependency=afternotok:$BUILD_SLURM_JOB?afternotok:$LAUNCH_SLURM_JOB 'gh workflow run "Run launch status update" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F status="failure" -F log_error="$(cat ${HOME_DIR}/logs/${SHA}/error.log)" -F log_output="$(cat ${HOME_DIR}/logs/${SHA}/out.log)"'
-
-# Delete local logs after pushing them to GitHub
-rm -rf ${HOME_DIR}/logs/${SHA}
+if [ "$GH_AVAILABLE" = true]
+then
+  LAUNCH_SUCCESS_JOB=$(sbatch --dependency=afterok:$LAUNCH_SLURM_JOB --wrap='gh workflow run "Run launch status update" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F status="success" -F log_output="$(cat ${HOME_DIR}/logs/${SHA}/out.log)" -F log_error="$(cat ${HOME_DIR}/logs/${SHA}/error.log)"' | awk '{print $4}')
+  LAUNCH_FAILURE_JOB=$(sbatch --dependency=afternotok:$BUILD_SLURM_JOB?afternotok:$LAUNCH_SLURM_JOB --wrap='gh workflow run "Run launch status update" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F status="failure" -F log_error="$(cat ${HOME_DIR}/logs/${SHA}/error.log)" -F log_output="$(cat ${HOME_DIR}/logs/${SHA}/out.log)"' | awk '{print $4}')
+  # Delete local logs after pushing them to GitHub
+  sbtach --dependency=afterany:$LAUNCH_SUCCESS_JOB?afterany:$LAUNCH_FAILURE_JOB --wrap'rm -rf "${HOME_DIR}/logs/${SHA}"'
+else
+  sbatch --dependency=afterok:$LAUNCH_SLURM_JOB --wrap='echo "launch succeeded" >> ${HOME_DIR}/logs/${SHA}/out.log)'
+  sbatch --dependency=afternotok:$BUILD_SLURM_JOB?afternotok:$LAUNCH_SLURM_JOB --wrap='echo "launch failed" >> ${HOME_DIR}/logs/${SHA}/error.log)'
+fi
