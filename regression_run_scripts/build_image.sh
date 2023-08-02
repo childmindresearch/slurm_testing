@@ -23,7 +23,7 @@ cat << TMP > job.sh
 
 SINGULARITY_CACHEDIR=${working_dir}/.singularity/cache \
 SINGULARITY_LOCALCACHEDIR=${working_dir}/.singularity/tmp \
-singularity build ${working_dir}/${image_name}.sif docker://${image}
+yes | singularity build ${working_dir}/${image_name}.sif docker://${image}
 
 TMP
 
