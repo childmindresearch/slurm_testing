@@ -31,15 +31,4 @@ chmod +x job.sh
 sbatch --wait job.sh
 EXIT_CODE=$?
 rm job.sh
-
-while : ; do
-    [[ -f "${working_dir}/build_${image_name}.out" ]] && break
-    echo "Pausing until file exists."
-    sleep 1
-done
-
-if [ -f "${working_dir}/build_${image_name}.out" ]; then
-    tail -f "${working_dir}/build_${image_name}.out"
-fi
-
 exit $EXIT_CODE
