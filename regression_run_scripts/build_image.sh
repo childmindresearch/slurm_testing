@@ -39,7 +39,7 @@ while : ; do
 done
 
 if [ -f "${working_dir}/build_${image_name}.out" ]; then
-    tail -f "${working_dir}/build_${image_name}.out
+    tail -f "${working_dir}/build_${image_name}.out"
 fi
 
 exit $EXIT_CODE

@@ -5,15 +5,20 @@
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=4
 
-gh repo set-default $OWNER/slurm_testing
-sbatch --wait --export="PATH=$PATH" reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh
+gh repo set-default "$OWNER/slurm_testing" || GH_AVAILABLE=false
+REGLITE_JOB=$(sbatch --export="PATH=$PATH" "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh" | awk '{print $4}')
+
 # Update run check on GitHub Actions and correlate if run succeeded
-if [ $? -eq 0 ]; then
-    gh workflow run "Correlate Regression Test" -F ref=$SHA -F pipeline1="one" -F pipeline2="two" -F repo=$REPO -F owner=$OWNER -F log_output="$(cat slurm-${PIPELINE}-${DATA}.out)" -F log_error="$(cat slurm-${PIPELINE}-${DATA}.err)" -F preconfig=$PIPELINE -F data_source=$DATA
+if [ "$GH_AVAILABLE" = true ]
+then
+  REGLITE_SUCCESS_JOB=$(sbatch --dependency=afterok:"$REGLITE_JOB" --wrap="gh workflow run 'Correlate Regression Test' -F ref=\"$SHA\" -F pipeline1='one' -F pipeline2='two' -F repo=\"$REPO\" -F owner=\"$OWNER\" -F log_output=\"$(cat \"slurm-${PIPELINE}-${DATA}.out\")\" -F log_error=\"$(cat \"slurm-${PIPELINE}-${DATA}.err\")\" -F preconfig=\"$PIPELINE\" -F data_source=\"$DATA\"" | awk '{print $4}')
+  REGLITE_FAILURE_JOB=$(sbatch --dependency=afternotok:"$REGLITE_JOB" --wrap="gh workflow run 'Test run failed' -F ref=\"$SHA\" -F repo=\"$REPO\" -F owner=\"$OWNER\" -F log_output=\"$(cat \"slurm-${PIPELINE}-${DATA}.out\")\" -F log_error=\"$(cat \"slurm-${PIPELINE}-${DATA}.err\")\" -F preconfig=\"$PIPELINE\" -F data_source=\"$DATA\"" | awk '{print $4}')
+  # Delete local logs after pushing them to GitHub
+  sbatch --dependency=afterany:"$REGLITE_SUCCESS_JOB"?afterany:"$REGLITE_FAILURE_JOB" --wrap="rm -rf \"slurm-${PIPELINE}-${DATA}.*\""
 else
-    gh workflow run "Test run failed" -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F log_output="$(cat slurm-${PIPELINE}-${DATA}.out)" -F log_error="$(cat slurm-${PIPELINE}-${DATA}.err)" -F preconfig=$PIPELINE -F data_source=$DATA
+  # Launch correlation without GH Actions
+  echo "Automatic correlation not yet enabled without GitHub Actions CLI"
+  # TODO if anyone wants it (https://en.wikipedia.org/wiki/YAGNI)
 fi
 # Delete run-specific image
-rm ${PIPELINE}-${DATA}-${IMAGE}
-# Delete local logs after pushing them to GitHub
-rm -rf slurm-${PIPELINE}-${DATA}.*
+sbatch --dependency=afterany:"$REGLITE_JOB" --wrap="rm \"${PIPELINE}-${DATA}-${IMAGE}\""
