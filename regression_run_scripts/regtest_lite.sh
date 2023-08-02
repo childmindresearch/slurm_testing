@@ -79,5 +79,5 @@ TMP
 done
 
 # Remove original (non-run-specific) image hardlink & launched runscript
-rm ${IMAGE} reglite_${IMAGE_NAME}_*.sh
+# rm ${IMAGE} reglite_${IMAGE_NAME}_*.sh
 echo "Successfully launched reglite_${IMAGE_NAME}"
