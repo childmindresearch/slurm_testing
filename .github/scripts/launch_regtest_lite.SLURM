@@ -18,11 +18,11 @@ LAUNCH_SLURM_JOB=$(sbatch --dependency=afterok:"$BUILD_SLURM_JOB" --export="PATH
 # Update run check on GitHub Actions
 if [ "$GH_AVAILABLE" = true ]
 then
-  LAUNCH_SUCCESS_JOB=$(sbatch --dependency=afterok:"$LAUNCH_SLURM_JOB" --wrap="gh workflow run 'Run launch status update' -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F status='success' -F log_output=\"$(cat \"${HOME_DIR}/logs/${SHA}/out.log\")\" -F log_error=\"$(cat \"${HOME_DIR}/logs/${SHA}/error.log\")\"" | awk '{print $4}')
-  LAUNCH_FAILURE_JOB=$(sbatch --dependency=afternotok:"$BUILD_SLURM_JOB"?afternotok:"$LAUNCH_SLURM_JOB" --wrap="gh workflow run 'Run launch status update' -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F status='failure' -F log_error=\"$(cat \"${HOME_DIR}/logs/${SHA}/error.log\")\" -F log_output=\"$(cat \"${HOME_DIR}/logs/${SHA}/out.log\")\"" | awk '{print $4}')
+  LAUNCH_SUCCESS_JOB=$(sbatch --dependency=afterok:"$LAUNCH_SLURM_JOB" -J 'launch_success' --wrap="gh workflow run 'Run launch status update' -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F status='success' -F log_output=\"$(cat \"${HOME_DIR}/logs/${SHA}/out.log\")\" -F log_error=\"$(cat \"${HOME_DIR}/logs/${SHA}/error.log\")\"" | awk '{print $4}')
+  LAUNCH_FAILURE_JOB=$(sbatch --dependency=afternotok:"$BUILD_SLURM_JOB"?afternotok:"$LAUNCH_SLURM_JOB" -J 'launch_failure' --wrap="gh workflow run 'Run launch status update' -F ref=$SHA -F repo=$REPO -F owner=$OWNER -F status='failure' -F log_error=\"$(cat \"${HOME_DIR}/logs/${SHA}/error.log\")\" -F log_output=\"$(cat \"${HOME_DIR}/logs/${SHA}/out.log\")\"" | awk '{print $4}')
   # Delete local logs after pushing them to GitHub
-  sbtach --dependency=afterany:"$LAUNCH_SUCCESS_JOB"?afterany:"$LAUNCH_FAILURE_JOB" --wrap="rm -rf \"${HOME_DIR}/logs/${SHA}\""
+  sbtach --dependency=afterany:"$LAUNCH_SUCCESS_JOB"?afterany:"$LAUNCH_FAILURE_JOB" -J 'delete_logs' --wrap="rm -rf \"${HOME_DIR}/logs/${SHA}\""
 else
-  sbatch --dependency=afterok:"$LAUNCH_SLURM_JOB" --wrap="echo 'launch succeeded' >> \"${HOME_DIR}/logs/${SHA}/out.log\")"
-  sbatch --dependency=afternotok:"$BUILD_SLURM_JOB"?afternotok:"$LAUNCH_SLURM_JOB" --wrap="echo 'launch failed' >> \"${HOME_DIR}/logs/${SHA}/error.log\")"
+  sbatch --dependency=afterok:"$LAUNCH_SLURM_JOB" -J 'launch_success' --wrap="echo 'launch succeeded' >> \"${HOME_DIR}/logs/${SHA}/out.log\")"
+  sbatch --dependency=afternotok:"$BUILD_SLURM_JOB"?afternotok:"$LAUNCH_SLURM_JOB" -J 'launch_failure' --wrap="echo 'launch failed' >> \"${HOME_DIR}/logs/${SHA}/error.log\")"
 fi
