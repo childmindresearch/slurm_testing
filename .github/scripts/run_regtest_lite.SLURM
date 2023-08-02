@@ -21,4 +21,4 @@ else
   # TODO if anyone wants it (https://en.wikipedia.org/wiki/YAGNI)
 fi
 # Delete run-specific image
-sbatch --dependency=afterany:"$REGLITE_JOB" -J 'delete_image' --wrap="rm \"${PIPELINE}-${DATA}-${IMAGE}\""
+sbatch --dependency=afterany:"$REGLITE_JOB" -J 'delete_image' --wrap="rm \"${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}\""

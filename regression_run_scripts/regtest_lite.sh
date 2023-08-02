@@ -11,13 +11,13 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-IMAGE_NAME=${IMAGE#*:}
+IMAGE_NAME="${IMAGE#*:}"
 # GIT_REPO=${HOME_DIR}/slurm_testing
-GIT_REPO=${HOME_DIR}/slurm_testing_callback
-DATA_DIR=${HOME_DIR}/DATA/reg_5mm_pack
-OUT=${HOME_DIR}/${IMAGE_NAME}
-IMAGE=${IMAGE_NAME}.sif
-PIPELINE_CONFIGS=${DATA_DIR}/configs
+GIT_REPO="${HOME_DIR}/slurm_testing_callback"
+DATA_DIR="${HOME_DIR}/DATA/reg_5mm_pack"
+OUT="${HOME_DIR}/${IMAGE_NAME}"
+IMAGE="${IMAGE_NAME}.sif"
+PIPELINE_CONFIGS="${DATA_DIR}/configs"
 PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 
@@ -54,7 +54,7 @@ for PIPELINE in ${PRECONFIGS}; do
 
 SINGULARITY_CACHEDIR=${HOME_DIR}/.singularity/cache \
 SINGULARITY_LOCALCACHEDIR=${HOME_DIR}/.singularity/tmp \
-singularity build ${IMAGE} docker://${image}
+singularity build "${HOME_DIR}/${IMAGE}" docker://${image}
 
 singularity run \
     --cleanenv \
@@ -62,7 +62,7 @@ singularity run \
     -B ${DATAPATH}:/data \
     -B ${OUTPUT}:/outputs \
     -B ${PIPELINE_CONFIGS}:/pipeline_configs \
-    ${PIPELINE}-${DATA}-${IMAGE} /data /outputs participant \
+    ${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE} /data /outputs participant \
     --save_working_dir --skip_bids_validator \
     --pipeline_file /pipeline_configs/${PIPELINE}_lite.yml \
     --participant_label ${subject} \
@@ -72,7 +72,7 @@ TMP
         # Create a hardlink for each run
         # so we can delete them as we go
         # and the last one done deletes the image
-        cp -l ${IMAGE} ${PIPELINE}-${DATA}-${IMAGE}
+        cp -l "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}"
         sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,PIPELINE=$PIPELINE,DATA=$DATA" .github/scripts/run_regtest_lite.SLURM
         gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA"
     done
