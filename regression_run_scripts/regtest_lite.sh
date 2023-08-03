@@ -73,7 +73,7 @@ TMP
         # so we can delete them as we go
         # and the last one done deletes the image
         cp -l "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}"
-        sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,PIPELINE=$PIPELINE,DATA=$DATA,PATH=$PATH" .github/scripts/run_regtest_lite.SLURM
+        sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,IMAGE_NAME=$IMAGE_NAME,PIPELINE=$PIPELINE,DATA=$DATA,PATH=$PATH" .github/scripts/run_regtest_lite.SLURM
         gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA"
     done
 done
