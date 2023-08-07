@@ -48,8 +48,8 @@ for PIPELINE in ${PRECONFIGS}; do
 #SBATCH -p RM-shared
 #SBATCH -t 10:00:00
 #SBATCH --ntasks-per-node=11
-#SBATCH -o slurm-${PIPELINE}-${DATA}.out
-#SBATCH --error slurm-${PIPELINE}-${DATA}.err
+#SBATCH -o ${HOME_DIR}/slurm-${PIPELINE}-${DATA}.out
+#SBATCH --error ${HOME_DIR}/slurm-${PIPELINE}-${DATA}.err
 #SBATCH -J ${PIPELINE}-${DATA}-${IMAGE_NAME}-reglite
 
 export SINGULARITY_CACHEDIR=${HOME_DIR}/.singularity/cache \
@@ -73,7 +73,7 @@ TMP
         # and the last one done deletes the image
         cp -l "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}"
         REGTEST_JOB=$(sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,IMAGE_NAME=$IMAGE_NAME,PIPELINE=$PIPELINE,DATA=$DATA,PATH=$PATH" --output="${HOME_DIR}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.out" --error="${HOME_DIR}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.err" .github/scripts/run_regtest_lite.SLURM | awk '{print $4}')
-        gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Test run ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"
+        gh workflow run "Test run initiated" --output=/dev/null --error=/dev/null -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Test run ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"
         sbatch --dependency=afternotok:"$REGTEST_JOB" --export="PATH=$PATH" --output="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err" --error="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err"--wrap="gh workflow run \"Test run failed\" -F log_error=$(cat \"${HOME_DIR}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.err\") -F log_output=$(cat \"${HOME_DIR}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.out\") -F ref=\"$SHA\" -F owner=\"$OWNER\" -F repo=\"$REPO\" -F preconfig=\"$PIPELINE\" -F data_source=\"$DATA\"" || echo "Test run failed"
     done
 done
