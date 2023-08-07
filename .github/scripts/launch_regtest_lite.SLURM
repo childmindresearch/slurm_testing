@@ -13,7 +13,7 @@ gh repo set-default "$OWNER/slurm_testing" || GH_AVAILABLE=false
 BUILD_SLURM_JOB=$(sbatch --export="PATH=$PATH,working_dir=$HOME_DIR,image=$IMAGE" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" "${HOME_DIR}/slurm_testing_callback/regression_run_scripts/build_image.sh" | awk '{print $4}')
 
 # only launch if build succeeded
-LAUNCH_SLURM_JOB=$(sbatch --dependency=afterok:"$BUILD_SLURM_JOB" --export="PATH=$PATH,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,SHA=$SHA,OWNER=$OWNER,REPO=$REPO" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" "${HOME_DIR}/slurm_testing_callback/regression_run_scripts/regtest_lite.sh" | awk '{print $4}')
+LAUNCH_SLURM_JOB=$(sbatch --dependency=afterok:"$BUILD_SLURM_JOB" --export="PATH=$PATH,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,SHA=$SHA,OWNER=$OWNER,REPO=$REPO,GH_AVAILABLE=$GH_AVAILABLE" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" "${HOME_DIR}/slurm_testing_callback/regression_run_scripts/regtest_lite.sh" | awk '{print $4}')
 
 # Update run check on GitHub Actions
 if [ "$GH_AVAILABLE" = true ]
@@ -23,6 +23,6 @@ then
   # Delete local logs after pushing them to GitHub
   # sbtach --dependency=afterany:"$LAUNCH_SUCCESS_JOB"?afterany:"$LAUNCH_FAILURE_JOB" -J 'delete_logs' --wrap="rm -rf \"${HOME_DIR}/logs/${SHA}\""
 else
-  sbatch --dependency=afterok:"$LAUNCH_SLURM_JOB" --output=/dev/null --error=/dev/null -J 'launch_success' --wrap="echo 'launch succeeded' >> \"${HOME_DIR}/logs/${SHA}/out.log\")"
-  sbatch --dependency=afternotok:"$BUILD_SLURM_JOB"?afternotok:"$LAUNCH_SLURM_JOB" --output=/dev/null --error=/dev/null -J 'launch_failure' --wrap="echo 'launch failed' >> \"${HOME_DIR}/logs/${SHA}/error.log\")"
+  sbatch --dependency=afterok:"$LAUNCH_SLURM_JOB" --output="${HOME_DIR}/logs/${SHA}/out.log" --error=/dev/null -J 'launch_success' --wrap="echo 'launch succeeded')"
+  sbatch --dependency=afternotok:"$BUILD_SLURM_JOB"?afternotok:"$LAUNCH_SLURM_JOB" --output=/dev/null --error="${HOME_DIR}/logs/${SHA}/error.log" -J 'launch_failure' --wrap=">&2 echo 'launch failed')"
 fi

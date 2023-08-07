@@ -5,7 +5,6 @@
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=4
 
-gh repo set-default "$OWNER/slurm_testing" || GH_AVAILABLE=false
 REGLITE_JOB=$(sbatch --export="PATH=$PATH" "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh" | awk '{print $4}')
 
 # Update run check on GitHub Actions and correlate if run succeeded
@@ -17,7 +16,7 @@ then
 #   sbatch --dependency=afterany:"$REGLITE_SUCCESS_JOB"?afterany:"$REGLITE_FAILURE_JOB" -J 'delete_run_logs' --wrap="rm -rf \"slurm-${PIPELINE}-${DATA}.*\""
 else
   # Launch correlation without GH Actions
-  echo "Automatic correlation not yet enabled without GitHub Actions CLI"
+  >&2 echo "Automatic correlation not yet enabled without GitHub Actions CLI"
   # TODO if anyone wants it (https://en.wikipedia.org/wiki/YAGNI)
 fi
 # Delete run-specific image
