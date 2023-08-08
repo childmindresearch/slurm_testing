@@ -10,7 +10,7 @@ GH_AVAILABLE=true
 cd "${HOME_DIR}/slurm_testing_callback" || exit 1
 gh repo set-default "$OWNER/slurm_testing" || GH_AVAILABLE=false
 
-BUILD_SLURM_JOB=$(sbatch --export="PATH=$PATH,working_dir=$HOME_DIR,image=$IMAGE" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" "${HOME_DIR}/slurm_testing_callback/regression_run_scripts/build_image.sh" | awk '{print $4}')
+BUILD_SLURM_JOB=$(sbatch --export="PATH=$PATH,working_dir=$HOME_DIR,image=$IMAGE,SHA=${SHA}" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" "${HOME_DIR}/slurm_testing_callback/regression_run_scripts/build_image.sh" | awk '{print $4}')
 
 # only launch if build succeeded
 LAUNCH_SLURM_JOB=$(sbatch --dependency=afterok:"$BUILD_SLURM_JOB" --export="PATH=$PATH,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,SHA=$SHA,OWNER=$OWNER,REPO=$REPO,GH_AVAILABLE=$GH_AVAILABLE" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/error.log" "${HOME_DIR}/slurm_testing_callback/regression_run_scripts/regtest_lite.sh" | awk '{print $4}')
