@@ -3,15 +3,15 @@
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 00:05:00
-#SBATCH --ntasks-per-node=4
+#SBATCH --ntasks-per-node=1
 
 REGLITE_JOB=$(sbatch --export="PATH=$PATH,SHA=$SHA" "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh" | awk '{print $4}')
 
 # Update run check on GitHub Actions and correlate if run succeeded
 if [ "$GH_AVAILABLE" = true ]
 then
-  REGLITE_SUCCESS_JOB=$(sbatch --dependency=afterok:"$REGLITE_JOB" --output=/dev/null --error=/dev/null -J 'reglite_success' --export="PATH=$PATH" --wrap="gh workflow run 'Correlate Regression Test' -F ref=\"$SHA\" -F pipeline1='one' -F pipeline2='two' -F repo=\"$REPO\" -F owner=\"$OWNER\" -F log_output=$(cat ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.out) -F log_error=$(cat ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.err) -F preconfig=\"$PIPELINE\" -F data_source=\"$DATA\"" | awk '{print $4}')
-  REGLITE_FAILURE_JOB=$(sbatch --dependency=afternotok:"$REGLITE_JOB" --output=/dev/null --error=/dev/null -J 'reglite_failure' --export="PATH=$PATH" --wrap="gh workflow run 'Test run failed' -F ref=\"$SHA\" -F repo=\"$REPO\" -F owner=\"$OWNER\" -F log_output=$(cat ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.out) -F log_error=$(cat ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.err) -F preconfig=\"$PIPELINE\" -F data_source=\"$DATA\"" | awk '{print $4}')
+  REGLITE_SUCCESS_JOB=$(sbatch --dependency=afterok:"$REGLITE_JOB" --output=/dev/null --error=/dev/null -J 'reglite_success' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,SHA=$SHA" .github/scripts/correlate_regtest_lite.SLURM | awk '{print $4}')
+  REGLITE_FAILURE_JOB=$(sbatch --dependency=afternotok:"$REGLITE_JOB" --output=/dev/null --error=/dev/null -J 'reglite_failure' --export="PATH=$PATH" .github/scripts/failed_regtest_lite.SLURM | awk '{print $4}')
   # Delete local logs after pushing them to GitHub
 #   sbatch --dependency=afterany:"$REGLITE_SUCCESS_JOB"?afterany:"$REGLITE_FAILURE_JOB" -J 'delete_run_logs' --wrap="rm -rf \"slurm-${PIPELINE}-${DATA}.*\""
 else

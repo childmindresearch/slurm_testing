@@ -74,10 +74,9 @@ TMP
         cp -l "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}"
         REGTEST_JOB=$(sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,IMAGE_NAME=$IMAGE_NAME,PIPELINE=$PIPELINE,DATA=$DATA,PATH=$PATH,GH_AVAILABLE=$GH_AVAILABLE" --output="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.out" --error="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.err" .github/scripts/run_regtest_lite.SLURM | awk '{print $4}')
         gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Test run ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"
-        sbatch --dependency=afternotok:"$REGTEST_JOB" --export="PATH=$PATH" --output="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err" --error="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err"--wrap="gh workflow run \"Test run failed\" -F log_error=$(cat ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.err) -F log_output=$(cat ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.out) -F ref=\"$SHA\" -F owner=\"$OWNER\" -F repo=\"$REPO\" -F preconfig=\"$PIPELINE\" -F data_source=\"$DATA\"" || echo "Test run failed"
+        sbatch --dependency=afternotok:"$REGTEST_JOB" --export="DATA=$DATA,HOME_DIR=$HOME_DIR,IMAGE_NAME=$IMAGE_NAME,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,REPO=$REPO,SHA=$SHA" --output="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err" --error="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err" .github/scripts/failed_run_regtest_lite.SLURM || echo "Test run failed"
     done
 done
 
 # Remove original (non-run-specific) image hardlink & launched runscript
 # rm ${IMAGE} reglite_${IMAGE_NAME}_*.sh
-echo "Successfully launched reglite_${IMAGE_NAME}"
