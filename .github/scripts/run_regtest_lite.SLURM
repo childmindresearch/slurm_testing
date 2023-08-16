@@ -10,8 +10,8 @@ REGLITE_JOB=$(sbatch --export="PATH=$PATH,SHA=$SHA" "reglite_${IMAGE_NAME}_${PIP
 # Update run check on GitHub Actions and correlate if run succeeded
 if [ "$GH_AVAILABLE" = true ]
 then
-  REGLITE_SUCCESS_JOB=$(sbatch --dependency=afterok:"$REGLITE_JOB" --output=/dev/null --error=/dev/null -J 'reglite_success' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,SHA=$SHA" .github/scripts/correlate_regtest_lite.SLURM | awk '{print $4}')
-  REGLITE_FAILURE_JOB=$(sbatch --dependency=afternotok:"$REGLITE_JOB" --output=/dev/null --error=/dev/null -J 'reglite_failure' --export="PATH=$PATH" .github/scripts/failed_regtest_lite.SLURM | awk '{print $4}')
+  REGLITE_SUCCESS_JOB=$(sbatch --dependency=afterok:"$REGLITE_JOB" --output="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" --error="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" -J 'reglite_success' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,SHA=$SHA" .github/scripts/correlate_regtest_lite.SLURM | awk '{print $4}')
+  REGLITE_FAILURE_JOB=$(sbatch --dependency=afternotok:"$REGLITE_JOB" --output="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" --error="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" -J 'reglite_failure' --export="PATH=$PATH" .github/scripts/failed_regtest_lite.SLURM | awk '{print $4}')
   # Delete local logs after pushing them to GitHub
 #   sbatch --dependency=afterany:"$REGLITE_SUCCESS_JOB"?afterany:"$REGLITE_FAILURE_JOB" -J 'delete_run_logs' --wrap="rm -rf \"slurm-${PIPELINE}-${DATA}.*\""
 else
@@ -20,4 +20,4 @@ else
   # TODO if anyone wants it (https://en.wikipedia.org/wiki/YAGNI)
 fi
 # Delete run-specific image
-sbatch --dependency=afterany:"$REGLITE_JOB" --output=/dev/null --error=/dev/null -J 'delete_image' --wrap="rm \"${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}\""
+sbatch --dependency=afterany:"$REGLITE_JOB" --output="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" --error="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" -J 'delete_image' --wrap="rm \"${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}\""
