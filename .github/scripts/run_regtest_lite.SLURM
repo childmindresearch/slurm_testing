@@ -11,7 +11,7 @@ REGLITE_JOB=$(sbatch --export="OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA" "reg
 if [ "$GH_AVAILABLE" = true ]
 then
   REGLITE_SUCCESS_JOB=$(sbatch --dependency=afterok:"$REGLITE_JOB" --output="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" --error="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" -J 'reglite_success' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,REPO=$REPO,SHA=$SHA" .github/scripts/correlate_regtest_lite.SLURM | awk '{print $4}')
-  REGLITE_FAILURE_JOB=$(sbatch --dependency=afternotok:"$REGLITE_JOB" --output="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" --error="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" -J 'reglite_failure' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,REPO=$REPO,SHA=$SHA" .github/scripts/failed_correlation_lite.SLURM | awk '{print $4}')
+  REGLITE_FAILURE_JOB=$(sbatch --dependency=afternotok:"$REGLITE_JOB" --output="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" --error="${HOMEDIR}/logs/${SHA}/launch-${SHA}.log" -J 'reglite_failure' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,REPO=$REPO,SHA=$SHA" .github/scripts/failed_regtest_lite.SLURM | awk '{print $4}')
   # Delete local logs after pushing them to GitHub
 #   sbatch --dependency=afterany:"$REGLITE_SUCCESS_JOB"?afterany:"$REGLITE_FAILURE_JOB" -J 'delete_run_logs' --wrap="rm -rf \"slurm-${PIPELINE}-${DATA}.*\""
 else
