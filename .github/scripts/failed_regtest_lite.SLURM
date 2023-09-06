@@ -5,4 +5,7 @@
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=1
 
+exec 2> "${HOME_DIR}/debug.log"
+set -x
+
 gh workflow run 'Test run failed' -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F log_output=$(cat "${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.out") -F log_error=$(cat "${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.err") -F preconfig="$PIPELINE" -F data_source="$DATA"

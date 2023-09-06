@@ -5,6 +5,9 @@
 #SBATCH -t 24:00:00
 #SBATCH --ntasks-per-node=20
 
+exec 2> "${HOME_DIR}/debug.log"
+set -x
+
 preconfig="default"
 
 cd /ocean/projects/med220004p/agutierr/cpac_v1.8.4_VS_v1.8.5_corr_final
