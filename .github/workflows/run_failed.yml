@@ -48,8 +48,8 @@ jobs:
         uses: actions/checkout@v3.5.3
       - name: Load logs
         run: |
-          printf "${{ inputs.log_output }}" > "SLURM-${{ inputs.preconfig }}-${{ inputs.data_source }}.out"
-          printf "${{ inputs.log_error }}" > "SLURM-${{ inputs.preconfig }}-${{ inputs.data_source }}.err"
+           base64 -d "${{ inputs.log_output }}" > "SLURM-${{ inputs.preconfig }}-${{ inputs.data_source }}.out"
+           base64 -d "${{ inputs.log_error }}" > "SLURM-${{ inputs.preconfig }}-${{ inputs.data_source }}.err"
       - name: Store run logs
         uses: actions/upload-artifact@v3.1.2
         with:

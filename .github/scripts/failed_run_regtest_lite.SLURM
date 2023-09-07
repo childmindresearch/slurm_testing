@@ -8,4 +8,4 @@
 exec 2> "${HOME_DIR}/debug.log"
 set -x
 
-gh workflow run "Test run failed" -F log_error=$(cat ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.err) -F log_output=$(cat ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.out) -F ref="$SHA" -F owner="$OWNER" -F repo="$REPO" -F preconfig="$PIPELINE" -F data_source="$DATA"
+gh workflow run "Test run failed" -F log_error=$(base64 ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.err) -F log_output=$(base64 ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.out) -F ref="$SHA" -F owner="$OWNER" -F repo="$REPO" -F preconfig="$PIPELINE" -F data_source="$DATA"
