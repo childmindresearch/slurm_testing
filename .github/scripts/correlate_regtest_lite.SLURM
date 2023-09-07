@@ -8,4 +8,4 @@
 exec 2> "${HOME_DIR}/debug.log"
 set -x
 
-gh workflow run 'Correlate Regression Test' -F ref="$SHA" -F pipeline1='one' -F pipeline2='two' -F repo="$REPO" -F owner="$OWNER" -F log_output=$(base64 "${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.out") -F log_error=$(base64 "${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.err") -F preconfig="$PIPELINE" -F data_source="$DATA"
+gh workflow run 'Correlate Regression Test' -F ref="$SHA" -F pipeline1='one' -F pipeline2='two' -F repo="$REPO" -F owner="$OWNER" -F log_output=\"$(base64 "${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.out")\" -F log_error=\"$(base64 "${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}.err")\" -F preconfig="$PIPELINE" -F data_source="$DATA"
