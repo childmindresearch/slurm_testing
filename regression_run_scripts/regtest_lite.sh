@@ -75,9 +75,9 @@ TMP
         # so we can delete them as we go
         # and the last one done deletes the image
         cp -fl "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}"
-        REGTEST_JOB=$(sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,IMAGE_NAME=$IMAGE_NAME,PIPELINE=$PIPELINE,DATA=$DATA,PATH=$PATH,GH_AVAILABLE=$GH_AVAILABLE" --output="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.out" --error="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.err" .github/scripts/run_regtest_lite.SLURM | awk '{print $4}')
+        REGTEST_JOB=$(sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,IMAGE_NAME=$IMAGE_NAME,PIPELINE=$PIPELINE,DATA=$DATA,PATH=$PATH,PUSH_LOGS=$PUSH_LOGS,GH_AVAILABLE=$GH_AVAILABLE" --output="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.out" --error="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.err" .github/scripts/run_regtest_lite.SLURM | awk '{print $4}')
         gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Test run ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"
-        sbatch --dependency=afternotok:"$REGTEST_JOB" --export="DATA=$DATA,HOME_DIR=$HOME_DIR,IMAGE_NAME=$IMAGE_NAME,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,REPO=$REPO,SHA=$SHA" --output="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err" --error="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err" .github/scripts/failed_run_regtest_lite.SLURM || echo "Test run failed"
+        sbatch --dependency=afternotok:"$REGTEST_JOB" --export="DATA=$DATA,HOME_DIR=$HOME_DIR,IMAGE_NAME=$IMAGE_NAME,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" --output="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err" --error="${PIPELINE}-${DATA}-${IMAGE_NAME}-failed.err" .github/scripts/failed_run_regtest_lite.SLURM || echo "Test run failed"
     done
 done
 

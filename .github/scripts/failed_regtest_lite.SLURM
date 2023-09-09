@@ -8,16 +8,12 @@
 exec 2> "${HOME_DIR}/debug.log"
 set -x
 
-export _WD=$PWD
-PUSH_LOGS=true
-cd "${HOME_DIR}/logs/${SHA}" || PUSH_LOGS=false
 if [[ PUSH_LOGS == true ]]
 then
-    git remote add origin git@github.com:shnizzedy/regtest-runlogs.git
-    git switch -c $REPO_$SHA
+    export _WD=$PWD
+    cd "${HOME_DIR}/logs/${SHA}"
     git add slurm-${PIPELINE}-${DATA}.*
     git commit -m "Add logs for ${PIPELINE} ${DATA} ${SHA}"
-    git push origin $REPO_$SHA || true
     cd $_WD
 fi
 

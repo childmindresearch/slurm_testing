@@ -8,4 +8,13 @@
 exec 2> "${HOME_DIR}/debug.log"
 set -x
 
-gh workflow run "Test run failed" -F log_error=\"$(base64 ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.err)\" -F log_output=\"$(base64 ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.out)\" -F ref="$SHA" -F owner="$OWNER" -F repo="$REPO" -F preconfig="$PIPELINE" -F data_source="$DATA"
+if [[ PUSH_LOGS == true ]]
+then
+    export _WD=$PWD
+    cd "${HOME_DIR}/logs/${SHA}"
+    git add slurm-${PIPELINE}-${DATA}-${IMAGE_NAME}.*
+    git commit -m "Add logs for ${PIPELINE} ${DATA} ${SHA}"
+    cd $_WD
+fi
+
+gh workflow run "Test run failed" -F ref="$SHA" -F owner="$OWNER" -F repo="$REPO" -F preconfig="$PIPELINE" -F data_source="$DATA"
