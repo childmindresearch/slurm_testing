@@ -22,8 +22,8 @@ cat << TMP > job.sh
 #SBATCH -p RM-shared
 #SBATCH -t 1:00:00
 #SBATCH --ntasks-per-node=20
-#SBATCH -o ${working_dir}/logs/${SHA}/out.log
-#SBATCH --error ${working_dir}/logs/${SHA}/error.log
+#SBATCH -o ${working_dir}/logs/${SHA}/launch/out.log
+#SBATCH --error ${working_dir}/logs/${SHA}/launch/error.log
 
 SINGULARITY_CACHEDIR=${working_dir}/.singularity/cache \
 SINGULARITY_LOCALCACHEDIR=${working_dir}/.singularity/tmp \

@@ -12,7 +12,7 @@ if [[ PUSH_LOGS == true ]]
 then
     export _WD=$PWD
     cd "${HOME_DIR}/logs/${SHA}"
-    git add slurm-${PIPELINE}-${DATA}.*
+    git add slurm-${PIPELINE}-${DATA}
     git commit -m "Add logs for ${PIPELINE} ${DATA} ${SHA}"
     cd $_WD
 fi

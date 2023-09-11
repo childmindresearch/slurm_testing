@@ -11,7 +11,7 @@ set -x
 if [[ PUSH_LOGS == true ]]
 then
     export _WD=$PWD
-    cd "${HOME_DIR}/logs/${SHA}"
+    cd "${HOME_DIR}/logs/${SHA}/launch"
     git add error.log out.log
     git commit -m "Add logs for ${PIPELINE} ${DATA} ${SHA}"
     cd $_WD
