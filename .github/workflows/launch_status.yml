@@ -46,4 +46,4 @@ jobs:
           repository: ${{ inputs.repo }}
           sha: ${{ inputs.ref }}
           state: ${{ inputs.status }}
-          # target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts
+          target_url: https://github.com/${{ inputs.owner }}/regtest-runlogs/tree/${{ inputs.repo}}_${{ inputs.ref }}/launch

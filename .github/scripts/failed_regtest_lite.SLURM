@@ -1,5 +1,5 @@
 #!/bin/bash
-# Required environment variables: $OWNER $REPO $SHA $HOME_DIR $PIPELINE $DATA
+# Required environment variables: $OWNER $REPO $SHA $HOME_DIR $IMAGE_NAME $PIPELINE $DATA
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 00:05:00
@@ -17,4 +17,4 @@ then
     cd $_WD
 fi
 
-gh workflow run 'Test run failed' -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F preconfig="$PIPELINE" -F data_source="$DATA"
+gh workflow run "Test run failed" -F ref="$SHA" -F owner="$OWNER" -F repo="$REPO" -F preconfig="$PIPELINE" -F data_source="$DATA"
