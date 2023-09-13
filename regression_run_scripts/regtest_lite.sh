@@ -93,4 +93,4 @@ TMP
 done
 
 # Remove original (non-run-specific) image hardlink & launched runscripts, and push logs to GitHub
-sbatch --dependency=afterany:"$FULL_SUCCESS_DEPENDENCIES" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'delete_image' --wrap="rm \"${IMAGE}\" \"reglite_${IMAGE_NAME}_*.sh\" && cd \"${HOME_DIR}/logs/${SHA}\" && git push origin \"${REPO}_${SHA}\""
+sbatch --dependency=afterany:"$FULL_SUCCESS_DEPENDENCIES" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'delete_image_and_push_logs' --export="HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,REPO=$REPO,SHA=$SHA,_WD=$_WD" .github/scripts/push_to_github.SLURM

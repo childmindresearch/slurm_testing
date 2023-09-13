@@ -11,8 +11,12 @@ set -x
 if [[ PUSH_LOGS==true ]]
 then
     export _WD=$PWD
-    cd "${HOME_DIR}/logs/${SHA}/launch"
-    git add error.log out.log
+    export GIT_REPO_DIR="${HOME_DIR}/logs/${SHA}"
+    cd "${GIT_REPO_DIR}"
+    source "${HOME_DIR}/slurm_testing_callback/.github/scripts/wait_for_git_lock.sh"
+    wait_for_git_lock
+    git add launch/error.log launch/out.log
+    wait_for_git_lock
     git commit -m "Add logs for ${PIPELINE} ${DATA} ${SHA}"
     cd $_WD
 fi
