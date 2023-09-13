@@ -80,14 +80,25 @@ TMP
         # so we can delete them as we go
         # and the last one done deletes the image
         cp -fl "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}"
-        REGTEST_JOB=$(sbatch --export="OWNER=$OWNER,REPO=$REPO,SHA=$SHA,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,IMAGE_NAME=$IMAGE_NAME,PIPELINE=$PIPELINE,DATA=$DATA,PATH=$PATH,PUSH_LOGS=$PUSH_LOGS,GH_AVAILABLE=$GH_AVAILABLE" --output="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}/out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}/error.log" .github/scripts/run_regtest_lite.SLURM | awk '{print $4}')
+        REGLITE_JOB=$(sbatch --export="OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA" --output="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}/out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}/error.log" "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh" | awk '{print $4}')
         gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Test run ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"
-        sbatch --dependency=afternotok:"$REGTEST_JOB" --export="DATA=$DATA,HOME_DIR=$HOME_DIR,IMAGE_NAME=$IMAGE_NAME,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" --output="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}/out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}/error.log" .github/scripts/failed_regtest_lite.SLURM || echo "Test run failed"
+        # Update run check on GitHub Actions and correlate if run succeeded
+        if [ "$GH_AVAILABLE" = true ]
+        then
+        REGLITE_SUCCESS_JOB=$(sbatch --dependency=afterok:"$REGLITE_JOB" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'reglite_success' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" .github/scripts/correlate_regtest_lite.SLURM | awk '{print $4}')
+        REGLITE_FAILURE_JOB=$(sbatch --dependency=afternotok:"$REGLITE_JOB" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'reglite_failure' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" .github/scripts/failed_regtest_lite.SLURM | awk '{print $4}')
+        else
+        # Launch correlation without GH Actions
+        >&2 echo "Automatic correlation not yet enabled without GitHub Actions CLI"
+        # TODO if anyone wants it (https://en.wikipedia.org/wiki/YAGNI)
+        fi
+        # Delete run-specific image
+        sbatch --dependency=afterany:"$REGLITE_JOB" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'delete_image' --wrap="rm \"${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}\""
         if [ -z "$FULL_SUCCESS_DEPENDENCIES" ]
         then
-          FULL_SUCCESS_DEPENDENCIES="${REGTEST_JOB}"
+          FULL_SUCCESS_DEPENDENCIES="${REGLITE_JOB}:${REGLITE_SUCCESS_JOB}:${REGLITE_FAILURE_JOB}"
         else
-          FULL_SUCCESS_DEPENDENCIES+=":${REGTEST_JOB}"
+          FULL_SUCCESS_DEPENDENCIES+=":${REGLITE_JOB}:${REGLITE_SUCCESS_JOB}:${REGLITE_FAILURE_JOB}"
         fi
     done
 done
