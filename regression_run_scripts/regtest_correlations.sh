@@ -5,7 +5,7 @@
 #SBATCH -t 24:00:00
 #SBATCH --ntasks-per-node=20
 
-exec 2> "${HOME_DIR}/logs/${SHA}/debug.log"
+exec 2>> "${HOME_DIR}/logs/${SHA}/debug.log"
 set -x
 
 preconfig="default"

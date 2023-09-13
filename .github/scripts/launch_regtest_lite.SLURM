@@ -5,7 +5,7 @@
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=4
 
-exec 2> "${HOME_DIR}/logs/${SHA}/debug.log"
+exec 2>> "${HOME_DIR}/logs/${SHA}/debug.log"
 set -x
 export PUSH_LOGS=true
 export _WD=$PWD

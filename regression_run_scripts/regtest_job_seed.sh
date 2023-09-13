@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-exec 2> "${HOME_DIR}/logs/${SHA}/debug.log"
+exec 2>> "${HOME_DIR}/logs/${SHA}/debug.log"
 set -x
 
 while [[ "$#" != "" ]]; do

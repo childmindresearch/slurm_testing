@@ -5,7 +5,7 @@
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=1
 
-exec 2> "${HOME_DIR}/logs/${SHA}/debug.log"
+exec 2>> "${HOME_DIR}/logs/${SHA}/debug.log"
 set -x
 
 REGLITE_JOB=$(sbatch --export="OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA" "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh" | awk '{print $4}')
