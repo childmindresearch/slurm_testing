@@ -14,4 +14,4 @@ source "${HOME_DIR}/slurm_testing_callback/.github/scripts/wait_for_git_lock.sh"
 wait_for_git_lock
 git push origin ${REPO}_${SHA}
 cd $_WD
-rm -rf ${IMAGE}
+rm -rf "${HOME_DIR}/${IMAGE}"
