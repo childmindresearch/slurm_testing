@@ -64,6 +64,7 @@ singularity run \
     --cleanenv \
     -B ${HOME_DIR} \
     -B ${DATAPATH}:/data \
+    -B ${DATA_DIR}:/reg-data \
     -B ${OUTPUT}:/outputs \
     -B ${PIPELINE_CONFIGS}:/pipeline_configs \
     ${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE} /data /outputs participant \
