@@ -12,6 +12,6 @@ export GIT_REPO_DIR="${HOME_DIR}/logs/${SHA}"
 cd "${GIT_REPO_DIR}"
 source "${HOME_DIR}/slurm_testing_callback/.github/scripts/wait_for_git_lock.sh"
 wait_for_git_lock
-git push origin ${REPO}_${SHA}
+git push origin ${REPO}_${SHA} -f
 cd $_WD
 rm -rf "${HOME_DIR}/${IMAGE}"
