@@ -20,7 +20,7 @@ GIT_REPO="${HOME_DIR}/slurm_testing_callback"
 DATA_DIR="${HOME_DIR}/DATA/reg_5mm_pack"
 OUT="${HOME_DIR}/${IMAGE_NAME}"
 IMAGE="${IMAGE_NAME}.sif"
-PIPELINE_CONFIGS="${DATA_DIR}/configs"
+PIPELINE_CONFIGS="${GIT_REPO}/pipeline_configs"
 PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 
@@ -68,7 +68,7 @@ singularity run \
     -B ${PIPELINE_CONFIGS}:/pipeline_configs \
     ${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE} /data /outputs participant \
     --save_working_dir --skip_bids_validator \
-    --pipeline_file /pipeline_configs/${PIPELINE}_lite.yml \
+    --pipeline_file /pipeline_configs/${PIPELINE}-5mm.yml \
     --participant_label ${subject} \
 #     --n_cpus 10 --mem_gb 40
 TMP
