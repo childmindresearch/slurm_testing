@@ -71,7 +71,14 @@ singularity run \
     --save_working_dir --skip_bids_validator \
     --pipeline_file /pipeline_configs/${PIPELINE}-5mm.yml \
     --participant_label ${subject} \
-#     --n_cpus 10 --mem_gb 40
+    --n_cpus 10 --mem_gb 40
+
+if grep -q "CPAC run complete" ${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}/out.log
+then
+  exit 0  # Exit with success code
+else
+  exit 1  # Exit with failure code
+fi
 TMP
         # Make the script executable
         chmod +x "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh"
