@@ -27,6 +27,7 @@ DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 cd $GIT_REPO || exit 1
 gh repo set-default $OWNER/slurm_testing
 git fetch origin
+git reset --hard origin/regression/after_runs
 git checkout --force origin/regression/after_runs
 
 FULL_SUCCESS_DEPENDENCIES=""
