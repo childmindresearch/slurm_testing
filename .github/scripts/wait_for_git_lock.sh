@@ -1,5 +1,5 @@
 #!/bin/bash
-# Required variable: $GIT_REPO_DIR
+# Required environment variable: $GIT_REPO_DIR 
 
 # Function to check if .git/index.lock exists and wait until it's gone
 function wait_for_git_lock {

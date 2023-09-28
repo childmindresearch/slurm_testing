@@ -1,11 +1,15 @@
-name: Test run initiated
-run-name: ${{ inputs.job }} run initiated on ${{ inputs.environment }}
+name: Initiate check
+run-name: ${{ inputs.job }} ${{ inputs.task }} initiated on ${{ inputs.environment }}
 
 on:
   workflow_dispatch:
     inputs:
       job:
         description: SLURM job
+        type: string
+        required: true
+      task:
+        description: run or correlate
         type: string
         required: true
       ref:
@@ -42,11 +46,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.5.3
-      - name: Initiate run check
+      - name: Initiate check
         uses: guibranco/github-status-action-v2@v1.1.7
         with:
           authToken: ${{ secrets.GH_PAT }}
-          context: lite run ${{ inputs.preconfig }} ${{ inputs.data_source }}
+          context: lite ${{ inputs.task }} ${{ inputs.preconfig }} ${{ inputs.data_source }}
           description: ${{ inputs.job }} on ${{ inputs.environment }}
           owner: ${{ inputs.owner }}
           repository: ${{ inputs.repo }}

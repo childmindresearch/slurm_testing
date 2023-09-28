@@ -58,7 +58,7 @@ jobs:
           echo "Correlating lite regression runs"
           echo "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"
           echo "Correlating ${{ inputs.pipeline1 }} × ${{ inputs.pipeline2 }} for ${{ inputs.owner}}/${{ inputs.repo }}@${{ inputs.ref }}"
-          # python3 reg-suite/main.py correlate --pipeline1 $GITHUB_WORKSPACE/output/default/HNU_1 --pipeline2 $GITHUB_WORKSPACE/lite/default/HNU_1--workspace $GITHUB_WORKSPACE
+          # 
       # - uses: actions/upload-artifact@v3
       #   if: always()
       #   with:

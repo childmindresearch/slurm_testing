@@ -1,7 +1,6 @@
 #!/usr/bin/bash
 
-exec 2>> "${HOME_DIR}/logs/${SHA}/debug.log"
-set -x
+# Required environment variables: $GH_AVAILABLE, $HOME_DIR, $IMAGE, $OWNER, $PATH, $PUSH_LOGS, $REPO, $SHA
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -15,8 +14,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 IMAGE_NAME="${IMAGE#*:}"
-# GIT_REPO=${HOME_DIR}/slurm_testing
-GIT_REPO="${HOME_DIR}/slurm_testing_callback"
+GIT_REPO="${HOME_DIR}/slurm_testing"
 DATA_DIR="${HOME_DIR}/DATA/reg_5mm_pack"
 OUT="${HOME_DIR}/${IMAGE_NAME}"
 IMAGE="${IMAGE_NAME}.sif"
@@ -90,7 +88,7 @@ TMP
         # and the last one done deletes the image
         cp -fl "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PIPELINE}-${DATA}-${IMAGE}"
         REGLITE_JOB=$(sbatch --export="OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA" --output="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}/out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PIPELINE}-${DATA}/error.log" "reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}.sh" | awk '{print $4}')
-        gh workflow run "Test run initiated" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Test run ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"
+        gh workflow run "Initiate check" -F task="run" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Test run ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"
         # Update run check on GitHub Actions and correlate if run succeeded
         if [ "$GH_AVAILABLE" = true ]
         then

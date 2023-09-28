@@ -1,8 +1,5 @@
 #!/usr/bin/bash
 
-exec 2>> "${HOME_DIR}/logs/${SHA}/debug.log"
-set -x
-
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --working_dir) working_dir="$2"; shift ;;
