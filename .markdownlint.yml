@@ -1,0 +1,8 @@
+line-length: false
+no-duplicate-header:
+  allow_different_nesting: true
+no-inline-html:
+  allowed_elements:
+    - span
+no-trailing-punctuation:
+  punctuation: .,;:。，；：！
