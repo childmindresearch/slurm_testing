@@ -7,7 +7,72 @@ Note: this repository is currently in the process of transitioning to a <span ti
 
 ## GitHub Actions initiated
 
-pass
+### Launch a 'lite' regression test run
+
+Set up a GitHub Actions workflow configuration file to call [`.github/scripts/launch_regtest_lite.SLURM`](.github/scripts/launch_regtest_lite.SLURM). Use contexts, secrets and environment variables to pass the required variables to the SLURM script from GitHub Actions.
+
+#### Required variables
+
+* `HOME_DIR`: Home directory of the machine user on the remote server (e.g., `/ocean/projects/med####p/${USERNAME}`).
+* `IMAGE`: The name and tag of the image to test (e.g., `ghcr.io/fcp-indi/c-pac:nightly`).
+* `OWNER`: The owner of the C-PAC repository being tested (e.g., `FCP-INDI`).
+* `PATH_EXTRA`: Any paths that need to be added to `PATH` to run these scripts on the remote server as the machine user.
+* `REPO`: The name of the C-PAC repository being tested (e.g., `C-PAC`).
+* `SHA`: The SHA of the commit or name of the branch or tag being tested.
+
+#### Steps for launch from GitHub Actions
+
+1. Get branch to test ([e.g.](https://github.com/FCP-INDI/C-PAC/blob/eabf86cc4cb87a6d4fb42364ac954f2274770fa7/.github/workflows/regression_test_lite.yml#L31-L46)).
+2. Configure action to authenticate to remote server ([e.g.](https://github.com/FCP-INDI/C-PAC/blob/eabf86cc4cb87a6d4fb42364ac954f2274770fa7/.github/workflows/regression_test_lite.yml#L48-L53)).
+3. Initiate GitHub Check for test runs as "pending" ([e.g](https://github.com/FCP-INDI/C-PAC/blob/eabf86cc4cb87a6d4fb42364ac954f2274770fa7/.github/workflows/regression_test_lite.yml#L55-L61)).
+4. Launch the test on the remote server. We're currently using the GitHub Actions Marketplace Action [SSH Remote Commands](https://github.com/marketplace/actions/ssh-remote-commands?version=v1.0.0) by Bo-Yi Wu to facilitate this step ([e.g.](https://github.com/FCP-INDI/C-PAC/blob/eabf86cc4cb87a6d4fb42364ac954f2274770fa7/.github/workflows/regression_test_lite.yml#L63-L80)).
+5. Remove the configuration from step 2 above ([e.g.](https://github.com/FCP-INDI/C-PAC/blob/eabf86cc4cb87a6d4fb42364ac954f2274770fa7/.github/workflows/regression_test_lite.yml#L82-L84))
+
+##### Example call to launch script
+
+```BASH
+sbatch \
+  --export="HOME_DIR=${HOME_DIR},IMAGE=${IMAGE},OWNER=${OWNER},PATH_EXTRA=${PATH_EXTRA},REPO=${REPO},SHA=${SHA}" \
+  --output="${WORK_DIR}/logs/${SHA}/out.log" \
+  --error="${WORK_DIR}/logs/${SHA}/error.log" \
+  slurm_testing/.github/scripts/launch_regtest_lite.SLURM
+```
+
+Once launched, the code from this repository will orchestrate the launches (and eventually the correlations and reporting).
+
+See [:octocat: `FCP-INDI/C-PAC/.github/workflows/regression_test_lite.yml`](https://github.com/FCP-INDI/C-PAC/blob/eabf86cc4cb87a6d4fb42364ac954f2274770fa7/.github/workflows/regression_test_lite.yml) for an example GitHub Actions workflow configuration file that calls this script.
+
+#### What this repository does once launched
+
+```mermaid
+graph TB
+
+launch_regtest_lite --> build_image{build_image}
+build_image --"success"--> regtest_lite --> status_regtest_lite_success
+build_image --"failure"--> status_regtest_lite_failure
+regtest_lite --> launch_jobs
+subgraph launch_jobs["for PIPELINE in ${PRECONFIGS} for DATA in ${DATA_SOURCE}"]
+  reglite{"reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}"}
+  gh_initiate_check["Initiate Check\n(GitHub Check for specific run)"]
+end
+
+subgraph status_regtest_lite["status_regtest_lite\n(Update GitHub Check status for launch)"]
+  status_regtest_lite_success[[success]]
+  status_regtest_lite_failure[[failure]]
+end
+
+status_regtest_lite_failure --> push_to_github["push_to_github\n(push logs to GitHub)"]
+
+reglite --> FULL_SUCCESS_DEPENDENCIES --> push_to_github
+reglite --"success"--> correlate_regtest_lite
+reglite --"failure"--> failed_regtest_lite["failed_regtest_lite\n(Update GitHub Check status for specific run)"]
+
+correlate_regtest_lite -. "correlations not connected yet,\nbut will feed into dependencies\nonce they are" .-> FULL_SUCCESS_DEPENDENCIES
+
+subgraph FULL_SUCCESS_DEPENDENCIES["${FULL_SUCCESS_DEPENDENCIES}\n(SLURM job statuses)"]
+  
+end
+```
 
 ## Manually initiated
 
