@@ -9,32 +9,27 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 image_name=${image#*:}
-
+for _DIR in cache tmp
+do
+  mkdir -p ${working_dir}/.singularity/${_DIR}
+done
 cat << TMP > job.sh
 #!/usr/bin/bash
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 1:00:00
 #SBATCH --ntasks-per-node=20
-#SBATCH -o build_image.out
+#SBATCH -o ${working_dir}/logs/${SHA}/launch/out.log
+#SBATCH --error ${working_dir}/logs/${SHA}/launch/error.log
 
 SINGULARITY_CACHEDIR=${working_dir}/.singularity/cache \
 SINGULARITY_LOCALCACHEDIR=${working_dir}/.singularity/tmp \
-singularity build ${image_name}.sif docker://${image}
+yes | singularity build ${working_dir}/${image_name}.sif docker://${image}
 
 TMP
 
 chmod +x job.sh
-sbatch job.sh
+sbatch --wait job.sh
+EXIT_CODE=$?
 rm job.sh
-
-while : ; do
-    [[ -f build_image.out ]] && break
-    echo "Pausing until file exists."
-    sleep 1
-done
-
-if [ -f build_image.out ]; then
-    tail -f build_image.out
-    exit 0
-fi
+exit $EXIT_CODE

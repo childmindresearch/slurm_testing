@@ -1,0 +1,52 @@
+name: Test run failed
+run-name: ${{ inputs.preconfig }} ${{ inputs.data_source }} run failed on ${{ inputs.environment }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'branch, tag, or SHA'
+        type: string
+        required: true
+      owner:
+        description: 'owner on GitHub'
+        type: string
+        required: false
+        default: "FCP-INDI"
+      repo:
+        description: 'repository on GitHub'
+        type: string
+        required: false
+        default: "C-PAC"
+      environment:
+        description: 'Environment in which to run correlations'
+        type: environment
+        required: false
+        default: ACCESS
+      preconfig:
+        type: string
+        required: true
+      data_source:
+        type: string
+        required: true
+
+jobs:
+  failure:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment}}
+    name: Update launch status
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3.5.3
+      - name: Finalize run check
+        uses: guibranco/github-status-action-v2@v1.1.7
+        with:
+          authToken: ${{ secrets.GH_PAT }}
+          context: lite run ${{ inputs.preconfig }} ${{ inputs.data_source }}
+          # description: |
+          owner: ${{ inputs.owner }}
+          repository: ${{ inputs.repo }}
+          sha: ${{ inputs.ref }}
+          state: failure
+          # target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts
+          target_url: https://github.com/${{ inputs.owner }}/regtest-runlogs/tree/${{ inputs.repo}}_${{ inputs.ref }}/slurm-${{ inputs.preconfig }}-${{ inputs.data_source }}

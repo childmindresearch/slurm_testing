@@ -1,0 +1,71 @@
+%YAML 1.1
+---
+# CPAC Pipeline Configuration YAML file
+# Version 1.8.6.dev1
+#
+# http://fcp-indi.github.io for more info.
+FROM: default
+pipeline_setup:
+  pipeline_name: default-5mm
+  output_directory:
+    write_debugging_outputs: On
+  system_config:
+    fail_fast: On
+    random_seed: 77742777
+  Debugging:
+    verbose: On
+anatomical_preproc:
+  acpc_alignment:
+    T1w_brain_ACPC_template: /reg-data/templates/MNI152_T1_5mm_brain.nii.gz
+    T1w_ACPC_template: /reg-data/templates/MNI152_T1_5mm.nii.gz
+segmentation:
+  tissue_segmentation:
+    FSL-FAST:
+      use_priors:
+        priors_path: /reg-data/tissuepriors/5mm
+    Template_Based:
+      WHITE: /reg-data/tissuepriors/5mm/avg152T1_white_bin.nii.gz
+      GRAY: /reg-data/tissuepriors/5mm/avg152T1_gray_bin.nii.gz
+      CSF: /reg-data/tissuepriors/5mm/avg152T1_csf_bin.nii.gz
+registration_workflows:
+  anatomical_registration:
+    registration:
+      FSL-FNIRT:
+        ref_mask_res-2: /reg-data/tissuepriors/MNI152_T1_2mm_brain_mask_dil.nii.gz
+        T1w_template_res-2: /reg-data/tissuepriors/MNI152_T1_2mm.nii.gz
+        ref_mask: /reg-data/tissuepriors/MNI152_T1_${resolution_for_anat}_brain_mask_dil.nii.gz
+    resolution_for_anat: 5mm
+    T1w_brain_template: /reg-data/templates/MNI152_T1_${resolution_for_anat}_brain.nii.gz
+    T1w_template: /reg-data/templates/MNI152_T1_${resolution_for_anat}.nii.gz
+    T1w_brain_template_mask: /reg-data/templates/MNI152_T1_${resolution_for_anat}_brain_mask.nii.gz
+  functional_registration:
+    func_registration_to_template:
+      output_resolution:
+        func_preproc_outputs: 5mm
+        func_derivative_outputs: 5mm
+      target_template:
+        T1_template:
+          T1w_brain_template_funcreg: /reg-data/templates/MNI152_T1_${func_resolution}_brain.nii.gz
+          T1w_template_funcreg: /reg-data/templates/MNI152_T1_${func_resolution}.nii.gz
+          T1w_brain_template_mask_funcreg: /reg-data/templates/MNI152_T1_${func_resolution}_brain_mask.nii.gz
+          T1w_template_for_resample: /reg-data/templates/MNI152_T1_5mm_brain.nii.gz
+        EPI_template:
+          EPI_template_for_resample: /reg-data/templates/MNI152_T1_5mm_brain.nii.gz
+functional_preproc:
+  func_masking:
+    FSL_AFNI:
+      brain_mask: /reg-data/templates/MNI152_T1_${resolution_for_anat}_brain_mask.nii.gz
+      brain_probseg: /reg-data/templates/MNI152_T1_${resolution_for_anat}_brain_mask.nii.gz
+nuisance_corrections:
+  2-nuisance_regression:
+    lateral_ventricles_mask: /reg-data/templates/HarvardOxford-lateral-ventricles-thr25-5mm.nii.gz
+voxel_mirrored_homotopic_connectivity:
+  symmetric_registration:
+    T1w_brain_template_symmetric: /reg-data/templates/MNI152_T1_${resolution_for_anat}_brain_symmetric.nii.gz
+    T1w_brain_template_symmetric_funcreg: /reg-data/templates/MNI152_T1_${func_resolution}_brain_symmetric.nii.gz
+    T1w_brain_template_symmetric_for_resample: /reg-data/templates/MNI152_T1_5mm_brain_symmetric.nii.gz
+    T1w_template_symmetric: /reg-data/templates/MNI152_T1_${resolution_for_anat}_symmetric.nii.gz
+    T1w_template_symmetric_funcreg: /reg-data/templates/MNI152_T1_${func_resolution}_symmetric.nii.gz
+    T1w_template_symmetric_for_resample: /reg-data/templates/MNI152_T1_5mm_symmetric.nii.gz
+    dilated_symmetric_brain_mask: /reg-data/templates/MNI152_T1_${resolution_for_anat}_brain_mask_symmetric_dil.nii.gz
+    dilated_symmetric_brain_mask_for_resample: /reg-data/templates/MNI152_T1_5mm_brain_mask_symmetric_dil.nii.gz
