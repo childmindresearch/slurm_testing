@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-# Required environment variables: $GH_AVAILABLE, $HOME_DIR, $IMAGE, $OWNER, $PATH, $PUSH_LOGS, $REPO, $SHA
+# Required environment variables: $GH_AVAILABLE, $HOME_DIR, $IMAGE, $OWNER, $PATH, $PUSH_LOGS, $REPO, $SHA, $TESTING_OWNER
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -8,6 +8,7 @@ while [[ "$#" -gt 0 ]]; do
         --image) IMAGE="$2"; shift ;;
         --sha) SHA="$2"; shift ;;
         --owner) OWNER="$2"; shift ;;
+        --testing_owner) TESTING_OWNER="$2"; shift ;;
         --repo) REPO="$2"; shift ;;
     esac
     shift
@@ -22,11 +23,11 @@ PIPELINE_CONFIGS="${GIT_REPO}/pipeline_configs"
 PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 
-cd $GIT_REPO || exit 1
-gh repo set-default $OWNER/slurm_testing
+cd "$GIT_REPO" || exit 1
+gh repo set-default "$TESTING_OWNER/slurm_testing"
 git fetch origin
-git reset --hard origin/regression/after_runs
-git checkout --force origin/regression/after_runs
+git reset --hard origin/main
+git checkout --force origin/main
 
 FULL_SUCCESS_DEPENDENCIES=""
 
