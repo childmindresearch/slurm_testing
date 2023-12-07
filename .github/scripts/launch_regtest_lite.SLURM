@@ -20,7 +20,7 @@ fi
 PATH=$PATH:$PATH_EXTRA
 GH_AVAILABLE=true
 cd "${HOME_DIR}/slurm_testing" || exit 1
-gh repo set-default "$OWNER/slurm_testing" || GH_AVAILABLE=false
+gh repo set-default "${TESTING_OWNER}/slurm_testing" || GH_AVAILABLE=false
 
 BUILD_SLURM_JOB=$(sbatch --export="image=$IMAGE,PATH=$PATH,SHA=$SHA,working_dir=$HOME_DIR" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" "${HOME_DIR}/slurm_testing/regression_run_scripts/build_image.sh" | awk '{print $4}')
 
