@@ -20,12 +20,12 @@ fi
 PATH=$PATH:$PATH_EXTRA
 GH_AVAILABLE=true
 cd "${HOME_DIR}/slurm_testing" || exit 1
-gh repo set-default "${TESTING_OWNER}/slurm_testing" || GH_AVAILABLE=false
+gh repo set-default "${TESTING_REPO}" || GH_AVAILABLE=false
 
 BUILD_SLURM_JOB=$(sbatch --export="image=$IMAGE,PATH=$PATH,SHA=$SHA,working_dir=$HOME_DIR" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" "${HOME_DIR}/slurm_testing/regression_run_scripts/build_image.sh" | awk '{print $4}')
 
 # only launch if build succeeded
-LAUNCH_SLURM_JOB=$(sbatch --dependency=afterok:"$BUILD_SLURM_JOB" --export="GH_AVAILABLE=$GH_AVAILABLE,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,OWNER=$OWNER,PATH=$PATH,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" "${HOME_DIR}/slurm_testing/regression_run_scripts/regtest_lite.sh" | awk '{print $4}')
+LAUNCH_SLURM_JOB=$(sbatch --dependency=afterok:"$BUILD_SLURM_JOB" --export="COMPARISON_PATH=$COMPARISON_PATH,GH_AVAILABLE=$GH_AVAILABLE,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,OWNER=$OWNER,PATH=$PATH,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" "${HOME_DIR}/slurm_testing/regression_run_scripts/regtest_lite.sh" | awk '{print $4}')
 
 # Update run check on GitHub Actions
 if [ "$GH_AVAILABLE" = true ]

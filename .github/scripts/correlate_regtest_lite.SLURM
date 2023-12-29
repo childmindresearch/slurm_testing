@@ -4,7 +4,7 @@
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=1
 
-# Required environment variables: $DATA, $HOME_DIR, $OWNER, $PATH, $PIPELINE, $PUSH_LOGS, $REPO, $SHA
+# Required environment variables: $COMPARISON_PATH, $DATA, $HOME_DIR, $OWNER, $PATH, $PIPELINE, $PUSH_LOGS, $REPO, $SHA
 
 if [[ $PUSH_LOGS==true ]]
 then
@@ -25,4 +25,4 @@ gh workflow run "Initiate check" -F task="correlate" -F ref="$SHA" -F repo="$REP
 
 export GITHUB_WORKSPACE="${HOME_DIR}/${IMAGE_NAME}"
 
-python3 reg-suite/main.py correlate --pipeline1 ${GITHUB_WORKSPACE}/${PIPELINE}/${DATA} --pipeline2 ${GITHUB_WORKSPACE}/lite/${PIPELINE}/${DATA} --workspace $GITHUB_WORKSPACE
+cpac_regsuite_create_yaml --pipeline1 "${COMPARISON_PATH}/${PIPELINE}/${DATA}" --pipeline2 "${GITHUB_WORKSPACE}/lite/${PIPELINE}/${DATA}" --workspace $GITHUB_WORKSPACE --data_source "${DATA}"
