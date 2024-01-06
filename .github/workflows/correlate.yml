@@ -3,8 +3,16 @@ name: Correlate Regression Test
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        description: 'branch, tag, or SHA'
+      data_source:
+        type: string
+        required: true
+      environment:
+        description: 'Environment in which to run correlations'
+        type: environment
+        required: false
+        default: ACCESS
+      image:
+        description: ''
         type: string
         required: true
       owner:
@@ -12,16 +20,6 @@ on:
         type: string
         required: false
         default: "FCP-INDI"
-      repo:
-        description: 'repository on GitHub'
-        type: string
-        required: false
-        default: "C-PAC"
-      environment:
-        description: 'Environment in which to run correlations'
-        type: environment
-        required: false
-        default: ACCESS
       pipeline1:
         type: string
         required: true
@@ -31,9 +29,15 @@ on:
       preconfig:
         type: string
         required: true
-      data_source:
+      ref:
+        description: 'branch, tag, or SHA'
         type: string
         required: true
+      repo:
+        description: 'repository on GitHub'
+        type: string
+        required: false
+        default: "C-PAC"
 
 
 jobs:
@@ -42,7 +46,13 @@ jobs:
     environment: ${{ inputs.environment}}
     env:
       COMPARISON_PATH: ${{ secrets.COMPARISON_PATH }}
+      DASHBOARD_PACKAGE: ${{ vars.DASHBOARD_PACKAGE }}
       GH_PAT: ${{ secrets.GH_PAT }}
+      SLURM_TESTING_REPO: ${{ vars.SLURM_TESTING_REPO }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_WORK_DIR: ${{ secrets.SSH_WORK_DIR }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.5.3
@@ -59,29 +69,19 @@ jobs:
       - name: Correlating
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_PRIVATE_KEY }}
           command_timeout: 200m
           script: |
-            cd ${{ secrets.SSH_WORK_DIR }}
-            if [ ! -d reg-suite ] ; then
-                git clone https://github.com/${{ env.DASHBOARD_REPO }} reg-suite
-            else
-                cd reg-suite
-                git pull origin main
-                cd ..
-            fi
-            mkdir -p ${{ secrets.SSH_WORK_DIR }}/regtest_lite/${{ github.sha }}/correlations
-            sbatch --export="HOME_DIR=${{ secrets.SSH_WORK_DIR }},IMAGE=${{ env.DOCKER_TAG }},OWNER=${{ github.repository_owner }},PATH_EXTRA=${{ secrets.GH_CLI_BIN_PATH }},REPO=$(echo ${{ github.repository }} | cut -d '/' -f 2),SHA=${{ github.sha }}" --output=${{ secrets.SSH_WORK_DIR }}/regtest_lite/${{ github.sha }}/logs/out.log --error=${{ secrets.SSH_WORK_DIR }}/regtest_lite/logs/${{ github.sha }}/error.log slurm_testing/.github/scripts/launch_regtest_lite.SLURM
+            cd ${{ env.SSH_WORK_DIR }}
+            pip install -U ${{ env.DASHBOARD_PACKAGE }}
+            WORKSPACE=${{ env.SSH_WORK_DIR }}/regtest_lite/${{ inputs.ref }}/correlations
+            mkdir -p ${WORKSPACE}
+            cd ${WORKSPACE}
+            CREATE_YAML=$(sbatch --wrap "cpac_regsuite_create_yml --pipeline1 ${{ inputs.pipeline1 }} --pipeline2 ${{ inputs.pipeline2 }} --workspace ${WORKSPACE} --branch ${{ inputs.ref }} --data_source ${{ inputs.data_source }}" | awk '{print $4}')
+            YAML_FILE="${WORKSPACE}/${{ inputs.ref }}_${{ inputs.date_source }}.yml"
+            CORRELATE=$(sbatch --dependency=afterok:"${CREATE_YAML}" --wrap "cpac_correlations --data_source ${{ inputs.data_source }} --branch ${{ inputs.ref }} $YAML_FILE" | awk '{print $4}')
+            export TESTING_OWNER=$(echo ${{ env.SLURM_TESTING_REPO }} | cut -d'/' -f1)
+            sbatch --dependency=afterok:"${CORRELATE}" --dependency=afterok:"$BUILD_SLURM_JOB" --export="OWNER=${{ inputs.OWNER }},REPO=${{ inputs.repo }},SHA=${{ inputs.sha }},TESTING_OWNER=${TESTING_OWNER}" --wrap "cpac_regsuite_generate_comment"
 
-        # run: |
-        #   echo "Correlating lite regression runs"
-        #   echo "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"
-        #   echo "Correlating ${{ inputs.pipeline1 }} × ${{ inputs.pipeline2 }} for ${{ inputs.owner}}/${{ inputs.repo }}@${{ inputs.ref }}"
-        #   # 
-      # - uses: actions/upload-artifact@v3
-      #   if: always()
-      #   with:
-      #     name: logs
-      #     path: output/*/*/log/
