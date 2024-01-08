@@ -10,7 +10,7 @@ then
     export _WD=$PWD
     export GIT_REPO_DIR="${HOME_DIR}/logs/${SHA}"
     cd "${GIT_REPO_DIR}"
-    source "${HOME_DIR}/slurm_testing/.github/scripts/wait_for_git_lock.sh"
+    source "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/wait_for_git_lock.sh"
     wait_for_git_lock
     git add launch/error.log launch/out.log
     wait_for_git_lock

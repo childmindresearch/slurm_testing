@@ -12,7 +12,7 @@ done
 
 MED=/ocean/projects/med220004p
 HOME=${MED}/${user}
-GIT_REPO=${HOME}/slurm_testing
+GIT_REPO=${HOME}/C-PAC_slurm_testing
 DATA=${MED}/shared/data_raw/CPAC-Regression
 OUT=${out_dir}
 CONFIG=${GIT_REPO}/data_configs

@@ -17,7 +17,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 IMAGE_NAME="${IMAGE#*:}"
-GIT_REPO="${HOME_DIR}/slurm_testing"
+GIT_REPO="${HOME_DIR}/C-PAC_slurm_testing"
 DATA_DIR="${HOME_DIR}/DATA/reg_5mm_pack"
 OUT="${HOME_DIR}/lite/${IMAGE_NAME}"
 IMAGE="${IMAGE_NAME}.sif"
