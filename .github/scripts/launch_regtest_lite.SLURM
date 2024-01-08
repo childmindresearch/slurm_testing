@@ -5,11 +5,13 @@
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=4
 
+set -x
+
 export PUSH_LOGS=true
 export _WD=$PWD
 mkdir -p "${HOME_DIR}/logs/${SHA}/launch"
 cd "${HOME_DIR}/logs/${SHA}" || PUSH_LOGS=false
-if [[ $PUSH_LOGS==true ]]
+if [[ $PUSH_LOGS == true ]]
 then
   # set up logging repo
   git init
@@ -36,5 +38,5 @@ then
   sbatch --dependency=afterok:"$LAUNCH_FAILURE_JOB" -J 'push_logs' --export="HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,REPO=$REPO,SHA=$SHA,_WD=$_WD" .github/scripts/push_to_github.SLURM
 else
   sbatch --dependency=afterok:"$LAUNCH_SLURM_JOB" --output="${HOME_DIR}/logs/${SHA}/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'launch_success' --wrap="echo 'launch succeeded')"
-  sbatch --dependency=afternotok:"$BUILD_SLURM_JOB"?afternotok:"$LAUNCH_SLURM_JOB" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'launch_failure' --wrap=">&2 echo 'launch failed')"
+  sbatch --dependency=afternotok:"$BUILD_SLURM_JOB"?afternotok:"$LAUNCH_SLURM_JOB" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'launch_failure' --wrap=">&2 echo 'launch failed'"
 fi

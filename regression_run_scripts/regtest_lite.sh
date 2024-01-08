@@ -2,6 +2,8 @@
 
 # Required environment variables: $COMPARISON_PATH, $GH_AVAILABLE, $HOME_DIR, $IMAGE, $OWNER, $PATH, $PUSH_LOGS, $REPO, $SHA, $TESTING_REPO
 
+set -x
+
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --home_dir) HOME_DIR="$2"; shift ;;
@@ -54,6 +56,8 @@ for PIPELINE in ${PRECONFIGS}; do
 #SBATCH -o ${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/out.log
 #SBATCH --error ${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/error.log
 #SBATCH -J ${PDSD}-${IMAGE_NAME}-reglite
+
+set -x
 
 export SINGULARITY_CACHEDIR=${HOME_DIR}/.singularity/cache \
 SINGULARITY_LOCALCACHEDIR=${HOME_DIR}/.singularity/tmp
