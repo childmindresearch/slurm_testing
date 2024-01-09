@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+set -x
+
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --working_dir) working_dir="$2"; shift ;;
@@ -21,6 +23,8 @@ cat << TMP > job.sh
 #SBATCH --ntasks-per-node=20
 #SBATCH -o ${working_dir}/logs/${SHA}/launch/out.log
 #SBATCH --error ${working_dir}/logs/${SHA}/launch/error.log
+
+set -x
 
 SINGULARITY_CACHEDIR=${working_dir}/.singularity/cache \
 SINGULARITY_LOCALCACHEDIR=${working_dir}/.singularity/tmp \
