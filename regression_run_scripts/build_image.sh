@@ -19,8 +19,8 @@ cat << TMP > "build_${image_name}.sh"
 #SBATCH -p RM-shared
 #SBATCH -t 1:00:00
 #SBATCH --ntasks-per-node=20
-#SBATCH -o ${working_dir}/logs/${SHA}/launch/out.log
-#SBATCH --error ${working_dir}/logs/${SHA}/launch/error.log
+#SBATCH -o ${working_dir}/logs/${SHA}/launch/%x.out.log
+#SBATCH --error ${working_dir}/logs/${SHA}/launch/%x.error.log
 
 export SINGULARITY_CACHEDIR=${working_dir}/.singularity/cache \
        SINGULARITY_LOCALCACHEDIR=${working_dir}/.singularity/tmp

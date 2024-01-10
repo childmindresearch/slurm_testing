@@ -33,8 +33,8 @@ Set up a GitHub Actions workflow configuration file to call [`.github/scripts/la
 ```BASH
 sbatch \
   --export="HOME_DIR=${HOME_DIR},IMAGE=${IMAGE},OWNER=${OWNER},PATH_EXTRA=${PATH_EXTRA},REPO=${REPO},SHA=${SHA}" \
-  --output="${WORK_DIR}/logs/${SHA}/out.log" \
-  --error="${WORK_DIR}/logs/${SHA}/error.log" \
+  --output="${WORK_DIR}/logs/${SHA}/%x.out.log" \
+  --error="${WORK_DIR}/logs/${SHA}/%x.error.log" \
   slurm_testing/.github/scripts/launch_regtest_lite.SLURM
 ```
 

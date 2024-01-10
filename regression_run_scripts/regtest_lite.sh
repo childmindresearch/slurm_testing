@@ -53,8 +53,8 @@ for PIPELINE in ${PRECONFIGS}; do
 #SBATCH -p RM-shared
 #SBATCH -t 10:00:00
 #SBATCH --ntasks-per-node=11
-#SBATCH -o ${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/out.log
-#SBATCH --error ${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/error.log
+#SBATCH -o ${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.out.log
+#SBATCH --error ${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.error.log
 #SBATCH -J ${PDSD}-${IMAGE_NAME}-reglite
 
 set -x
@@ -75,7 +75,7 @@ singularity run \
     --participant_label ${SUBJECT} \
     --n_cpus 10 --mem_gb 40
 
-if grep -q "CPAC run complete" ${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/out.log
+if grep -q "CPAC run complete" ${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/*.out.log
 then
   exit 0  # Exit with success code
 else
@@ -90,7 +90,7 @@ TMP
             # so we can delete them as we go
             # and the last one done deletes the image
             cp -fl "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PDSD}-${IMAGE}"
-            REGLITE_JOB=$(sbatch --parsable --export="OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA" --output="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/error.log" "reglite_${IMAGE_NAME}_${PDSU}.sh")
+            REGLITE_JOB=$(sbatch --parsable --export="OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA" --output="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.error.log" "reglite_${IMAGE_NAME}_${PDSU}.sh")
             gh workflow run "Initiate check" -F task="run" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PDSD}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Test run ${PDSD}-${IMAGE_NAME} initiated"
             if [ -z "$REGLITE_JOBS" ]
             then
@@ -102,15 +102,15 @@ TMP
         # Update run check on GitHub Actions and correlate if run succeeded
         if [ "$GH_AVAILABLE" = true ]
         then
-        REGLITE_SUCCESS_JOB=$(sbatch --parsable --dependency=afterok:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'reglite_success' --export="COMPARISON_PATH=$COMPARISON_PATH,DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" .github/scripts/correlate_regtest_lite.SLURM)
-        REGLITE_FAILURE_JOB=$(sbatch --parsable --dependency=afternotok:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'reglite_failure' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" .github/scripts/failed_regtest_lite.SLURM)
+        REGLITE_SUCCESS_JOB=$(sbatch --parsable --dependency=afterok:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" -J 'reglite_success' --export="COMPARISON_PATH=$COMPARISON_PATH,DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" .github/scripts/correlate_regtest_lite.SLURM)
+        REGLITE_FAILURE_JOB=$(sbatch --parsable --dependency=afternotok:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" -J 'reglite_failure' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" .github/scripts/failed_regtest_lite.SLURM)
         else
         # Launch correlation without GH Actions
         >&2 echo "Automatic correlation not yet enabled without GitHub Actions CLI"
         # TODO if anyone wants it (https://en.wikipedia.org/wiki/YAGNI)
         fi
         # Delete run-specific image
-        sbatch --dependency=afterany:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'delete_image' --wrap="rm \"${HOME_DIR}/${PDSD}-${IMAGE}\""
+        sbatch --dependency=afterany:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" -J 'delete_image' --wrap="rm \"${HOME_DIR}/${PDSD}-${IMAGE}\""
         if [ -z "$FULL_SUCCESS_DEPENDENCIES" ]
         then
           FULL_SUCCESS_DEPENDENCIES="${REGLITE_JOBS}:${REGLITE_SUCCESS_JOB}:${REGLITE_FAILURE_JOB}"
@@ -121,4 +121,4 @@ TMP
 done
 
 # Remove original (non-run-specific) image hardlink & launched runscripts, and push logs to GitHub
-sbatch --dependency=afterany:"$FULL_SUCCESS_DEPENDENCIES" --output="${HOME_DIR}/logs/${SHA}/launch/out.log" --error="${HOME_DIR}/logs/${SHA}/launch/error.log" -J 'delete_image_and_push_logs' --export="HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,REPO=$REPO,SHA=$SHA,_WD=$_WD" .github/scripts/push_to_github.SLURM
+sbatch --dependency=afterany:"$FULL_SUCCESS_DEPENDENCIES" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" -J 'delete_image_and_push_logs' --export="HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,REPO=$REPO,SHA=$SHA,_WD=$_WD" .github/scripts/push_to_github.SLURM
