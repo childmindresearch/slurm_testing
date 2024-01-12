@@ -8,12 +8,12 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-image_name=${image#*:}
+IMAGE_NAME=${SHA#*:}
 for _DIR in cache tmp
 do
-  mkdir -p "${working_dir}/.singularity/${_DIR}"
+    mkdir -p "${working_dir}/.singularity/${_DIR}"
 done
-cat << TMP > "build_${image_name}.sh"
+cat << TMP > "build_${IMAGE_NAME}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
 #SBATCH -p RM-shared
@@ -25,12 +25,12 @@ cat << TMP > "build_${image_name}.sh"
 export SINGULARITY_CACHEDIR=${working_dir}/.singularity/cache \
        SINGULARITY_LOCALCACHEDIR=${working_dir}/.singularity/tmp
 yes | singularity cache clean
-yes | singularity build ${working_dir}/${image_name}.sif docker://${image}
+yes | singularity build ${working_dir}/${IMAGE_NAME}.sif docker://${image} --force
 
 TMP
 
-chmod +x "build_${image_name}.sh"
-sbatch --wait "build_${image_name}.sh"
+chmod +x "build_${IMAGE_NAME}.sh"
+sbatch --wait "build_${IMAGE_NAME}.sh"
 EXIT_CODE=$?
-rm "build_${image_name}.sh"
+rm "build_${IMAGE_NAME}.sh"
 exit $EXIT_CODE
