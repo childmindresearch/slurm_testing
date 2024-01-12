@@ -8,9 +8,12 @@
 
 if [[ $PUSH_LOGS == true ]]
 then
+    # shellcheck disable=SC1090
+    source "${TOKEN_FILE}"
     export _WD=$PWD
     export GIT_REPO_DIR="${HOME_DIR}/logs/${SHA}"
     cd "${GIT_REPO_DIR}" || exit 1
+    # shellcheck disable=SC1090
     source "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/wait_for_git_lock.sh"
     wait_for_git_lock
     git add "slurm-${PIPELINE}-${DATA}"

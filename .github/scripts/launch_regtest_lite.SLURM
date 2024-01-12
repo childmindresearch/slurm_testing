@@ -24,7 +24,9 @@ GH_AVAILABLE=true
 cd "${HOME_DIR}/C-PAC_slurm_testing" || exit 1
 gh repo set-default "${TESTING_REPO}" || GH_AVAILABLE=false
 
-BUILD_SLURM_JOB=$(sbatch --parsable --export="image=$IMAGE,PATH=$PATH,SHA=$SHA,working_dir=$HOME_DIR" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" "${HOME_DIR}/C-PAC_slurm_testing/regression_run_scripts/build_image.sh")
+BUILD_SLURM_JOB=$(sbatch --parsable --export="image=$IMAGE,PATH=$PATH,SHA=$SHA,working_dir=$HOME_DIR" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" -J "build_${JOB}.sh" "${HOME_DIR}/C-PAC_slurm_testing/regression_run_scripts/build_image.sh")
 
 # only launch if build succeeded
-sbatch --dependency=afterok:"$BUILD_SLURM_JOB" --export="COMPARISON_PATH=$COMPARISON_PATH,GH_AVAILABLE=$GH_AVAILABLE,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,OWNER=$OWNER,PATH=$PATH,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" "${HOME_DIR}/C-PAC_slurm_testing/regression_run_scripts/regtest_lite.sh"
+sbatch --dependency=afterok:"$BUILD_SLURM_JOB" --export="COMPARISON_PATH=$COMPARISON_PATH,GH_AVAILABLE=$GH_AVAILABLE,HOME_DIR=$HOME_DIR,IMAGE=$IMAGE,OWNER=$OWNER,PATH=$PATH,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA,TOKEN_FILE=$TOKEN_FILE" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" "${HOME_DIR}/C-PAC_slurm_testing/regression_run_scripts/regtest_lite.sh"
+
+sbatch --dependency=afternotok:"$BUILD_SLURM_JOB" --export="HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA,STATUS=failed,TOKEN_FILE=$TOKEN_FILE" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status_regtest_lite.sh"

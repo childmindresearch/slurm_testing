@@ -4,7 +4,14 @@
 # SBATCH -p RM-shared
 # SBATCH -t 00:05:00
 # SBATCH --ntasks-per-node=4
-"""Consolidate job statistics into a single GitHub status."""
+"""Consolidate job statistics into a single GitHub status.
+
+Requires the following environment variables:
+- GITHUB_TOKEN: A GitHub token with access to the repository.
+- OWNER: The owner of the repository.
+- REPO: The repository.
+- SHA: The commit SHA.
+"""
 import argparse
 from dataclasses import dataclass
 from fcntl import flock, LOCK_EX, LOCK_UN
@@ -125,9 +132,9 @@ def _create_parser() -> argparse.ArgumentParser:
     """Create the argument parser."""
     # Create the parser
     parser = argparse.ArgumentParser()
-    parser.add_argument("data_source", help="Specify the data source.")
-    parser.add_argument("preconfig", help="Specify the preconfig.")
-    parser.add_argument("subject", help="Specify the subject.")
+    parser.add_argument("data_source", default=None, help="Specify the data source.")
+    parser.add_argument("preconfig", default=None, help="Specify the preconfig.")
+    parser.add_argument("subject", default=None, help="Specify the subject.")
     parser.add_argument(
         "state", choices=_VALID_STATES, default="pending", help="Specify the state."
     )
