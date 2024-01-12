@@ -7,18 +7,6 @@ set -x
 # shellcheck disable=SC1090
 source "${TOKEN_FILE}"
 
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        --home_dir) HOME_DIR="$2"; shift ;;
-        --image) IMAGE="$2"; shift ;;
-        --sha) SHA="$2"; shift ;;
-        --owner) OWNER="$2"; shift ;;
-        --testing_repo) TESTING_REPO="$2"; shift ;;
-        --repo) REPO="$2"; shift ;;
-    esac
-    shift
-done
-
 IMAGE_NAME="${SHA#*:}"
 GIT_REPO="${HOME_DIR}/C-PAC_slurm_testing"
 DATA_DIR="${HOME_DIR}/DATA/reg_5mm_pack"
