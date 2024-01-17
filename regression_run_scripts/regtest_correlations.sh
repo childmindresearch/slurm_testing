@@ -7,7 +7,7 @@
 
 preconfig="default"
 
-cd /ocean/projects/med220004p/agutierr/cpac_v1.8.4_VS_v1.8.5_corr_final
+cd /ocean/projects/med220004p/agutierr/cpac_v1.8.4_VS_v1.8.5_corr_final || return
 
 cat << TMP > regtest_correlations_${preconfig}.sh
 
@@ -27,7 +27,7 @@ python3 /ocean/projects/med220004p/agutierr/CPAC_regtest_pack/cpac_correlations.
 
 echo "Finished correlation ${preconfig}"
 TMP
-        chmod +x regtest_correlations_${preconfig}.sh
+chmod +x regtest_correlations_${preconfig}.sh
 
-singularity exec -B /ocean/projects/med220004p/agutierr:/ocean/projects/med220004p/agutierr \
---cleanenv /ocean/projects/med220004p/agutierr/c-pac_nightly-v1.8.5.sif regtest_correlations_${preconfig}.sh
+apptainer exec -B /ocean/projects/med220004p/agutierr:/ocean/projects/med220004p/agutierr \
+    --cleanenv /ocean/projects/med220004p/agutierr/c-pac_nightly-v1.8.5.sif regtest_correlations_${preconfig}.sh

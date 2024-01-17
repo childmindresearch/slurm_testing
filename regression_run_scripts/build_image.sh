@@ -11,7 +11,7 @@ done
 IMAGE_NAME=${SHA#*:}
 for _DIR in cache tmp
 do
-    mkdir -p "${working_dir}/.singularity/${_DIR}"
+    mkdir -p "${working_dir}/.apptainer/${_DIR}"
 done
 cat << TMP > "build_${IMAGE_NAME}.sh"
 #!/usr/bin/bash
@@ -22,10 +22,10 @@ cat << TMP > "build_${IMAGE_NAME}.sh"
 #SBATCH -o ${working_dir}/logs/${SHA}/launch/%x.out.log
 #SBATCH --error ${working_dir}/logs/${SHA}/launch/%x.error.log
 
-export SINGULARITY_CACHEDIR=${working_dir}/.singularity/cache \
-       SINGULARITY_LOCALCACHEDIR=${working_dir}/.singularity/tmp
-yes | singularity cache clean
-yes | singularity build ${working_dir}/${IMAGE_NAME}.sif docker://${image} --force
+export APPTAINER_CACHEDIR=${working_dir}/.apptainer/cache \
+       APPTAINER_LOCALCACHEDIR=${working_dir}/.apptainer/tmp
+yes | apptainer cache clean
+yes | apptainer build ${working_dir}/${IMAGE_NAME}.sif docker://${image} --force
 
 TMP
 

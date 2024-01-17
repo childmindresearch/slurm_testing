@@ -50,10 +50,10 @@ for PIPELINE in ${PRECONFIGS}; do
 
 set -x
 
-export SINGULARITY_CACHEDIR=${HOME_DIR}/.singularity/cache \
-SINGULARITY_LOCALCACHEDIR=${HOME_DIR}/.singularity/tmp
+export APPTAINER_CACHEDIR=${HOME_DIR}/.apptainer/cache \
+APPTAINER_LOCALCACHEDIR=${HOME_DIR}/.apptainer/tmp
 
-singularity run \
+apptainer run \
     --cleanenv \
     -B ${HOME_DIR} \
     -B ${DATAPATH}:/data \
