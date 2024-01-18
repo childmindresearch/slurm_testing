@@ -11,6 +11,8 @@ set -x
 # shellcheck disable=SC1090
 source "${TOKEN_FILE}"
 
+set -x
+
 if [[ $PUSH_LOGS == true ]]
 then
     export _WD=$PWD
