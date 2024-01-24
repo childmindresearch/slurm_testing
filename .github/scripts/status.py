@@ -101,8 +101,8 @@ class TotalStatus:
         commit = repo.get_commit(sha=os.environ["SHA"])
         commit.create_status(
             state=self.state,
-            target_url=f"https://github.com/${os.environ['OWNER']}/regtest-runlogs/tree"
-            f"/${os.environ['REPO']}_${os.environ['SHA']}/launch",
+            target_url=f"https://github.com/{os.environ['OWNER']}/regtest-runlogs/tree"
+            f"/{os.environ['REPO']}_{os.environ['SHA']}/launch",
             description=self.description,
             context="lite regression test",
         )

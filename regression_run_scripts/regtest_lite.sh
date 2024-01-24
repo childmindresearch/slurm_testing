@@ -82,7 +82,7 @@ TMP
             # and the last one done deletes the image
             cp -fl "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PDSD}-${IMAGE}"
             REGLITE_JOB=$(sbatch --parsable --export="OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA,TOKEN_FILE=${TOKEN_FILE}" --output="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.error.log" "reglite_${IMAGE_NAME}_${PDSU}.sh")
-            .github/scripts/status.py "${DATA}" "${PIPELINE}" "${SUBJECT}" pending
+            "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py" "${DATA}" "${PIPELINE}" "${SUBJECT}" pending
             if [ -z "$REGLITE_JOBS" ]
             then
                 REGLITE_JOBS="${REGLITE_JOB}"

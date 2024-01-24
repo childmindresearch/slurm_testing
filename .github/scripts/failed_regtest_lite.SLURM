@@ -22,4 +22,4 @@ then
     cd "$_WD" || exit 1
 fi
 
-.github/scripts/status.py "${DATA}" "${PIPELINE}" "${SUBJECT}" failed
+"${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py" "${DATA}" "${PIPELINE}" "${SUBJECT}" failed
