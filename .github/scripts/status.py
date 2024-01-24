@@ -7,24 +7,30 @@
 """Consolidate job statistics into a single GitHub status.
 
 Requires the following environment variables:
+- _C-PAC-STATUS_DATA_SOURCE: The data source.
+- _C-PAC-STATUS_PRECONFIG: The preconfig.
+- _C-PAC-STATUS_SUBJECT: The subject.
 - GITHUB_TOKEN: A GitHub token with access to the repository.
 - OWNER: The owner of the repository.
 - REPO: The repository.
 - SHA: The commit SHA.
+
+Also optionally accepts the following environment variables:
+- _C-PAC-STATUS_STATE: The state of the run. Defaults to "pending".
 """
-import argparse
 from dataclasses import dataclass
 from fcntl import flock, LOCK_EX, LOCK_UN
 from fractions import Fraction
 import os
 from pathlib import Path
 import pickle
-from typing import Literal
+import sys
+from typing import cast, Literal
 
 from github import Github
 
 _STATE = Literal["error", "failure", "pending", "success"]
-_VALID_STATES = ("error", "failure", "pending", "success")
+VALID_STATES = ["error", "failure", "pending", "success"]
 
 
 @dataclass
@@ -128,25 +134,25 @@ class TotalStatus:
     successes.__doc__ = success.__doc__
 
 
-def _create_parser() -> argparse.ArgumentParser:
-    """Create the argument parser."""
-    # Create the parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument("data_source", default=None, help="Specify the data source.")
-    parser.add_argument("preconfig", default=None, help="Specify the preconfig.")
-    parser.add_argument("subject", default=None, help="Specify the subject.")
-    parser.add_argument(
-        "state", choices=_VALID_STATES, default="pending", help="Specify the state."
-    )
-    return parser
-
-
 def main() -> None:
     """Run the script from the commandline."""
     # Parse the arguments
-    args = _create_parser().parse_args()
-    status_pickle = Path.cwd() / "status.🥒"
+    _args_dict: dict[str, str] = cast(
+        dict[str, str],
+        {
+            var: os.environ.get(f"_C-PAC-STATUS_{var.upper()}")
+            for var in ["data_source", "preconfig", "subject", "state"]
+            if var is not None
+        },
+    )
+    if "state" in _args_dict:
+        state: _STATE = _validate_state(_args_dict.pop("state"))
+        args = RunStatus(**_args_dict, state=state)
+    else:
+        args = RunStatus(**_args_dict, state="pending")
+    del _args_dict
 
+    status_pickle = Path.cwd() / "status.🥒"
     if status_pickle.exists():
         with status_pickle.open("rb") as _:
             status = pickle.load(_)
@@ -168,5 +174,14 @@ def main() -> None:
         status_pickle.unlink(missing_ok=True)
 
 
+def _validate_state(state: str) -> _STATE:
+    """Validate the state."""
+    assert state in VALID_STATES
+    return cast(_STATE, state)
+
+
 if __name__ == "__main__":
-    main()
+    if sys.argv[1] in ["-h", "--help", "help", "usage"]:
+        print(__doc__)
+    else:
+        main()
