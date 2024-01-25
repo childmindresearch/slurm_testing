@@ -21,5 +21,5 @@ then
     git commit -m "Add logs for ${PIPELINE} ${DATA} ${SHA}"
     cd "$_WD" || exit 1
 fi
-
-"_C-PAC-STATUS_DATA_SOURCE=${DATA} _C-PAC-STATUS_PRECONFIG=${PIPELINE} _C-PAC-STATUS_SUBJECT=${SUBJECT} _C-PAC-STATUS_STATE=failed ${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"
+# shellcheck disable=SC2276
+_C-PAC-STATUS_DATA_SOURCE="${DATA}" _C-PAC-STATUS_PRECONFIG="${PIPELINE}" _C-PAC-STATUS_SUBJECT="${SUBJECT}" _C-PAC-STATUS_STATE=failed "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"

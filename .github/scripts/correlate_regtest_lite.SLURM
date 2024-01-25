@@ -26,11 +26,11 @@ then
     git commit -m "Add logs for ${PIPELINE} ${DATA} ${SHA}"
     cd "$_WD" || exit 1
 fi
-
-"_C-PAC-STATUS_DATA_SOURCE=${DATA} _C-PAC-STATUS_PRECONFIG=${PIPELINE} _C-PAC-STATUS_SUBJECT=${SUBJECT} _C-PAC-STATUS_STATE=${STATE} ${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"
+# shellcheck disable=SC2276
+_C-PAC-STATUS_DATA_SOURCE="${DATA}" _C-PAC-STATUS_PRECONFIG="${PIPELINE}" _C-PAC-STATUS_SUBJECT="${SUBJECT}" _C-PAC-STATUS_STATE="${STATE}" "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"
 # gh workflow run 'Correlate Regression Test' -F ref="$SHA" -F pipeline1='one' -F pipeline2='two' -F repo="$REPO" -F owner="$OWNER" -F preconfig="$PIPELINE" -F data_source="$DATA"
 
-gh workflow run "Initiate check" -F task="correlate" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Correlate ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"
+# gh workflow run "Initiate check" -F task="correlate" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Correlate ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"
 
 export GITHUB_WORKSPACE="${HOME_DIR}/${IMAGE_NAME}"
 
