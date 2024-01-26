@@ -82,8 +82,11 @@ TMP
             # and the last one done deletes the image
             cp -fl "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PDSD}-${IMAGE}"
             REGLITE_JOB=$(sbatch --parsable --export="_C-PAC-STATUS_DATA_SOURCE=${DATA},_C-PAC-STATUS_PRECONFIG=${PIPELINE} _C-PAC-STATUS_SUBJECT=${SUBJECT} _C-PAC-STATUS_STATE=${STATE},OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA,TOKEN_FILE=${TOKEN_FILE}" --output="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.error.log" "reglite_${IMAGE_NAME}_${PDSU}.sh")
-            # shellcheck disable=SC2276
-            _C-PAC-STATUS_DATA_SOURCE="${DATA}" _C-PAC-STATUS_PRECONFIG="${PIPELINE}" _C-PAC-STATUS_SUBJECT="${SUBJECT}" _C-PAC-STATUS_STATE=pending "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"
+            export _C-PAC-STATUS_DATA_SOURCE="${DATA}"
+            export _C-PAC-STATUS_PRECONFIG="${PIPELINE}"
+            export _C-PAC-STATUS_SUBJECT="${SUBJECT}"
+            export _C-PAC-STATUS_STATE=pending
+            "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"
             if [ -z "$REGLITE_JOBS" ]
             then
                 REGLITE_JOBS="${REGLITE_JOB}"
