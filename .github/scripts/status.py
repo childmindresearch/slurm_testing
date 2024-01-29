@@ -181,7 +181,7 @@ def _validate_state(state: str) -> _STATE:
 
 
 if __name__ == "__main__":
-    if sys.argv[1] in ["-h", "--help", "help", "usage"]:
+    if len(sys.argv) > 1:
         print(__doc__)
     else:
         main()
