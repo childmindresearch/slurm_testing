@@ -21,8 +21,8 @@ then
     git commit -m "Add logs for ${PIPELINE} ${DATA} ${SHA}"
     cd "$_WD" || exit 1
 fi
-export _C-PAC-STATUS_DATA_SOURCE="${DATA}"
-export _C-PAC-STATUS_PRECONFIG="${PIPELINE}"
-export _C-PAC-STATUS_SUBJECT="${SUBJECT}"
-export _C-PAC-STATUS_STATE=failed
+export _CPAC_STATUS_DATA_SOURCE="${DATA}"
+export _CPAC_STATUS_PRECONFIG="${PIPELINE}"
+export _CPAC_STATUS_SUBJECT="${SUBJECT}"
+export _CPAC_STATUS_STATE=failed
 "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"

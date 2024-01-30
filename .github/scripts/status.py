@@ -7,16 +7,16 @@
 """Consolidate job statistics into a single GitHub status.
 
 Requires the following environment variables:
-- _C-PAC-STATUS_DATA_SOURCE: The data source.
-- _C-PAC-STATUS_PRECONFIG: The preconfig.
-- _C-PAC-STATUS_SUBJECT: The subject.
+- _CPAC_STATUS_DATA_SOURCE: The data source.
+- _CPAC_STATUS_PRECONFIG: The preconfig.
+- _CPAC_STATUS_SUBJECT: The subject.
 - GITHUB_TOKEN: A GitHub token with access to the repository.
 - OWNER: The owner of the repository.
 - REPO: The repository.
 - SHA: The commit SHA.
 
 Also optionally accepts the following environment variables:
-- _C-PAC-STATUS_STATE: The state of the run. Defaults to "pending".
+- _CPAC_STATUS_STATE: The state of the run. Defaults to "pending".
 """
 from dataclasses import dataclass
 from fcntl import flock, LOCK_EX, LOCK_UN
@@ -140,7 +140,7 @@ def main() -> None:
     _args_dict: dict[str, str] = cast(
         dict[str, str],
         {
-            var: os.environ.get(f"_C-PAC-STATUS_{var.upper()}")
+            var: os.environ.get(f"_CPAC_STATUS_{var.upper()}")
             for var in ["data_source", "preconfig", "subject", "state"]
             if var is not None
         },
