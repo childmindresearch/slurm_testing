@@ -81,7 +81,9 @@ TMP
             # so we can delete them as we go
             # and the last one done deletes the image
             cp -fl "${HOME_DIR}/${IMAGE}" "${HOME_DIR}/${PDSD}-${IMAGE}"
-            REGLITE_JOB=$(sbatch --parsable --export="_CPAC_STATUS_DATA_SOURCE=${DATA},_CPAC_STATUS_PRECONFIG=${PIPELINE} _CPAC_STATUS_SUBJECT=${SUBJECT} _CPAC_STATUS_STATE=${STATE},OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA,TOKEN_FILE=${TOKEN_FILE}" --output="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.error.log" "reglite_${IMAGE_NAME}_${PDSU}.sh")
+            _COMMAND=(sbatch --parsable --export="_CPAC_STATUS_DATA_SOURCE=${DATA},_CPAC_STATUS_PRECONFIG=${PIPELINE} _CPAC_STATUS_SUBJECT=${SUBJECT} _CPAC_STATUS_STATE=${STATE},OWNER=$OWNER,PATH=$PATH,REPO=$REPO,SHA=$SHA,TOKEN_FILE=${TOKEN_FILE}" --output="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/slurm-${PDSD}/%x.error.log" "reglite_${IMAGE_NAME}_${PDSU}.sh")
+            REGLITE_JOB=$("${_COMMAND[@]}")
+            printf "%s\t%s\n" "$REGLITE_JOB" "${_COMMAND[*]}" >> "${HOME_DIR}/logs/${SHA}/commands.log"
             export _CPAC_STATUS_DATA_SOURCE="${DATA}"
             export _CPAC_STATUS_PRECONFIG="${PIPELINE}"
             export _CPAC_STATUS_SUBJECT="${SUBJECT}"
@@ -97,8 +99,12 @@ TMP
         # Update run check on GitHub Actions and correlate if run succeeded
         if [ "$GH_AVAILABLE" = true ]
         then
-            REGLITE_SUCCESS_JOB=$(sbatch --parsable --dependency=afterok:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" -J 'reglite_success' --export="COMPARISON_PATH=$COMPARISON_PATH,DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA,TOKEN_FILE=$TOKEN_FILE" .github/scripts/correlate_regtest_lite.SLURM)
-            REGLITE_FAILURE_JOB=$(sbatch --parsable --dependency=afternotok:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" -J 'reglite_failure' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA,TOKEN_FILE=${TOKEN_FILE}" .github/scripts/failed_regtest_lite.SLURM)
+            _COMMAND=(sbatch --parsable --dependency=afterok:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" -J 'reglite_success' --export="COMPARISON_PATH=$COMPARISON_PATH,DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA,TOKEN_FILE=$TOKEN_FILE" .github/scripts/correlate_regtest_lite.SLURM)
+            REGLITE_SUCCESS_JOB=$("${_COMMAND[@]}")
+            printf "%s\t%s\n" "$REGLITE_SUCCESS_JOB" "${_COMMAND[*]}" >> "${HOME_DIR}/logs/${SHA}/commands.log"
+            _COMMAND=(sbatch --parsable --dependency=afternotok:"$REGLITE_JOBS" --output="${HOME_DIR}/logs/${SHA}/launch/%x.out.log" --error="${HOME_DIR}/logs/${SHA}/launch/%x.error.log" -J 'reglite_failure' --export="DATA=$DATA,HOME_DIR=$HOME_DIR,OWNER=$OWNER,PATH=$PATH,PIPELINE=$PIPELINE,PUSH_LOGS=$PUSH_LOGS,REPO=$REPO,SHA=$SHA,TOKEN_FILE=${TOKEN_FILE}" .github/scripts/failed_regtest_lite.SLURM)
+            REGLITE_FAILURE_JOB=$("${_COMMAND[@]}")
+            printf "%s\t%s\n" "$REGLITE_FAILURE_JOB" "${_COMMAND[*]}" >> "${HOME_DIR}/logs/${SHA}/commands.log"
         else
             # Launch correlation without GH Actions
             >&2 echo "Automatic correlation not yet enabled without GitHub Actions CLI"
