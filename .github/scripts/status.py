@@ -18,7 +18,7 @@ Requires the following environment variables:
 Also optionally accepts the following environment variables:
 - _CPAC_STATUS_STATE: The state of the run. Defaults to "pending".
 """
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 from fcntl import flock, LOCK_EX, LOCK_UN
 from fractions import Fraction
@@ -201,30 +201,53 @@ def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
     _log[0](*_log[1])  # log info or warning as appropriate
 
 
+class NamespaceWithEnvFallback(Namespace):
+    """Namespace, but with additional ``_env_fallback`` method"""
+
+    def __init__(self, original: Namespace):
+        self.__dict__.update(original.__dict__)
+
+    def _env_fallback(self: Namespace, arg: str) -> str:
+        """Get an argument value from ENV if not passed as an argument."""
+        try:
+            value = getattr(self, arg)
+        except AttributeError:
+            value = None
+        if value is None:
+            env_var = _env_varname(arg)
+            try:
+                return os.environ[env_var]
+            except LookupError:
+                msg = (
+                    f"'{arg}' was not provided. Either set '--{arg}' in the run command"
+                    f" or ${env_var} in the environment."
+                )
+                raise LookupError(msg)
+        return value
+
+
+def _env_varname(arg: str) -> str:
+    """Return an environment argument name given a CLI argument name."""
+    return f"_CPAC_STATUS_{arg.upper().replace('-', '_')}"
+
+
 def main() -> None:
     """Run the script from the commandline."""
     set_working_directory()
     # Parse the arguments
-    _args_dict: dict[str, str] = cast(
-        dict[str, str],
-        {
-            var: os.environ.get(f"_CPAC_STATUS_{var.upper()}")
-            for var in ["data_source", "preconfig", "subject", "state"]
-            if var is not None
-        },
-    )
+    parser, subparsers = _parser()
+    args = parser.parse_args()
+    args = NamespaceWithEnvFallback(args)
+    # args.env_fallback = _env_fallback
+    # if args.command in ["add", "finalize"]:
+    #     state = "pending" if args.command == "add" else args.env_fallback("state")
+
     # if "state" in _args_dict:
     #     state: _STATE = _validate_state(_args_dict.pop("state"))
     #     args = RunStatus(**_args_dict, state=state)
     # else:
     #     args = RunStatus(**_args_dict, state="pending")
     # del _args_dict
-
-    # if status_pickle.exists():
-    #     with status_pickle.open("rb") as _:
-    #         status = pickle.load(_)
-    # else:
-    #     status = TotalStatus({})
 
     # status += RunStatus(args.data_source, args.preconfig, args.subject, args.state)
 
@@ -236,20 +259,46 @@ def main() -> None:
     #     status_pickle.unlink(missing_ok=True)
 
 
-def _parser():
+def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     """Create a parser to parse commandline args."""
     parser = ArgumentParser(prog="status")
-    parser.add_argument(
+    base_parser = ArgumentParser(add_help=False)
+    base_parser.add_argument(
         "--working_directory",
         "--workdir",
         "--wd",
         dest="wd",
-        help="specify working directory",
+        help="specify working directory. falls back on $REGTEST_LOG_DIR if not "
+        "provided, and uses the actual current working directory if that environment "
+        "variable is not set",
     )
-    subparsers = parser.add_subparsers()
-    subparsers.add_parser("add", help="add a run")
-    subparsers.add_parser("finalize", help="finalize a run")
-    return parser
+    update_parser = ArgumentParser(add_help=False)
+    for arg in ["data-source", "preconfig", "subject"]:
+        argstrings = list({f"--{argstr}" for argstr in [arg, arg.replace("-", "_")]})
+        update_parser.add_argument(*argstrings, help=_parser_arg_helpstring(arg))
+    subparsers = parser.add_subparsers(dest="command")
+    for command, description in {
+        "add": "add a run in a pending state",
+        "finalize": "finalize a run (success, failure or error)",
+    }.items():
+        subparsers.add_parser(
+            command,
+            description=description,
+            help=description,
+            parents=[base_parser, update_parser],
+        )
+    subparsers.choices["finalize"].add_argument(
+        "--state",
+        choices=["success", "failure", "error"],
+        help=_parser_arg_helpstring("state"),
+    )
+
+    return parser, subparsers.choices
+
+
+def _parser_arg_helpstring(arg: str) -> str:
+    """return a string describing the optional environment variable"""
+    return f"falls back on ${_env_varname(arg)} if this option is not set"
 
 
 def _validate_state(state: str) -> _STATE:
