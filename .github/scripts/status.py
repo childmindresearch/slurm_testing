@@ -21,16 +21,21 @@ Also optionally accepts the following environment variables:
 from dataclasses import dataclass
 from fcntl import flock, LOCK_EX, LOCK_UN
 from fractions import Fraction
+from logging import basicConfig, getLogger, INFO
 import os
 from pathlib import Path
 import pickle
 import sys
-from typing import cast, Literal
+from typing import cast, Literal, Optional, Union
 
 from github import Github
 
+LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s: %(message)s"
+LOGGER = getLogger(name=__name__)
+PATHSTR = Union[Path, str]
 _STATE = Literal["error", "failure", "pending", "success"]
 VALID_STATES = ["error", "failure", "pending", "success"]
+basicConfig(format=LOG_FORMAT, level=INFO)
 
 
 @dataclass
@@ -134,8 +139,38 @@ class TotalStatus:
     successes.__doc__ = success.__doc__
 
 
+def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
+    """Set working directory.
+
+    Priority order:
+    1. `wd` if `wd` is given.
+    2. `$REGTEST_LOG_DIR` if such environment variable is defined.
+    3. Do nothing.
+    """
+    if wd is None:
+        wd = os.environ.get("REGTEST_LOG_DIR")
+    if not wd:
+        _log = (
+            LOGGER.warning,
+            ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."],
+        )
+    if wd:
+        wd = str(wd)
+        os.chdir(wd)
+        _log = LOGGER.info, ["Set working directory to %s", wd]
+    basicConfig(
+        filename="status.log",
+        encoding="utf8",
+        force=True,
+        format=LOG_FORMAT,
+        level=INFO,
+    )
+    _log[0](*_log[1])  # log info or warning as appropriate
+
+
 def main() -> None:
     """Run the script from the commandline."""
+    set_working_directory()
     # Parse the arguments
     _args_dict: dict[str, str] = cast(
         dict[str, str],
