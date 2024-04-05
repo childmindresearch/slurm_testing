@@ -18,6 +18,7 @@ Requires the following environment variables:
 Also optionally accepts the following environment variables:
 - _CPAC_STATUS_STATE: The state of the run. Defaults to "pending".
 """
+from argparse import ArgumentParser
 from dataclasses import dataclass
 from fcntl import flock, LOCK_EX, LOCK_UN
 from fractions import Fraction
@@ -25,7 +26,6 @@ from logging import basicConfig, getLogger, INFO
 import os
 from pathlib import Path
 import pickle
-import sys
 from typing import cast, Literal, Optional, Union
 
 from github import Github
@@ -54,9 +54,17 @@ class RunStatus:
 
 @dataclass
 class TotalStatus:
-    """A dataclass for storing the total status of all runs for the GitHub Check."""
+    """Store the total status of all runs for the GitHub Check."""
 
-    runs: dict[str, RunStatus]
+    def __init__(
+        self, runs: dict[str, RunStatus], path: Path = Path.cwd() / "status.🥒"
+    ) -> None:
+        self.path = path
+        """Path to status data on disk."""
+        self.runs = {}
+        """Dictionary of runs with individual statuses."""
+        self.load()
+        self.runs.update(runs)
 
     def __add__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
@@ -100,6 +108,16 @@ class TotalStatus:
         self.runs.update({str(other): other})
         return self
 
+    def load(self) -> "TotalStatus":
+        """Load status from disk, replacing current status.
+
+        If no status on disk (at ``self.path``), keep current status.
+        """
+        if self.path.exists():
+            with self.path.open("rb") as _pickle:
+                self.__dict__.update(pickle.load(_pickle).__dict__)
+        return self
+
     @property
     def pending(self) -> Fraction:
         """Return the fraction of runs that are pending."""
@@ -118,6 +136,10 @@ class TotalStatus:
             context="lite regression test",
         )
 
+    def __repr__(self):
+        """Reproducible string for TotalStatus."""
+        return f"TotalStatus({self.runs}, path={self.path})"
+
     @property
     def state(self) -> _STATE:
         """Return the state of the status."""
@@ -126,6 +148,10 @@ class TotalStatus:
         elif self.success > self.failure:
             return "success"
         return "failure"
+
+    def __str__(self):
+        """String representation of TotalStatus."""
+        return "\n".join([f"{key}: {value.state}" for key, value in self.runs.items()])
 
     @property
     def success(self) -> Fraction:
@@ -137,6 +163,13 @@ class TotalStatus:
         return self.success
 
     successes.__doc__ = success.__doc__
+
+    def write(self) -> None:
+        """Write current status to disk."""
+        with self.path.open("wb") as _pickle:
+            flock(_pickle.fileno(), LOCK_EX)  # Lock the file
+            pickle.dump(self, _pickle)  # Write the pickle
+            flock(_pickle.fileno(), LOCK_UN)  # Unlock the file
 
 
 def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
@@ -180,33 +213,43 @@ def main() -> None:
             if var is not None
         },
     )
-    if "state" in _args_dict:
-        state: _STATE = _validate_state(_args_dict.pop("state"))
-        args = RunStatus(**_args_dict, state=state)
-    else:
-        args = RunStatus(**_args_dict, state="pending")
-    del _args_dict
+    # if "state" in _args_dict:
+    #     state: _STATE = _validate_state(_args_dict.pop("state"))
+    #     args = RunStatus(**_args_dict, state=state)
+    # else:
+    #     args = RunStatus(**_args_dict, state="pending")
+    # del _args_dict
 
-    status_pickle = Path.cwd() / "status.🥒"
-    if status_pickle.exists():
-        with status_pickle.open("rb") as _:
-            status = pickle.load(_)
-    else:
-        status = TotalStatus({})
+    # if status_pickle.exists():
+    #     with status_pickle.open("rb") as _:
+    #         status = pickle.load(_)
+    # else:
+    #     status = TotalStatus({})
 
-    status += RunStatus(args.data_source, args.preconfig, args.subject, args.state)
+    # status += RunStatus(args.data_source, args.preconfig, args.subject, args.state)
 
-    with open(status_pickle, "wb") as _:
-        flock(_.fileno(), LOCK_EX)  # Lock the file
-        pickle.dump(status, _)  # Write the pickle
-        flock(_.fileno(), LOCK_UN)  # Unlock the file
+    # status.push()
 
-    status.push()
+    # if (
+    #     status.state != "pending"
+    # ):  # Remove the pickle if the status is no longer pending
+    #     status_pickle.unlink(missing_ok=True)
 
-    if (
-        status.state != "pending"
-    ):  # Remove the pickle if the status is no longer pending
-        status_pickle.unlink(missing_ok=True)
+
+def _parser():
+    """Create a parser to parse commandline args."""
+    parser = ArgumentParser(prog="status")
+    parser.add_argument(
+        "--working_directory",
+        "--workdir",
+        "--wd",
+        dest="wd",
+        help="specify working directory",
+    )
+    subparsers = parser.add_subparsers()
+    subparsers.add_parser("add", help="add a run")
+    subparsers.add_parser("finalize", help="finalize a run")
+    return parser
 
 
 def _validate_state(state: str) -> _STATE:
@@ -216,7 +259,4 @@ def _validate_state(state: str) -> _STATE:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        print(__doc__)
-    else:
-        main()
+    main()
