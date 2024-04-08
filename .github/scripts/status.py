@@ -7,15 +7,15 @@
 """Consolidate job statistics into a single GitHub status.
 
 Requires the following environment variables:
-- _CPAC_STATUS_DATA_SOURCE: The data source.
-- _CPAC_STATUS_PRECONFIG: The preconfig.
-- _CPAC_STATUS_SUBJECT: The subject.
 - GITHUB_TOKEN: A GitHub token with access to the repository.
 - OWNER: The owner of the repository.
 - REPO: The repository.
 - SHA: The commit SHA.
 
-Also optionally accepts the following environment variables:
+Also optionally accepts the following environment variables (or these can be passed as commandline arguments -- see --help):
+- _CPAC_STATUS_DATA_SOURCE: The data source.
+- _CPAC_STATUS_PRECONFIG: The preconfig.
+- _CPAC_STATUS_SUBJECT: The subject.
 - _CPAC_STATUS_STATE: The state of the run. Defaults to "pending".
 """
 from argparse import ArgumentParser, Namespace
@@ -26,7 +26,7 @@ from logging import basicConfig, getLogger, INFO
 import os
 from pathlib import Path
 import pickle
-from typing import cast, Literal, Optional, Union
+from typing import Literal, Optional, Union
 
 from github import Github
 
@@ -34,7 +34,6 @@ LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s: %(message)
 LOGGER = getLogger(name=__name__)
 PATHSTR = Union[Path, str]
 _STATE = Literal["error", "failure", "pending", "success"]
-VALID_STATES = ["error", "failure", "pending", "success"]
 basicConfig(format=LOG_FORMAT, level=INFO)
 
 
@@ -47,9 +46,18 @@ class RunStatus:
     subject: str
     state: _STATE = "pending"
 
+    @property
+    def key(self) -> tuple[str, str, str]:
+        """Return a unique key for each preconfig × data_source × subject."""
+        return self.data_source, self.preconfig, self.subject
+
+    def __repr__(self) -> str:
+        """Return reproducible string representation of the status."""
+        return f"RunStatus({self.data_source}, {self.preconfig}, {self.subject}, {self.state})"
+
     def __str__(self) -> str:
         """Return the string representation of the status."""
-        return f"{self.preconfig} × {self.data_source}: {self.subject}"
+        return f"{self.preconfig} × {self.data_source}: {self.subject} = {self.state}"
 
 
 @dataclass
@@ -57,18 +65,21 @@ class TotalStatus:
     """Store the total status of all runs for the GitHub Check."""
 
     def __init__(
-        self, runs: dict[str, RunStatus], path: Path = Path.cwd() / "status.🥒"
+        self,
+        runs: Optional[list[RunStatus]] = None,
+        path: Path = Path.cwd() / "status.🥒",
     ) -> None:
         self.path = path
         """Path to status data on disk."""
-        self.runs = {}
+        _runs = {} if runs is None else {run.key: run for run in runs}
+        self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary of runs with individual statuses."""
         self.load()
-        self.runs.update(runs)
+        self.runs.update(_runs)
 
     def __add__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
-        return TotalStatus({**self.runs, str(other): other})
+        return TotalStatus([other])
 
     @property
     def _denominator(self) -> int:
@@ -105,7 +116,7 @@ class TotalStatus:
 
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
-        self.runs.update({str(other): other})
+        self.runs.update({other.key: other})
         return self
 
     def load(self) -> "TotalStatus":
@@ -128,10 +139,13 @@ class TotalStatus:
         github_client = Github(os.environ["GITHUB_TOKEN"])
         repo = github_client.get_repo(f"{os.environ['OWNER']}/{os.environ['REPO']}")
         commit = repo.get_commit(sha=os.environ["SHA"])
+        target_url = (
+            f"https://github.com/{os.environ['OWNER']}/regtest-runlogs/tree"
+            f"/{os.environ['REPO']}_{os.environ['SHA']}/launch"
+        )
         commit.create_status(
             state=self.state,
-            target_url=f"https://github.com/{os.environ['OWNER']}/regtest-runlogs/tree"
-            f"/{os.environ['REPO']}_{os.environ['SHA']}/launch",
+            target_url=target_url,
             description=self.description,
             context="lite regression test",
         )
@@ -238,20 +252,15 @@ def main() -> None:
     parser, subparsers = _parser()
     args = parser.parse_args()
     args = NamespaceWithEnvFallback(args)
-    # args.env_fallback = _env_fallback
-    # if args.command in ["add", "finalize"]:
-    #     state = "pending" if args.command == "add" else args.env_fallback("state")
-
-    # if "state" in _args_dict:
-    #     state: _STATE = _validate_state(_args_dict.pop("state"))
-    #     args = RunStatus(**_args_dict, state=state)
-    # else:
-    #     args = RunStatus(**_args_dict, state="pending")
-    # del _args_dict
-
-    # status += RunStatus(args.data_source, args.preconfig, args.subject, args.state)
-
-    # status.push()
+    # Set the state
+    if args.command in ["add", "finalize"]:
+        state: _STATE = (
+            "pending" if args.command == "add" else args.env_fallback("state")
+        )
+        status = TotalStatus(
+            [RunStatus(args.data_source, args.preconfig, args.subject, state)]
+        )
+        status.push()  # set GitHub Action status
 
     # if (
     #     status.state != "pending"
@@ -299,12 +308,6 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
 def _parser_arg_helpstring(arg: str) -> str:
     """return a string describing the optional environment variable"""
     return f"falls back on ${_env_varname(arg)} if this option is not set"
-
-
-def _validate_state(state: str) -> _STATE:
-    """Validate the state."""
-    assert state in VALID_STATES
-    return cast(_STATE, state)
 
 
 if __name__ == "__main__":
