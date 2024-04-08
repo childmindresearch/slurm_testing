@@ -1,0 +1,74 @@
+[tool.poetry]
+name = "cpac_slurm_testing"
+version = "0.1.0"
+description = "A beautiful description."
+authors = ["Amy Gutierrez <58920810+amygutierrez@users.noreply.github.com>", "Jon Clucas <jon.clucas@@childmind.org>"]
+license = "LGPL-2.1"
+readme = "README.md"
+packages = [{include = "cpac_slurm_testing"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.7.0"
+
+[tool.ruff]
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv"
+]
+line-length = 88
+indent-width = 4
+src = ["."]
+target-version = "py310"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+extend-select = ["A", "C4", "D", "EM", "F541", "G", "I", "ICN", "NPY", "PL", "RET", "RSE", "RUF", "Q", "T20", "UP032", "W"]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-sort-within-sections = true
+known-first-party = ["cpac_slurm_testing"]
+no-lines-before = ["collab", "other-first-party", "local-folder"]
+order-by-type = false
+section-order = ["future", "standard-library", "third-party", "collab", "other-first-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.isort.sections]
+"collab" = []
+"other-first-party" = []
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[build-system]
+requires = ["poetry-core>=1.2.0"]
+build-backend = "poetry.core.masonry.api"

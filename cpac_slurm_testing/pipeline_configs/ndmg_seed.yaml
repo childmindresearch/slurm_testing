@@ -4,15 +4,15 @@
 # http://fcp-indi.github.io for more info.
 #
 # Tip: This file can be edited manually with a text editor for quick modifications.
-FROM: default
+FROM: ndmg
 pipeline_setup:
-  pipeline_name: default-bet
-  output_directory: 
+  pipeline_name: ndmg-seed
+  output_directory:
     path: /output/output
-  working_directory: 
+  working_directory:
     path: /output/working
     remove_working_dir: Off
-  log_directory: 
+  log_directory:
     path: /output/log
   system_config:
 
@@ -22,35 +22,3 @@ pipeline_setup:
     # If set to a positive integer (up to 2147483647), that integer will be used to seed each process that accepts a random seed.
     # If set to 'random', a random positive integer (up to 2147483647) will be generated and that seed will be used to seed each process that accepts a random seed.
     random_seed: 77742777
-
-anatomical_preproc:
-
-  run: On
-
-  run_t2: Off
-
-  # Non-local means filtering via ANTs DenoiseImage
-  non_local_means_filtering: 
-
-    # this is a fork option
-    run: [Off]
-
-    # options: 'Gaussian' or 'Rician'
-    noise_model: 'Gaussian'
-
-  # N4 bias field correction via ANTs
-  n4_bias_field_correction:
-
-    # this is a fork option
-    run: [Off]
-
-  brain_extraction:
-  
-    run: On
-
-    # using: ['3dSkullStrip', 'BET', 'UNet', 'niworkflows-ants', 'FreeSurfer-ABCD', 'FreeSurfer-BET-Tight', 'FreeSurfer-BET-Loose']
-    # this is a fork option
-    using: ['BET']
-
-    FSL-BET:
-      robust: On

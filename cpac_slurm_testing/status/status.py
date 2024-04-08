@@ -8,20 +8,22 @@
 
 Requires the following environment variables:
 - GITHUB_TOKEN: A GitHub token with access to the repository.
+- HOME_DIR: Path to the home directory that contains the .apptainer directory for caching
 - OWNER: The owner of the repository.
 - REPO: The repository.
 - SHA: The commit SHA.
 
-Also optionally accepts the following environment variables (or these can be passed as commandline arguments -- see --help):
+Also optionally accepts the following environment variables (or these can be passed as commandline arguments):
 - _CPAC_STATUS_DATA_SOURCE: The data source.
 - _CPAC_STATUS_PRECONFIG: The preconfig.
 - _CPAC_STATUS_SUBJECT: The subject.
 - _CPAC_STATUS_STATE: The state of the run. Defaults to "pending".
 """
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from dataclasses import dataclass
 from fcntl import flock, LOCK_EX, LOCK_UN
 from fractions import Fraction
+from importlib.resources import files
 from logging import basicConfig, getLogger, INFO
 import os
 from pathlib import Path
@@ -30,10 +32,15 @@ from typing import Literal, Optional, Union
 
 from github import Github
 
+HOME_DIR = Path(os.environ.get("HOME_DIR", os.path.expanduser("~")))
 LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s: %(message)s"
 LOGGER = getLogger(name=__name__)
 PATHSTR = Union[Path, str]
 _STATE = Literal["error", "failure", "pending", "success"]
+TEMPLATES = {
+    key: files("cpac_slurm_testing.templates").joinpath(f"{key}.ftxt").read_text()
+    for key in ["lite_run"]
+}
 basicConfig(format=LOG_FORMAT, level=INFO)
 
 
@@ -45,19 +52,46 @@ class RunStatus:
     preconfig: str
     subject: str
     state: _STATE = "pending"
+    image: str = "image"
+    image_name: str = "image_name"
+
+    def command(self, command_type: str) -> str:
+        """Return a command string for a given command_type."""
+        return TEMPLATES[command_type].format(
+            datapath=HOME_DIR / f"DATA/reg_5mm_pack/data/{self.data_source}",
+            home_dir=HOME_DIR,
+            image=self.image,
+            image_name=self.image_name,
+            output=self.out("lite") / self.data_source,
+            pdsd=f"{self.preconfig}-{self.data_source}-{self.subject}",
+            pipeline={self.preconfig},
+            pipeline_configs=str(files("pipeline_configs").joinpath("")),
+            subject={self.subject},
+            wd=Path.cwd(),
+        )
+
+    def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
+        """Return the path to the output directory."""
+        return HOME_DIR / lite_or_full / self.image_name
 
     @property
     def key(self) -> tuple[str, str, str]:
-        """Return a unique key for each preconfig × data_source × subject."""
+        """Return a unique key for each preconfig × data_source × subject."""  # noqa: RUF002
         return self.data_source, self.preconfig, self.subject
 
     def __repr__(self) -> str:
         """Return reproducible string representation of the status."""
-        return f"RunStatus({self.data_source}, {self.preconfig}, {self.subject}, {self.state})"
+        return (
+            f"RunStatus({self.data_source}, {self.preconfig}, {self.subject}, "
+            f"{self.state})"
+        )
 
     def __str__(self) -> str:
         """Return the string representation of the status."""
-        return f"{self.preconfig} × {self.data_source}: {self.subject} = {self.state}"
+        return (
+            f"{self.preconfig} × {self.data_source}: "  # noqa: RUF001
+            f"{self.subject} = {self.state}"
+        )
 
 
 @dataclass
@@ -69,7 +103,7 @@ class TotalStatus:
         runs: Optional[list[RunStatus]] = None,
         path: Path = Path.cwd() / "status.🥒",
     ) -> None:
-        self.path = path
+        self.path = Path(path)
         """Path to status data on disk."""
         _runs = {} if runs is None else {run.key: run for run in runs}
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
@@ -99,7 +133,7 @@ class TotalStatus:
         return self.fraction("failure") + self.fraction("error")
 
     @property
-    def failures(self) -> Fraction:
+    def failures(self) -> Fraction:  # noqa: D102
         return self.failure
 
     failures.__doc__ = failure.__doc__
@@ -112,7 +146,8 @@ class TotalStatus:
                 self._denominator,
             )
         except ZeroDivisionError:
-            raise ProcessLookupError("No runs have been logged as started.")
+            msg = "No runs have been logged as started."
+            raise ProcessLookupError(msg)
 
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
@@ -151,7 +186,7 @@ class TotalStatus:
         )
 
     def __repr__(self):
-        """Reproducible string for TotalStatus."""
+        """Return reproducible string for TotalStatus."""
         return f"TotalStatus({self.runs}, path={self.path})"
 
     @property
@@ -159,12 +194,12 @@ class TotalStatus:
         """Return the state of the status."""
         if self.pending:
             return "pending"
-        elif self.success > self.failure:
+        if self.success > self.failure:
             return "success"
         return "failure"
 
     def __str__(self):
-        """String representation of TotalStatus."""
+        """Return string representation of TotalStatus."""
         return "\n".join([f"{key}: {value.state}" for key, value in self.runs.items()])
 
     @property
@@ -173,7 +208,7 @@ class TotalStatus:
         return self.fraction("success")
 
     @property
-    def successes(self) -> Fraction:
+    def successes(self) -> Fraction:  # noqa: D102
         return self.success
 
     successes.__doc__ = success.__doc__
@@ -216,7 +251,7 @@ def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
 
 
 class NamespaceWithEnvFallback(Namespace):
-    """Namespace, but with additional ``_env_fallback`` method"""
+    """Namespace, but with additional ``_env_fallback`` method."""
 
     def __init__(self, original: Namespace):
         self.__dict__.update(original.__dict__)
@@ -270,7 +305,9 @@ def main() -> None:
 
 def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     """Create a parser to parse commandline args."""
-    parser = ArgumentParser(prog="status")
+    parser = ArgumentParser(
+        prog="status", description=__doc__, formatter_class=RawDescriptionHelpFormatter
+    )
     base_parser = ArgumentParser(add_help=False)
     base_parser.add_argument(
         "--working_directory",
@@ -306,7 +343,7 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
 
 
 def _parser_arg_helpstring(arg: str) -> str:
-    """return a string describing the optional environment variable"""
+    """Return a string describing the optional environment variable."""
     return f"falls back on ${_env_varname(arg)} if this option is not set"
 
 

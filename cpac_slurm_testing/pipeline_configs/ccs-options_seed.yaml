@@ -4,15 +4,15 @@
 # http://fcp-indi.github.io for more info.
 #
 # Tip: This file can be edited manually with a text editor for quick modifications.
-FROM: default
+FROM: ccs-options
 pipeline_setup:
-  pipeline_name: cpac-default-pipeline
-  output_directory: 
+  pipeline_name: ccs-options-seed
+  output_directory:
     path: /output/output
-  working_directory: 
+  working_directory:
     path: /output/working
     remove_working_dir: Off
-  log_directory: 
+  log_directory:
     path: /output/log
   system_config:
 

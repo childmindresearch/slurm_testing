@@ -20,10 +20,10 @@ repos:
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: v2.12.0
   hooks:
-  - id: pretty-format-yaml
-    args:
-    - --autofix
-    - --indent=2
+  # - id: pretty-format-yaml
+  #   args:
+  #   - --autofix
+  #   - --indent=2
   - id: pretty-format-toml
     exclude: ^poetry.lock$
     args:
