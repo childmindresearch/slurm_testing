@@ -109,11 +109,17 @@ class TotalStatus:
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary of runs with individual statuses."""
         self.load()
+        initial_state = self.state
         self.runs.update(_runs)
+        if initial_state == "idle":
+            if self.state != "idle":
+                self.push()
 
     def __add__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
-        return TotalStatus([other])
+        runs = self.runs.copy()
+        runs.update({other.key: other})
+        return TotalStatus(runs=list(runs.values()), path=self.path)
 
     @property
     def _denominator(self) -> int:
@@ -154,6 +160,10 @@ class TotalStatus:
         self.runs.update({other.key: other})
         return self
 
+    def __len__(self):
+        """Return the number of runs included in this status."""
+        return len(self.runs)
+
     def load(self) -> "TotalStatus":
         """Load status from disk, replacing current status.
 
@@ -187,11 +197,13 @@ class TotalStatus:
 
     def __repr__(self):
         """Return reproducible string for TotalStatus."""
-        return f"TotalStatus({self.runs}, path={self.path})"
+        return f"TotalStatus({self.runs}, path='{self.path}')"
 
     @property
-    def state(self) -> _STATE:
+    def state(self) -> Union[_STATE, Literal["idle"]]:
         """Return the state of the status."""
+        if len(self) == 0:
+            return "idle"
         if self.pending:
             return "pending"
         if self.success > self.failure:
@@ -284,18 +296,21 @@ def main() -> None:
     """Run the script from the commandline."""
     set_working_directory()
     # Parse the arguments
-    parser, subparsers = _parser()
+    parser, _subparsers = _parser()
     args = parser.parse_args()
     args = NamespaceWithEnvFallback(args)
-    # Set the state
+    # Update the status
     if args.command in ["add", "finalize"]:
-        state: _STATE = (
-            "pending" if args.command == "add" else args.env_fallback("state")
+        TotalStatus(
+            [
+                RunStatus(
+                    args.data_source,
+                    args.preconfig,
+                    args.subject,
+                    getattr(args, "state"),
+                )
+            ]
         )
-        status = TotalStatus(
-            [RunStatus(args.data_source, args.preconfig, args.subject, state)]
-        )
-        status.push()  # set GitHub Action status
 
     # if (
     #     status.state != "pending"
