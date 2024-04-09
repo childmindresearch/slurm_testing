@@ -28,6 +28,9 @@ from logging import basicConfig, getLogger, INFO
 import os
 from pathlib import Path
 import pickle
+
+# import subprocess
+from tempfile import NamedTemporaryFile
 from typing import Literal, Optional, Union
 
 from github import Github
@@ -54,6 +57,7 @@ class RunStatus:
     state: _STATE = "pending"
     image: str = "image"
     image_name: str = "image_name"
+    job_id: Optional[int] = None
 
     def command(self, command_type: str) -> str:
         """Return a command string for a given command_type."""
@@ -65,19 +69,29 @@ class RunStatus:
             output=self.out("lite") / self.data_source,
             pdsd=f"{self.preconfig}-{self.data_source}-{self.subject}",
             pipeline={self.preconfig},
-            pipeline_configs=str(files("pipeline_configs").joinpath("")),
+            pipeline_configs=str(
+                files("cpac_slurm_testing.pipeline_configs").joinpath("")
+            ),
             subject={self.subject},
             wd=Path.cwd(),
         )
-
-    def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
-        """Return the path to the output directory."""
-        return HOME_DIR / lite_or_full / self.image_name
 
     @property
     def key(self) -> tuple[str, str, str]:
         """Return a unique key for each preconfig × data_source × subject."""  # noqa: RUF002
         return self.data_source, self.preconfig, self.subject
+
+    def launch(self, command_type: str) -> None:
+        """Launch a SLURM job and return its job ID."""
+        with open(NamedTemporaryFile(), "w", encoding="utf8") as _f:
+            _f.write(self.command(command_type))
+            command = ["sbatch", "--parsable", _f.name]
+            LOGGER.info(" ".join(command))
+            # self.job_id = int(subprocess.run(command, capture_output=True).stdout.split(" ")[0])
+
+    def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
+        """Return the path to the output directory."""
+        return HOME_DIR / lite_or_full / self.image_name
 
     def __repr__(self) -> str:
         """Return reproducible string representation of the status."""

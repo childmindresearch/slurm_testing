@@ -10,7 +10,7 @@
 set -x
 
 export APPTAINER_CACHEDIR={home_dir}/.apptainer/cache \
-APPTAINER_LOCALCACHEDIR={home_dir}/.apptainer/tmp
+       APPTAINER_LOCALCACHEDIR={home_dir}/.apptainer/tmp
 
 apptainer run \
     --cleanenv \
