@@ -47,9 +47,65 @@ TEMPLATES = {
 basicConfig(format=LOG_FORMAT, level=INFO)
 
 
+class SlurmJobStatus:
+    """Store a SLURM job status."""
+
+    def __init__(self, scontrol_output: str):
+        """Convert the scontrol_output into individual values."""
+        self._scontrol_dict: dict[str, Optional[str]] = {
+            key: (value if value != "(null)" else None)
+            for item in scontrol_output.split()
+            for key, value in [
+                (
+                    item.split("=", maxsplit=1)
+                    if not item.endswith("=")
+                    else [item[:-1], "(null)"]
+                )
+            ]
+        }
+
+    def __eq__(self, other) -> bool:
+        """Return True if SLURM job status dictionaries are equal, else False."""
+        if not isinstance(other, SlurmJobStatus):
+            return False
+        return self._scontrol_dict == other._scontrol_dict
+
+    def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
+        """Return the value for key if key is in the SLURM job status, else default."""
+        try:
+            return getattr(self, key)
+        except (AttributeError, KeyError):
+            return default
+
+    def __getattr__(self, attr: str) -> Optional[str]:
+        """Return an attribute from the scontrol output."""
+        try:
+            return self._scontrol_dict[attr]
+        except KeyError:
+            raise AttributeError
+
+    def __getitem__(self, item: str) -> Optional[str]:
+        """Return an item from the scontrol output."""
+        return self._scontrol_dict[item]
+
+    def __repr__(self) -> str:
+        """Return reproducible string represntation of SLURM job status."""
+        _str = " ".join(
+            [
+                "=".join([key, (value if value else "(null)")])
+                for key, value in self._scontrol_dict.items()
+            ]
+        )
+        return f"SlurmJobStatus('{_str}')"
+
+    def __str__(self) -> str:
+        """Return string representation of SLURM job status."""
+        return f"{self.get('JobId')} ({self.get('Command')}): {self.get('JobState')}"
+
+
 @dataclass
 class RunStatus:
-    """A dataclass for storing the status of a run for the GitHub Check."""
+    """Store the status of a run for the GitHub Check."""
 
     data_source: str
     preconfig: str
@@ -92,6 +148,12 @@ class RunStatus:
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
         return HOME_DIR / lite_or_full / self.image_name
+
+    @property
+    def job_status(self) -> str:
+        """Return the SLURM job status."""
+        pass  # TODO
+        return ""
 
     def __repr__(self) -> str:
         """Return reproducible string representation of the status."""
