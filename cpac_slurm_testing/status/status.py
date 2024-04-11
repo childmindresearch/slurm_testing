@@ -35,6 +35,7 @@ from typing import Literal, Optional, overload, Union
 
 from github import Github
 
+_COMMAND_TYPES = Literal["lite_run"]
 DRY_RUN: bool = False
 """Skip actually running commands?"""
 HOME_DIR = Path(os.environ.get("HOME_DIR", os.path.expanduser("~")))
@@ -58,7 +59,7 @@ JOB_STATES: dict[_JOB_STATE, _STATE] = {
     "RUNNING": "pending",
     "SUSPENDED": "pending",
 }
-LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s: %(message)s"
+LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s:\n\t%(message)s\n"
 LOGGER = getLogger(name=__name__)
 PATHSTR = Union[Path, str]
 TEMPLATES = {
@@ -66,6 +67,12 @@ TEMPLATES = {
     for key in ["lite_run"]
 }
 basicConfig(format=LOG_FORMAT, level=INFO)
+
+
+def indented_lines(lines: str) -> str:
+    """Return a multiline string with each line indented one tab."""
+    _lines = lines.split("\n")
+    return "\n".join([_lines[0], *[f"\t{line}" for line in _lines[1:]]]).rstrip()
 
 
 class SlurmJobStatus:
@@ -183,18 +190,22 @@ class RunStatus:
 
     def command(self, command_type: str) -> str:
         """Return a command string for a given command_type."""
+        pdsd = f"{self.preconfig}-{self.data_source}-{self.subject}"
+        wd = Path.cwd() / f"slurm-{pdsd}"
+        LOGGER.info("mkdir %s", wd)
+        wd.mkdir(parents=True, exist_ok=True)
         return TEMPLATES[command_type].format(
             datapath=HOME_DIR / f"DATA/reg_5mm_pack/data/{self.data_source}",
             home_dir=HOME_DIR,
             image=self.image,
             image_name=self.image_name,
             output=self.out("lite") / self.data_source,
-            pdsd=f"{self.preconfig}-{self.data_source}-{self.subject}",
-            pipeline={self.preconfig},
+            pdsd=pdsd,
+            pipeline=self.preconfig,
             pipeline_configs=str(
                 files("cpac_slurm_testing.pipeline_configs").joinpath("")
             ),
-            subject={self.subject},
+            subject=self.subject,
             wd=Path.cwd(),
         )
 
@@ -203,10 +214,15 @@ class RunStatus:
         """Return a unique key for each preconfig × data_source × subject."""  # noqa: RUF002
         return self.data_source, self.preconfig, self.subject
 
-    def launch(self, command_type: str) -> None:
+    def launch(self, command_type: _COMMAND_TYPES) -> None:
         """Launch a SLURM job and set its job ID."""
-        with open(NamedTemporaryFile(), "w", encoding="utf8") as _f:
+        with NamedTemporaryFile(mode="w", encoding="utf8", delete=False) as _f:
             _f.write(self.command(command_type))
+            _f.close()
+            with open(_f.name, "r", encoding="utf8") as _command_file:
+                LOGGER.info(
+                    "%s:\n\n\t%s", _f.name, indented_lines(_command_file.read())
+                )
             command = ["sbatch", "--parsable", _f.name]
             LOGGER.info(" ".join(command))
             if DRY_RUN:
@@ -279,6 +295,8 @@ class TotalStatus:
         self.path = Path(path)
         """Path to status data on disk."""
         _runs = {} if runs is None else {run.key: run for run in runs}
+        for run in _runs.values():
+            run.launch("lite_run")
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary of runs with individual statuses."""
         self.load()
@@ -325,9 +343,7 @@ class TotalStatus:
 
     def log(self) -> None:
         """Log current total status."""
-        LOGGER.info(
-            "%s", "\n" + "\n".join([f"\t{line}" for line in str(self).split("\n")])
-        )
+        LOGGER.info("%s", indented_lines(str(self)))
 
     @property
     def pending(self) -> Fraction:
