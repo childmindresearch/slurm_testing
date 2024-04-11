@@ -28,18 +28,39 @@ from logging import basicConfig, getLogger, INFO
 import os
 from pathlib import Path
 import pickle
-
-# import subprocess
+from random import choice, randint
+import subprocess
 from tempfile import NamedTemporaryFile
-from typing import Literal, Optional, Union
+from typing import Literal, Optional, overload, Union
 
 from github import Github
 
+DRY_RUN: bool = False
+"""Skip actually running commands?"""
 HOME_DIR = Path(os.environ.get("HOME_DIR", os.path.expanduser("~")))
+_JOB_STATE = Literal[
+    "COMPLETED",
+    "COMPLETING",
+    "FAILED",
+    "PENDING",
+    "PREEMPTED",
+    "RUNNING",
+    "SUSPENDED",
+    "STOPPED",
+]
+_STATE = Literal["error", "failure", "pending", "success"]
+JOB_STATES: dict[_JOB_STATE, _STATE] = {
+    "COMPLETED": "success",
+    "COMPLETING": "pending",
+    "FAILED": "failure",
+    "PENDING": "pending",
+    "PREEMPTED": "error",
+    "RUNNING": "pending",
+    "SUSPENDED": "pending",
+}
 LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s: %(message)s"
 LOGGER = getLogger(name=__name__)
 PATHSTR = Union[Path, str]
-_STATE = Literal["error", "failure", "pending", "success"]
 TEMPLATES = {
     key: files("cpac_slurm_testing.templates").joinpath(f"{key}.ftxt").read_text()
     for key in ["lite_run"]
@@ -70,23 +91,48 @@ class SlurmJobStatus:
             return False
         return self._scontrol_dict == other._scontrol_dict
 
+    @overload
+    def get(
+        self, key: Literal["JobState"], default: _JOB_STATE = "PENDING"
+    ) -> _JOB_STATE:
+        ...
+
+    @overload
     def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
+        ...
+
+    def get(self, key, default):
         """Return the value for key if key is in the SLURM job status, else default."""
         try:
             return getattr(self, key)
         except (AttributeError, KeyError):
             return default
 
-    def __getattr__(self, attr: str) -> Optional[str]:
+    def __getattr__(self, name: str) -> Optional[str]:
         """Return an attribute from the scontrol output."""
         try:
-            return self._scontrol_dict[attr]
+            return self[name]
         except KeyError:
             raise AttributeError
 
+    @overload
+    def __getitem__(self, item: Literal["JobState"]) -> _JOB_STATE:
+        ...
+
+    @overload
     def __getitem__(self, item: str) -> Optional[str]:
+        ...
+
+    def __getitem__(self, item):
         """Return an item from the scontrol output."""
-        return self._scontrol_dict[item]
+        return self._scontrol_dict.get(item)
+
+    @property
+    def job_state(self) -> _JOB_STATE:
+        """Return JobState from SLURM."""
+        if DRY_RUN:
+            return choice(list(JOB_STATES.keys()))
+        return self["JobState"]
 
     def __repr__(self) -> str:
         """Return reproducible string represntation of SLURM job status."""
@@ -114,6 +160,26 @@ class RunStatus:
     image: str = "image"
     image_name: str = "image_name"
     job_id: Optional[int] = None
+    _slurm_job_status: Optional[SlurmJobStatus] = None
+
+    def check_slurm(self) -> None:
+        """Check SLURM job status."""
+        if DRY_RUN:
+            if self.job_id:
+                self._slurm_job_status = SlurmJobStatus(f"JobId={self.job_id}")
+        else:
+            try:
+                self._slurm_job_status = SlurmJobStatus(
+                    subprocess.run(
+                        ["scontrol", "show", "job", str(self.job_id)],
+                        capture_output=True,
+                        check=True,
+                    ).stdout.decode()
+                )
+            except subprocess.CalledProcessError:
+                self.state = "error"
+        if self.state != "error" and self._slurm_job_status:
+            self.state = JOB_STATES[self._slurm_job_status.job_state]
 
     def command(self, command_type: str) -> str:
         """Return a command string for a given command_type."""
@@ -138,12 +204,20 @@ class RunStatus:
         return self.data_source, self.preconfig, self.subject
 
     def launch(self, command_type: str) -> None:
-        """Launch a SLURM job and return its job ID."""
+        """Launch a SLURM job and set its job ID."""
         with open(NamedTemporaryFile(), "w", encoding="utf8") as _f:
             _f.write(self.command(command_type))
             command = ["sbatch", "--parsable", _f.name]
             LOGGER.info(" ".join(command))
-            # self.job_id = int(subprocess.run(command, capture_output=True).stdout.split(" ")[0])
+            if DRY_RUN:
+                LOGGER.info("Dry run.")
+                self.job_id = randint(1, 99999999)
+            else:
+                self.job_id = int(
+                    subprocess.run(command, capture_output=True, check=False)
+                    .stdout.decode()
+                    .split(" ")[0]
+                )
 
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
@@ -151,9 +225,10 @@ class RunStatus:
 
     @property
     def job_status(self) -> str:
-        """Return the SLURM job status."""
-        pass  # TODO
-        return ""
+        """Return the job's status per the SLURM job state."""
+        if self.state == "pending":
+            self.check_slurm()
+        return self.state
 
     def __repr__(self) -> str:
         """Return reproducible string representation of the status."""
@@ -375,6 +450,9 @@ def main() -> None:
     parser, _subparsers = _parser()
     args = parser.parse_args()
     args = NamespaceWithEnvFallback(args)
+    if args.dry_run:
+        global DRY_RUN  # noqa: PLW0603
+        DRY_RUN = True
     # Update the status
     if args.command in ["add", "finalize"]:
         TotalStatus(
@@ -408,6 +486,9 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
         help="specify working directory. falls back on $REGTEST_LOG_DIR if not "
         "provided, and uses the actual current working directory if that environment "
         "variable is not set",
+    )
+    base_parser.add_argument(
+        "--dry-run", action="store_true", help="If set, jobs will not be run."
     )
     update_parser = ArgumentParser(add_help=False)
     for arg in ["data-source", "preconfig", "subject"]:
