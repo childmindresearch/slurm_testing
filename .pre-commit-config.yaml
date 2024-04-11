@@ -36,6 +36,11 @@ repos:
   hooks:
   - id: mypy
 
+- repo: https://github.com/bwhmather/ssort
+  rev: 0.12.4
+  hooks:
+  - id: ssort
+
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.5.0
   hooks:

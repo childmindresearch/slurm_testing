@@ -85,12 +85,6 @@ class SlurmJobStatus:
             ]
         }
 
-    def __eq__(self, other) -> bool:
-        """Return True if SLURM job status dictionaries are equal, else False."""
-        if not isinstance(other, SlurmJobStatus):
-            return False
-        return self._scontrol_dict == other._scontrol_dict
-
     @overload
     def get(
         self, key: Literal["JobState"], default: _JOB_STATE = "PENDING"
@@ -107,6 +101,13 @@ class SlurmJobStatus:
             return getattr(self, key)
         except (AttributeError, KeyError):
             return default
+
+    @property
+    def job_state(self) -> _JOB_STATE:
+        """Return JobState from SLURM."""
+        if DRY_RUN:
+            return choice(list(JOB_STATES.keys()))
+        return self["JobState"]
 
     def __getattr__(self, name: str) -> Optional[str]:
         """Return an attribute from the scontrol output."""
@@ -127,12 +128,11 @@ class SlurmJobStatus:
         """Return an item from the scontrol output."""
         return self._scontrol_dict.get(item)
 
-    @property
-    def job_state(self) -> _JOB_STATE:
-        """Return JobState from SLURM."""
-        if DRY_RUN:
-            return choice(list(JOB_STATES.keys()))
-        return self["JobState"]
+    def __eq__(self, other) -> bool:
+        """Return True if SLURM job status dictionaries are equal, else False."""
+        if not isinstance(other, SlurmJobStatus):
+            return False
+        return self._scontrol_dict == other._scontrol_dict
 
     def __repr__(self) -> str:
         """Return reproducible string represntation of SLURM job status."""
@@ -249,6 +249,28 @@ class RunStatus:
 class TotalStatus:
     """Store the total status of all runs for the GitHub Check."""
 
+    @property
+    def failure(self) -> Fraction:
+        """Return the fraction of runs that are failures."""
+        return self.fraction("failure") + self.fraction("error")
+
+    @property
+    def failures(self) -> Fraction:  # noqa: D102
+        return self.failure
+
+    failures.__doc__ = failure.__doc__
+
+    @property
+    def success(self) -> Fraction:
+        """Return the fraction of runs that are successful."""
+        return self.fraction("success")
+
+    @property
+    def successes(self) -> Fraction:  # noqa: D102
+        return self.success
+
+    successes.__doc__ = success.__doc__
+
     def __init__(
         self,
         runs: Optional[list[RunStatus]] = None,
@@ -266,12 +288,6 @@ class TotalStatus:
             if self.state != "idle":
                 self.push()
 
-    def __add__(self, other: RunStatus) -> "TotalStatus":
-        """Add a run to the total status."""
-        runs = self.runs.copy()
-        runs.update({other.key: other})
-        return TotalStatus(runs=list(runs.values()), path=self.path)
-
     @property
     def _denominator(self) -> int:
         """Return the number of runs."""
@@ -284,17 +300,6 @@ class TotalStatus:
             f"{self.success} successful, {self.failures} failed, {self.pending} pending"
         )
 
-    @property
-    def failure(self) -> Fraction:
-        """Return the fraction of runs that are failures."""
-        return self.fraction("failure") + self.fraction("error")
-
-    @property
-    def failures(self) -> Fraction:  # noqa: D102
-        return self.failure
-
-    failures.__doc__ = failure.__doc__
-
     def fraction(self, status: _STATE) -> Fraction:
         """Return the fraction of runs that are successful."""
         try:
@@ -305,15 +310,6 @@ class TotalStatus:
         except ZeroDivisionError:
             msg = "No runs have been logged as started."
             raise ProcessLookupError(msg)
-
-    def __iadd__(self, other: RunStatus) -> "TotalStatus":
-        """Add a run to the total status."""
-        self.runs.update({other.key: other})
-        return self
-
-    def __len__(self):
-        """Return the number of runs included in this status."""
-        return len(self.runs)
 
     def load(self) -> "TotalStatus":
         """Load status from disk, replacing current status.
@@ -346,10 +342,6 @@ class TotalStatus:
             context="lite regression test",
         )
 
-    def __repr__(self):
-        """Return reproducible string for TotalStatus."""
-        return f"TotalStatus({self.runs}, path='{self.path}')"
-
     @property
     def state(self) -> Union[_STATE, Literal["idle"]]:
         """Return the state of the status."""
@@ -361,27 +353,35 @@ class TotalStatus:
             return "success"
         return "failure"
 
-    def __str__(self):
-        """Return string representation of TotalStatus."""
-        return "\n".join([f"{key}: {value.state}" for key, value in self.runs.items()])
-
-    @property
-    def success(self) -> Fraction:
-        """Return the fraction of runs that are successful."""
-        return self.fraction("success")
-
-    @property
-    def successes(self) -> Fraction:  # noqa: D102
-        return self.success
-
-    successes.__doc__ = success.__doc__
-
     def write(self) -> None:
         """Write current status to disk."""
         with self.path.open("wb") as _pickle:
             flock(_pickle.fileno(), LOCK_EX)  # Lock the file
             pickle.dump(self, _pickle)  # Write the pickle
             flock(_pickle.fileno(), LOCK_UN)  # Unlock the file
+
+    def __len__(self):
+        """Return the number of runs included in this status."""
+        return len(self.runs)
+
+    def __add__(self, other: RunStatus) -> "TotalStatus":
+        """Add a run to the total status."""
+        runs = self.runs.copy()
+        runs.update({other.key: other})
+        return TotalStatus(runs=list(runs.values()), path=self.path)
+
+    def __iadd__(self, other: RunStatus) -> "TotalStatus":
+        """Add a run to the total status."""
+        self.runs.update({other.key: other})
+        return self
+
+    def __repr__(self):
+        """Return reproducible string for TotalStatus."""
+        return f"TotalStatus({self.runs}, path='{self.path}')"
+
+    def __str__(self):
+        """Return string representation of TotalStatus."""
+        return "\n".join([f"{key}: {value.state}" for key, value in self.runs.items()])
 
 
 def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
@@ -413,6 +413,11 @@ def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
     _log[0](*_log[1])  # log info or warning as appropriate
 
 
+def _env_varname(arg: str) -> str:
+    """Return an environment argument name given a CLI argument name."""
+    return f"_CPAC_STATUS_{arg.upper().replace('-', '_')}"
+
+
 class NamespaceWithEnvFallback(Namespace):
     """Namespace, but with additional ``_env_fallback`` method."""
 
@@ -438,33 +443,9 @@ class NamespaceWithEnvFallback(Namespace):
         return value
 
 
-def _env_varname(arg: str) -> str:
-    """Return an environment argument name given a CLI argument name."""
-    return f"_CPAC_STATUS_{arg.upper().replace('-', '_')}"
-
-
-def main() -> None:
-    """Run the script from the commandline."""
-    set_working_directory()
-    # Parse the arguments
-    parser, _subparsers = _parser()
-    args = parser.parse_args()
-    args = NamespaceWithEnvFallback(args)
-    if args.dry_run:
-        global DRY_RUN  # noqa: PLW0603
-        DRY_RUN = True
-    # Update the status
-    if args.command in ["add", "finalize"]:
-        TotalStatus(
-            [
-                RunStatus(
-                    args.data_source,
-                    args.preconfig,
-                    args.subject,
-                    getattr(args, "state"),
-                )
-            ]
-        )
+def _parser_arg_helpstring(arg: str) -> str:
+    """Return a string describing the optional environment variable."""
+    return f"falls back on ${_env_varname(arg)} if this option is not set"
 
     # if (
     #     status.state != "pending"
@@ -514,9 +495,28 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     return parser, subparsers.choices
 
 
-def _parser_arg_helpstring(arg: str) -> str:
-    """Return a string describing the optional environment variable."""
-    return f"falls back on ${_env_varname(arg)} if this option is not set"
+def main() -> None:
+    """Run the script from the commandline."""
+    set_working_directory()
+    # Parse the arguments
+    parser, _subparsers = _parser()
+    args = parser.parse_args()
+    args = NamespaceWithEnvFallback(args)
+    if args.dry_run:
+        global DRY_RUN  # noqa: PLW0603
+        DRY_RUN = True
+    # Update the status
+    if args.command in ["add", "finalize"]:
+        TotalStatus(
+            [
+                RunStatus(
+                    args.data_source,
+                    args.preconfig,
+                    args.subject,
+                    getattr(args, "state"),
+                )
+            ]
+        )
 
 
 if __name__ == "__main__":
