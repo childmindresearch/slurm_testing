@@ -284,6 +284,8 @@ class TotalStatus:
         self.load()
         initial_state = self.state
         self.runs.update(_runs)
+        self.log()
+        self.write()
         if initial_state == "idle":
             if self.state != "idle":
                 self.push()
@@ -320,6 +322,12 @@ class TotalStatus:
             with self.path.open("rb") as _pickle:
                 self.__dict__.update(pickle.load(_pickle).__dict__)
         return self
+
+    def log(self) -> None:
+        """Log current total status."""
+        LOGGER.info(
+            "%s", "\n" + "\n".join([f"\t{line}" for line in str(self).split("\n")])
+        )
 
     @property
     def pending(self) -> Fraction:
@@ -486,6 +494,7 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
             help=description,
             parents=[base_parser, update_parser],
         )
+    subparsers.choices["add"].set_defaults(state="pending")
     subparsers.choices["finalize"].add_argument(
         "--state",
         choices=["success", "failure", "error"],
