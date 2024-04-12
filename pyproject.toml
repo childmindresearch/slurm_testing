@@ -8,6 +8,7 @@ readme = "README.md"
 packages = [{include = "cpac_slurm_testing", from = "src"}]
 
 [tool.poetry.dependencies]
+cpac_regression_dashboard = {git = "https://github.com/shnizzedy/dashboard.git", branch = "correlate_D3"}
 python = ">=3.10"
 
 [tool.poetry.group.dev.dependencies]

@@ -23,7 +23,6 @@ git reset --hard origin/main
 git checkout --force origin/main
 
 FULL_SUCCESS_DEPENDENCIES=""
-pip install git+https://github.com/shnizzedy/dashboard@correlate_D3
 
 for PIPELINE in ${PRECONFIGS}; do
 

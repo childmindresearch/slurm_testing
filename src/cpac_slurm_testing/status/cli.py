@@ -99,11 +99,6 @@ def _parser_arg_helpstring(arg: str) -> str:
     """Return a string describing the optional environment variable."""
     return f"falls back on ${_env_varname(arg)} if this option is not set"
 
-    # if (
-    #     status.status != "pending"
-    # ):  # Remove the pickle if the status is no longer pending
-    #     status_pickle.unlink(missing_ok=True)
-
 
 def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     """Create a parser to parse commandline args."""

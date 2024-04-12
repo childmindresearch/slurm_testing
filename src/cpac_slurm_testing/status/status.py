@@ -293,6 +293,26 @@ class TotalStatus:
         if initial_state == "idle":
             if self.status != "idle" and not _global.DRY_RUN:
                 self.push()
+        elif self.status != "pending" and not _global.DRY_RUN:
+            self.push()
+            self.correlate()
+        else:
+            self.check_again_later(time="now+30minutes")
+
+    def check_again_later(self, time: str) -> None:
+        """Wait, then check the status again.
+
+        Parameters
+        ----------
+        time : str
+        A ``time`` for SLURM. See https://slurm.schedmd.com/sbatch.html#OPT_begin
+        """
+        LOGGER.info("sbatch --begin=%s", time)
+        pass  # TODO
+
+    def correlate(self) -> None:
+        """Launch correlation process."""
+        pass  # TODO
 
     @property
     def _denominator(self) -> int:
@@ -354,7 +374,7 @@ class TotalStatus:
 
     @property
     def status(self) -> Union[_STATE, Literal["idle"]]:
-        """Return the status of the status."""
+        """Return the status."""
         if len(self) == 0:
             return "idle"
         if self.pending:
