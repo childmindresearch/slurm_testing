@@ -14,7 +14,8 @@ python = ">=3.10"
 pre-commit = "^3.7.0"
 
 [tool.poetry.scripts]
-cpac_slurm_status = "cpac_slurm_testing.status.status:main"
+"cpac-slurm-status" = "cpac_slurm_testing.status.cli:main"
+cpac_slurm_status = "cpac_slurm_testing.status.cli:main"
 
 [tool.mypy]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/src/cpac_slurm_testing"
