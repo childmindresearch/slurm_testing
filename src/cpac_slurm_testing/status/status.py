@@ -520,7 +520,7 @@ def main() -> None:
     parser, _subparsers = _parser()
     args = parser.parse_args()
     args = NamespaceWithEnvFallback(args)
-    if args.dry_run:
+    if getattr(args, "dry_run", False):
         _global.DRY_RUN = True
     # Update the status
     if args.command in ["add", "finalize"]:

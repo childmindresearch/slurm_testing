@@ -5,7 +5,7 @@ description = "A beautiful description."
 authors = ["Amy Gutierrez <58920810+amygutierrez@users.noreply.github.com>", "Jon Clucas <jon.clucas@@childmind.org>"]
 license = "LGPL-2.1"
 readme = "README.md"
-packages = [{include = "cpac_slurm_testing"}]
+packages = [{include = "cpac_slurm_testing", from = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10"
@@ -13,8 +13,11 @@ python = ">=3.10"
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"
 
+[tool.poetry.scripts]
+cpac_slurm_status = "cpac_slurm_testing.status.status:main"
+
 [tool.mypy]
-mypy_path = "$MYPY_CONFIG_FILE_DIR/cpac_slurm_testing"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src/cpac_slurm_testing"
 
 [tool.ruff]
 exclude = [
