@@ -13,6 +13,9 @@ python = ">=3.10"
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"
 
+[tool.mypy]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/cpac_slurm_testing"
+
 [tool.ruff]
 exclude = [
   ".bzr",

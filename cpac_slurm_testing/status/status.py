@@ -17,7 +17,7 @@ Also optionally accepts the following environment variables (or these can be pas
 - _CPAC_STATUS_DATA_SOURCE: The data source.
 - _CPAC_STATUS_PRECONFIG: The preconfig.
 - _CPAC_STATUS_SUBJECT: The subject.
-- _CPAC_STATUS_STATE: The state of the run. Defaults to "pending".
+- _CPAC_STATUS_STATE: The status of the run. Defaults to "pending".
 """
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from dataclasses import dataclass
@@ -35,37 +35,19 @@ from typing import Literal, Optional, overload, Union
 
 from github import Github
 
-_COMMAND_TYPES = Literal["lite_run"]
-DRY_RUN: bool = False
-"""Skip actually running commands?"""
-HOME_DIR = Path(os.environ.get("HOME_DIR", os.path.expanduser("~")))
-_JOB_STATE = Literal[
-    "COMPLETED",
-    "COMPLETING",
-    "FAILED",
-    "PENDING",
-    "PREEMPTED",
-    "RUNNING",
-    "SUSPENDED",
-    "STOPPED",
-]
-_STATE = Literal["error", "failure", "pending", "success"]
-JOB_STATES: dict[_JOB_STATE, _STATE] = {
-    "COMPLETED": "success",
-    "COMPLETING": "pending",
-    "FAILED": "failure",
-    "PENDING": "pending",
-    "PREEMPTED": "error",
-    "RUNNING": "pending",
-    "SUSPENDED": "pending",
-}
-LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s:\n\t%(message)s\n"
+from cpac_slurm_testing.status import _global
+from cpac_slurm_testing.status._global import (
+    _COMMAND_TYPES,
+    _JOB_STATE,
+    _STATE,
+    HOME_DIR,
+    JOB_STATES,
+    LOG_FORMAT,
+    PATHSTR,
+    TEMPLATES,
+)
+
 LOGGER = getLogger(name=__name__)
-PATHSTR = Union[Path, str]
-TEMPLATES = {
-    key: files("cpac_slurm_testing.templates").joinpath(f"{key}.ftxt").read_text()
-    for key in ["lite_run"]
-}
 basicConfig(format=LOG_FORMAT, level=INFO)
 
 
@@ -112,16 +94,9 @@ class SlurmJobStatus:
     @property
     def job_state(self) -> _JOB_STATE:
         """Return JobState from SLURM."""
-        if DRY_RUN:
+        if _global.DRY_RUN:
             return choice(list(JOB_STATES.keys()))
         return self["JobState"]
-
-    def __getattr__(self, name: str) -> Optional[str]:
-        """Return an attribute from the scontrol output."""
-        try:
-            return self[name]
-        except KeyError:
-            raise AttributeError
 
     @overload
     def __getitem__(self, item: Literal["JobState"]) -> _JOB_STATE:
@@ -163,7 +138,7 @@ class RunStatus:
     data_source: str
     preconfig: str
     subject: str
-    state: _STATE = "pending"
+    status: _STATE = "pending"
     image: str = "image"
     image_name: str = "image_name"
     job_id: Optional[int] = None
@@ -171,7 +146,7 @@ class RunStatus:
 
     def check_slurm(self) -> None:
         """Check SLURM job status."""
-        if DRY_RUN:
+        if _global.DRY_RUN:
             if self.job_id:
                 self._slurm_job_status = SlurmJobStatus(f"JobId={self.job_id}")
         else:
@@ -184,9 +159,9 @@ class RunStatus:
                     ).stdout.decode()
                 )
             except subprocess.CalledProcessError:
-                self.state = "error"
-        if self.state != "error" and self._slurm_job_status:
-            self.state = JOB_STATES[self._slurm_job_status.job_state]
+                self.status = "error"
+        if self.status != "error" and self._slurm_job_status:
+            self.status = JOB_STATES[self._slurm_job_status.job_state]
 
     def command(self, command_type: str) -> str:
         """Return a command string for a given command_type."""
@@ -216,6 +191,17 @@ class RunStatus:
 
     def launch(self, command_type: _COMMAND_TYPES) -> None:
         """Launch a SLURM job and set its job ID."""
+        _command_types = eval(
+            str(_COMMAND_TYPES).replace(
+                str(
+                    _COMMAND_TYPES.__origin__  # type: ignore[attr-defined]
+                ),
+                "",
+            )
+        )
+        if command_type not in _command_types:
+            msg = f"{command_type} not in {_command_types}"
+            raise KeyError(msg)
         with NamedTemporaryFile(mode="w", encoding="utf8", delete=False) as _f:
             _f.write(self.command(command_type))
             _f.close()
@@ -225,7 +211,7 @@ class RunStatus:
                 )
             command = ["sbatch", "--parsable", _f.name]
             LOGGER.info(" ".join(command))
-            if DRY_RUN:
+            if _global.DRY_RUN:
                 LOGGER.info("Dry run.")
                 self.job_id = randint(1, 99999999)
             else:
@@ -241,23 +227,23 @@ class RunStatus:
 
     @property
     def job_status(self) -> str:
-        """Return the job's status per the SLURM job state."""
-        if self.state == "pending":
+        """Return the job's status per the SLURM job status."""
+        if self.status == "pending":
             self.check_slurm()
-        return self.state
+        return self.status
 
     def __repr__(self) -> str:
         """Return reproducible string representation of the status."""
         return (
             f"RunStatus({self.data_source}, {self.preconfig}, {self.subject}, "
-            f"{self.state})"
+            f"{self.status})"
         )
 
     def __str__(self) -> str:
         """Return the string representation of the status."""
         return (
             f"{self.preconfig} × {self.data_source}: "  # noqa: RUF001
-            f"{self.subject} = {self.state}"
+            f"{self.subject} = {self.status}"
         )
 
 
@@ -292,6 +278,8 @@ class TotalStatus:
         runs: Optional[list[RunStatus]] = None,
         path: Path = Path.cwd() / "status.🥒",
     ) -> None:
+        if _global.DRY_RUN:
+            path = Path(f"{path.name}.dry")
         self.path = Path(path)
         """Path to status data on disk."""
         _runs = {} if runs is None else {run.key: run for run in runs}
@@ -300,12 +288,12 @@ class TotalStatus:
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary of runs with individual statuses."""
         self.load()
-        initial_state = self.state
+        initial_state = self.status
         self.runs.update(_runs)
         self.log()
         self.write()
         if initial_state == "idle":
-            if self.state != "idle":
+            if self.status != "idle" and not _global.DRY_RUN:
                 self.push()
 
     @property
@@ -324,7 +312,7 @@ class TotalStatus:
         """Return the fraction of runs that are successful."""
         try:
             return Fraction(
-                sum(run.state == status for run in self.runs.values()),
+                sum(run.job_status == status for run in self.runs.values()),
                 self._denominator,
             )
         except ZeroDivisionError:
@@ -360,15 +348,15 @@ class TotalStatus:
             f"/{os.environ['REPO']}_{os.environ['SHA']}/launch"
         )
         commit.create_status(
-            state=self.state,
+            status=self.status,
             target_url=target_url,
             description=self.description,
             context="lite regression test",
         )
 
     @property
-    def state(self) -> Union[_STATE, Literal["idle"]]:
-        """Return the state of the status."""
+    def status(self) -> Union[_STATE, Literal["idle"]]:
+        """Return the status of the status."""
         if len(self) == 0:
             return "idle"
         if self.pending:
@@ -383,6 +371,10 @@ class TotalStatus:
             flock(_pickle.fileno(), LOCK_EX)  # Lock the file
             pickle.dump(self, _pickle)  # Write the pickle
             flock(_pickle.fileno(), LOCK_UN)  # Unlock the file
+
+    def __getitem__(self, item: tuple[str, str, str]) -> RunStatus:
+        """Get a run by `(data_source, pipeline, subject)`."""
+        return self.runs[item]
 
     def __len__(self):
         """Return the number of runs included in this status."""
@@ -405,7 +397,7 @@ class TotalStatus:
 
     def __str__(self):
         """Return string representation of TotalStatus."""
-        return "\n".join([f"{key}: {value.state}" for key, value in self.runs.items()])
+        return "\n".join([f"{key}: {value.status}" for key, value in self.runs.items()])
 
 
 def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
@@ -472,7 +464,7 @@ def _parser_arg_helpstring(arg: str) -> str:
     return f"falls back on ${_env_varname(arg)} if this option is not set"
 
     # if (
-    #     status.state != "pending"
+    #     status.status != "pending"
     # ):  # Remove the pickle if the status is no longer pending
     #     status_pickle.unlink(missing_ok=True)
 
@@ -501,7 +493,8 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
         update_parser.add_argument(*argstrings, help=_parser_arg_helpstring(arg))
     subparsers = parser.add_subparsers(dest="command")
     for command, description in {
-        "add": "add a run in a pending state",
+        "add": "add a run in a pending status",
+        "check": "check a run's status in SLURM",
         "finalize": "finalize a run (success, failure or error)",
     }.items():
         subparsers.add_parser(
@@ -510,11 +503,11 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
             help=description,
             parents=[base_parser, update_parser],
         )
-    subparsers.choices["add"].set_defaults(state="pending")
+    subparsers.choices["add"].set_defaults(status="pending")
     subparsers.choices["finalize"].add_argument(
-        "--state",
+        "--status",
         choices=["success", "failure", "error"],
-        help=_parser_arg_helpstring("state"),
+        help=_parser_arg_helpstring("status"),
     )
 
     return parser, subparsers.choices
@@ -528,8 +521,7 @@ def main() -> None:
     args = parser.parse_args()
     args = NamespaceWithEnvFallback(args)
     if args.dry_run:
-        global DRY_RUN  # noqa: PLW0603
-        DRY_RUN = True
+        _global.DRY_RUN = True
     # Update the status
     if args.command in ["add", "finalize"]:
         TotalStatus(
@@ -538,10 +530,20 @@ def main() -> None:
                     args.data_source,
                     args.preconfig,
                     args.subject,
-                    getattr(args, "state"),
+                    getattr(args, "status"),
                 )
             ]
         )
+    elif args.command == "check":
+        status = TotalStatus()
+        status[
+            (
+                args.data_source,
+                args.preconfig,
+                args.subject,
+            )
+        ].job_status
+        LOGGER.info(status)
 
 
 if __name__ == "__main__":
