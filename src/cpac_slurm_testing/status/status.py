@@ -208,7 +208,6 @@ class RunStatus:
                     "%s:\n\n\t%s", _f.name, indented_lines(_command_file.read())
                 )
             command = ["sbatch", "--parsable", _f.name]
-            LOGGER.info(" ".join(command))
             if _global.DRY_RUN:
                 LOGGER.info("Dry run.")
                 self.job_id = randint(1, 99999999)
@@ -218,6 +217,7 @@ class RunStatus:
                     .stdout.decode()
                     .split(" ")[0]
                 )
+            LOGGER.info("%s = %s", self.job_id, " ".join(command))
 
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
@@ -307,8 +307,17 @@ class TotalStatus:
         time : str
         A ``time`` for SLURM. See https://slurm.schedmd.com/sbatch.html#OPT_begin
         """
-        LOGGER.info("sbatch --begin=%s", time)
-        pass  # TODO
+        cmd = [
+            "sbatch",
+            f"--begin={time}",
+            "cpac_slurm_status",
+            "check-all",
+            f'--wd="{Path.cwd()}"',
+        ]
+        if _global.DRY_RUN:
+            cmd = [*cmd, "--dry-run"]
+        LOGGER.info(" ".join(cmd))
+        subprocess.run(cmd, check=False)
 
     def correlate(self) -> None:
         """Launch correlation process."""
