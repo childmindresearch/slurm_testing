@@ -415,4 +415,9 @@ class TotalStatus:
 
     def __str__(self):
         """Return string representation of TotalStatus."""
-        return "\n".join([f"{key}: {value.status}" for key, value in self.runs.items()])
+        return "\n".join(
+            [
+                f"{key} ({value.job_id}): {value.status}"
+                for key, value in self.runs.items()
+            ]
+        )

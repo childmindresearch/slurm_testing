@@ -169,11 +169,11 @@ def update(args: Namespace) -> None:
 
 def main() -> None:
     """Run the script from the commandline."""
-    set_working_directory()
     # Parse the arguments
     parser, _subparsers = _parser()
     args = parser.parse_args()
     args = NamespaceWithEnvFallback(args)
+    set_working_directory(args.wd)
     if getattr(args, "dry_run", False):
         _global.DRY_RUN = True
     # Update the status
