@@ -72,7 +72,7 @@ section-order = ["future", "standard-library", "third-party", "collab", "other-f
 
 [tool.ruff.lint.isort.sections]
 "collab" = []
-"other-first-party" = []
+"other-first-party" = ["cpac_regression_dashboard"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"

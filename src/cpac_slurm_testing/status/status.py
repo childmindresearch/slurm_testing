@@ -33,6 +33,7 @@ from tempfile import NamedTemporaryFile
 from typing import Literal, Optional, overload, Union
 
 from github import Github
+from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 
 from cpac_slurm_testing.status import _global
 from cpac_slurm_testing.status._global import (
@@ -47,6 +48,11 @@ from cpac_slurm_testing.status._global import (
 
 LOGGER = getLogger(name=__name__)
 basicConfig(format=LOG_FORMAT, level=INFO)
+
+
+def get_latest() -> str:
+    """Get the latest C-PAC ref."""
+    return ""  # TODO
 
 
 def indented_lines(lines: str) -> str:
@@ -259,6 +265,7 @@ class TotalStatus:
         return self.failure
 
     failures.__doc__ = failure.__doc__
+    # return HOME_DIR / lite_or_full / self.image_name
 
     @property
     def success(self) -> Fraction:
@@ -299,13 +306,19 @@ class TotalStatus:
         else:
             self.check_again_later(time="now+30minutes")
 
+    def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
+        """Return the path to the output directory."""
+        if self.runs:
+            return next(iter((self.runs.values()))).out(lite_or_full)
+        return HOME_DIR / lite_or_full
+
     def check_again_later(self, time: str) -> None:
         """Wait, then check the status again.
 
         Parameters
         ----------
         time : str
-        A ``time`` for SLURM. See https://slurm.schedmd.com/sbatch.html#OPT_begin
+           A ``time`` for SLURM. See https://slurm.schedmd.com/sbatch.html#OPT_begin
         """
         cmd = [
             "sbatch",
@@ -319,8 +332,35 @@ class TotalStatus:
         LOGGER.info(" ".join(cmd))
         subprocess.run(cmd, check=False)
 
-    def correlate(self) -> None:
+    def correlate(self, n_cpus: int = 4) -> None:
         """Launch correlation process."""
+        this_pipeline = self.out("lite")
+        latest_ref = this_pipeline.parent / get_latest()
+        for data_source in self.runs:
+            if _global.DRY_RUN:
+                LOGGER.info(
+                    ", ".join(
+                        [
+                            f"cpac_yaml(pipeline1={this_pipeline})",
+                            "pipeline2={latest_ref}",
+                            f"correlations_dir={this_pipeline.parent / 'correlations'}",
+                            f"run_name={os.environ['SHA']}",
+                            f"n_cpus={n_cpus}",
+                            f"branch={os.environ['SHA']}",
+                            f"data_source={data_source})",
+                        ]
+                    )
+                )
+            else:
+                cpac_yaml(
+                    pipeline1=str(this_pipeline),
+                    pipeline2=str(latest_ref),
+                    correlations_dir=str(this_pipeline.parent / "correlations"),
+                    run_name=os.environ["SHA"],
+                    n_cpus=n_cpus,
+                    branch=os.environ["SHA"],
+                    data_source=data_source,
+                )
         pass  # TODO
 
     @property
