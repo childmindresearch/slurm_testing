@@ -143,10 +143,9 @@ class RunStatus:
     preconfig: str
     subject: str
     status: _STATE = "pending"
-    image: str = "image"
-    image_name: str = "image_name"
     job_id: Optional[int] = None
     _slurm_job_status: Optional[SlurmJobStatus] = None
+    _total: Optional["TotalStatus"] = None
 
     def check_slurm(self) -> None:
         """Check SLURM job status."""
@@ -173,11 +172,12 @@ class RunStatus:
         wd = Path.cwd() / f"slurm-{pdsd}"
         LOGGER.info("mkdir %s", wd)
         wd.mkdir(parents=True, exist_ok=True)
+        assert self._total is not None
         return TEMPLATES[command_type].format(
             datapath=HOME_DIR / f"DATA/reg_5mm_pack/data/{self.data_source}",
             home_dir=HOME_DIR,
-            image=self.image,
-            image_name=self.image_name,
+            image=self._total.image,
+            image_name=self._total.image_name,
             output=self.out("lite") / self.data_source,
             pdsd=pdsd,
             pipeline=self.preconfig,
@@ -227,7 +227,8 @@ class RunStatus:
 
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
-        return HOME_DIR / lite_or_full / self.image_name
+        assert self._total is not None
+        return self._total.out(lite_or_full)
 
     @property
     def job_status(self) -> str:
@@ -240,7 +241,7 @@ class RunStatus:
         """Return reproducible string representation of the status."""
         return (
             f"RunStatus({self.data_source}, {self.preconfig}, {self.subject}, "
-            f"{self.status})"
+            f"{self.status}, _total={self._total})"
         )
 
     def __str__(self) -> str:
@@ -265,7 +266,6 @@ class TotalStatus:
         return self.failure
 
     failures.__doc__ = failure.__doc__
-    # return HOME_DIR / lite_or_full / self.image_name
 
     @property
     def success(self) -> Fraction:
@@ -282,10 +282,14 @@ class TotalStatus:
         self,
         runs: Optional[list[RunStatus]] = None,
         path: Path = Path.cwd() / "status.🥒",
+        image: str = "image",
+        image_name: str = "image_name",
     ) -> None:
         if _global.DRY_RUN:
             path = Path(f"{path.name}.dry")
         self.path = Path(path)
+        self.image = image
+        self.image_name = image_name
         """Path to status data on disk."""
         _runs = {} if runs is None else {run.key: run for run in runs}
         for run in _runs.values():
@@ -295,6 +299,8 @@ class TotalStatus:
         self.load()
         initial_state = self.status
         self.runs.update(_runs)
+        for run in self.runs.values():
+            run._total = self
         self.log()
         self.write()
         if initial_state == "idle":
@@ -308,9 +314,7 @@ class TotalStatus:
 
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
-        if self.runs:
-            return next(iter((self.runs.values()))).out(lite_or_full)
-        return HOME_DIR / lite_or_full
+        return HOME_DIR / lite_or_full / self.image_name
 
     def check_again_later(self, time: str) -> None:
         """Wait, then check the status again.
