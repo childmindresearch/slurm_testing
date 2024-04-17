@@ -30,7 +30,7 @@ export _CPAC_STATUS_DATA_SOURCE="${DATA}"
 export _CPAC_STATUS_PRECONFIG="${PIPELINE}"
 export _CPAC_STATUS_SUBJECT="${SUBJECT}"
 export _CPAC_STATUS_STATE="${STATE}"
-"${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"
+# "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"
 # gh workflow run 'Correlate Regression Test' -F ref="$SHA" -F pipeline1='one' -F pipeline2='two' -F repo="$REPO" -F owner="$OWNER" -F preconfig="$PIPELINE" -F data_source="$DATA"
 
 # gh workflow run "Initiate check" -F task="correlate" -F ref="$SHA" -F repo="$REPO" -F owner="$OWNER" -F job="${PIPELINE}-${DATA}-${IMAGE_NAME}" -F preconfig="$PIPELINE" -F data_source="$DATA" || echo "Correlate ${PIPELINE}-${DATA}-${IMAGE_NAME} initiated"

@@ -25,4 +25,4 @@ export _CPAC_STATUS_DATA_SOURCE="${DATA}"
 export _CPAC_STATUS_PRECONFIG="${PIPELINE}"
 export _CPAC_STATUS_SUBJECT="${SUBJECT}"
 export _CPAC_STATUS_STATE=failed
-"${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"
+# "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/status.py"
