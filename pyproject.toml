@@ -1,11 +1,15 @@
 [tool.poetry]
 name = "cpac_slurm_testing"
-version = "0.1.0"
+version = "0.1.0.dev1"
 description = "A beautiful description."
 authors = ["Amy Gutierrez <58920810+amygutierrez@users.noreply.github.com>", "Jon Clucas <jon.clucas@@childmind.org>"]
 license = "LGPL-2.1"
 readme = "README.md"
 packages = [{include = "cpac_slurm_testing", from = "src"}]
+
+[tool.poetry.build]
+generate-setup-file = false
+script = "./src/cpac_slurm_testing/__init__.py"
 
 [tool.poetry.dependencies]
 cpac_regression_dashboard = {git = "https://github.com/shnizzedy/dashboard.git", branch = "correlate_D3"}
