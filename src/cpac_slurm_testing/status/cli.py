@@ -4,6 +4,7 @@ from logging import basicConfig, getLogger, INFO
 import os
 from typing import Optional
 
+from cpac_slurm_testing.launch import launch, LaunchParameters
 from cpac_slurm_testing.status import _global
 from cpac_slurm_testing.status._global import (
     LOG_FORMAT,
@@ -13,6 +14,16 @@ from cpac_slurm_testing.status.status import RunStatus, TotalStatus
 
 LOGGER = getLogger(name=__name__)
 basicConfig(format=LOG_FORMAT, level=INFO)
+
+
+def _argstring(arg: str) -> list[str]:
+    """Return all versions of an arg with dashes or underscores."""
+    return list(
+        {
+            f"--{argstr}"
+            for argstr in [arg, arg.replace("-", "_"), arg.replace("_", "-")]
+        }
+    )
 
 
 def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
@@ -123,8 +134,7 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     )
     update_parser = ArgumentParser(add_help=False)
     for arg in ["data-source", "preconfig", "subject"]:
-        argstrings = list({f"--{argstr}" for argstr in [arg, arg.replace("-", "_")]})
-        update_parser.add_argument(*argstrings, help=_parser_arg_helpstring(arg))
+        update_parser.add_argument(*_argstring(arg), help=_parser_arg_helpstring(arg))
     subparsers = parser.add_subparsers(dest="command")
     for command, description in {
         "add": "add a run in a pending status",
@@ -141,7 +151,16 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     subparsers.add_parser(
         "check-all", description=_description, help=_description, parents=[base_parser]
     )
+    _description = "launch a regression test"
+    subparsers.add_parser(
+        "launch", description=_description, help=_description, parents=[base_parser]
+    )
     del _description
+    for arg in LaunchParameters().keys():
+        if arg != "dry_run":
+            subparsers.choices["launch"].add_argument(
+                *_argstring(arg), help=_parser_arg_helpstring(arg)
+            )
     subparsers.choices["add"].set_defaults(status="pending")
     subparsers.choices["finalize"].add_argument(
         "--status",
@@ -183,6 +202,20 @@ def main() -> None:
         check(args)
     elif args.command == "check-all":
         check_all()
+    elif args.command == "launch":
+        launch(
+            LaunchParameters(
+                comparison_path=args.comparison_path,
+                dashboard_repo=args.dashboard_repo,
+                home_dir=args.home_dir,
+                image=args.image,
+                owner=args.owner,
+                path_extra=args.path_extra,
+                repo=args.repo,
+                sha=args.sha,
+                token_file=args.token_file,
+            )
+        )
 
 
 if __name__ == "__main__":
