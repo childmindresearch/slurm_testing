@@ -4,6 +4,7 @@ from logging import basicConfig, getLogger, INFO
 import os
 from typing import Optional
 
+from cpac_slurm_testing import __version__
 from cpac_slurm_testing.launch import launch, LaunchParameters
 from cpac_slurm_testing.status import _global
 from cpac_slurm_testing.status._global import (
@@ -161,6 +162,9 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
             subparsers.choices["launch"].add_argument(
                 *_argstring(arg), help=_parser_arg_helpstring(arg)
             )
+    parser.add_argument(
+        "--version", "-v", action="version", version=f"%(prog)s {__version__}"
+    )
     subparsers.choices["add"].set_defaults(status="pending")
     subparsers.choices["finalize"].add_argument(
         "--status",
