@@ -65,7 +65,7 @@ def launch(parameters: LaunchParameters) -> None:
             parameters.as_slurm_export,
             f"--output={parameters.log_dir}/out.log",
             f"--error={parameters.log_dir}/error.log",
-            str(repo.parent.parent / "regression_run_scripts/regtest_lite.sh"),
+            str(repo / "regression_run_scripts/regtest_lite.sh"),
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
