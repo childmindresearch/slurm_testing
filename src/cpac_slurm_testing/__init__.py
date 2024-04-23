@@ -1,8 +1,35 @@
 #!/usr/bin/env python3
 """Automatic management of C-PAC regression tests via SLURM."""
 from importlib.metadata import PackageNotFoundError, version
+from importlib.resources import as_file, files
 from pathlib import Path
 import subprocess
+from typing import Optional
+
+
+def get_git_version(project_version=str) -> str:
+    """Get version from git."""
+    # memoized on disk
+    with as_file(files("cpac_slurm_testing")) as repo:
+        version_file = repo / "version"
+        if version_file.exists():
+            with open(version_file, "r", encoding="utf8") as _f:
+                return _f.read()
+
+    try:
+        git_version: Optional[str] = (
+            subprocess.check_output(["git", "describe", "--always"]).strip().decode()
+        )
+    except subprocess.CalledProcessError:
+        git_version = None
+
+    if git_version:
+        project_version = f"{project_version}@{git_version}"
+
+    # memoize on disk
+    with open(version_file, "w", encoding="utf-8") as _f:
+        _f.write(project_version)
+    return project_version
 
 
 def get_version_from_toml(toml: Path) -> str:
@@ -25,22 +52,7 @@ def get_version() -> str:
     if ".dev" not in _version:
         return _version
 
-    version_file = Path("version")
-    if version_file.exists():
-        with open(version_file, "r", encoding="utf8") as _f:
-            return _f.read()
-
-    try:
-        git_version = (
-            subprocess.check_output(["git", "describe", "--always"]).strip().decode()
-        )
-        _version = f"{_version}@{git_version}"
-        with open(version_file, "w", encoding="utf-8") as _f:
-            _f.write(_version)
-    except subprocess.CalledProcessError:
-        pass
-
-    return _version
+    return get_git_version(_version)
 
 
 __version__ = get_version()
