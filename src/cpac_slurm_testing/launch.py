@@ -23,7 +23,7 @@ class LaunchParameters:
     owner: str = ""
     path_extra: str = ""
     repo: str = ""
-    testing_repo: str = ""
+    slurm_testing_repo: str = ""
     sha: str = ""
     token_file: PATH_OR_STR = ""
     _: KW_ONLY
@@ -54,7 +54,7 @@ class LaunchParameters:
     @property
     def as_slurm_export(self) -> str:
         """Return as environment variable ``--export`` argument for sbatch."""
-        return f'--export="{",".join(["=".join(item) for item in self.as_environment_variables.items() if item[0]])}"'
+        return f'--export={",".join(["=".join(item) for item in self.as_environment_variables.items() if item[0]])}'
 
 
 def launch(parameters: LaunchParameters) -> None:
