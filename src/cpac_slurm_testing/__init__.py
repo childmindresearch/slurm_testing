@@ -24,7 +24,7 @@ def get_git_version(project_version=str) -> str:
         git_version = None
 
     if git_version:
-        project_version = f"{project_version}@{git_version}"
+        project_version = f"{project_version.strip()}@{git_version.strip()}"
 
     # memoize on disk
     with open(version_file, "w", encoding="utf-8") as _f:
