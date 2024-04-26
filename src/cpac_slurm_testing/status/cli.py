@@ -209,16 +209,7 @@ def main() -> None:
     elif args.command == "launch":
         launch(
             LaunchParameters(
-                comparison_path=args.comparison_path,
-                dashboard_repo=args.dashboard_repo,
-                home_dir=args.home_dir,
-                image=args.image,
-                owner=args.owner,
-                path_extra=args.path_extra,
-                repo=args.repo,
-                sha=args.sha,
-                slurm_testing_repo=args.slurm_testing_repo,
-                token_file=args.token_file,
+                **{key: getattr(args, key) for key in LaunchParameters.keys()}
             )
         )
 

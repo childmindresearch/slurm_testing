@@ -41,8 +41,9 @@ sbatch \
   --owner="${{ github.repository_owner }}" \
   --path-extra="${{ env.GH_CLI_BIN_PATH }}" \
   --repo="${{ github.repository }}" \
-  --slurm-testing-repo="${{ env.SLURM_TESTING_REPO }}" \
   --sha="${{ github.sha }}" \
+  --slurm-testing-branch="${{ env.SLURM_TESTING_BRANCH }}" \
+  --slurm-testing-repo="${{ env.SLURM_TESTING_REPO }}" \
   --token-file="${{ env.TOKEN_FILE }}"
 ```
 

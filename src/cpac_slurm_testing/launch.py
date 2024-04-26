@@ -23,8 +23,9 @@ class LaunchParameters:
     owner: str = ""
     path_extra: str = ""
     repo: str = ""
-    slurm_testing_repo: str = ""
     sha: str = ""
+    slurm_testing_branch: str = ""
+    slurm_testing_repo: str = ""
     token_file: PATH_OR_STR = ""
     _: KW_ONLY
     dry_run: bool = False
@@ -38,9 +39,10 @@ class LaunchParameters:
             self.repo = self.repo.split("/", 1)[-1]
         self.token_file: Path = Path(self.token_file)
 
-    def keys(self) -> list[str]:
+    @staticmethod
+    def keys() -> list[str]:
         """Return list of parameters."""
-        return list(asdict(self).keys())
+        return list(LaunchParameters.__dataclass_fields__.keys())
 
     @property
     def as_environment_variables(self) -> dict[str, str]:
