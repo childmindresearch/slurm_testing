@@ -10,11 +10,15 @@ from typing import Optional
 def get_git_version(project_version=str) -> str:
     """Get version from git."""
     # memoized on disk
-    with as_file(files("cpac_slurm_testing")) as repo:
-        version_file = repo / "version"
-        if version_file.exists():
-            with open(version_file, "r", encoding="utf8") as _f:
-                return _f.read()
+    try:
+        with as_file(files("cpac_slurm_testing")) as repo:
+            version_file: Optional[Path] = repo / "version"
+            assert version_file is not None
+            if version_file.exists():
+                with open(version_file, "r", encoding="utf8") as _f:
+                    return _f.read()
+    except (ModuleNotFoundError, PackageNotFoundError):
+        version_file = None
 
     try:
         git_version: Optional[str] = (
@@ -26,9 +30,10 @@ def get_git_version(project_version=str) -> str:
     if git_version:
         project_version = f"{project_version.strip()}@{git_version.strip()}"
 
-    # memoize on disk
-    with open(version_file, "w", encoding="utf-8") as _f:
-        _f.write(project_version)
+    if version_file:
+        # memoize on disk
+        with open(version_file, "w", encoding="utf-8") as _f:
+            _f.write(project_version)
     return project_version
 
 
