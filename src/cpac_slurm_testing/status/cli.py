@@ -217,6 +217,7 @@ def main() -> None:
                 path_extra=args.path_extra,
                 repo=args.repo,
                 sha=args.sha,
+                slurm_testing_repo=args.slurm_testing_repo,
                 token_file=args.token_file,
             )
         )
