@@ -9,7 +9,7 @@ Note: this repository is currently in the process of transitioning to a <span ti
 
 ### Launch a 'lite' regression test run
 
-Set up a GitHub Actions workflow configuration file to call [`.github/scripts/launch_regtest_lite.SLURM`](.github/scripts/launch_regtest_lite.SLURM). Use contexts, secrets and environment variables to pass the required variables to the SLURM script from GitHub Actions.
+Set up a GitHub Actions workflow configuration file to call [`cpac-slurm-status launch`](./src/cpac_slurm_testing/status/cli.py#L209-L222). Use contexts, secrets and environment variables to pass the required variables to the script from GitHub Actions.
 
 #### Required variables
 
@@ -32,10 +32,18 @@ Set up a GitHub Actions workflow configuration file to call [`.github/scripts/la
 
 ```BASH
 sbatch \
-  --export="HOME_DIR=${HOME_DIR},IMAGE=${IMAGE},OWNER=${OWNER},PATH_EXTRA=${PATH_EXTRA},REPO=${REPO},SHA=${SHA}" \
-  --output="${WORK_DIR}/logs/${SHA}/%x.out.log" \
-  --error="${WORK_DIR}/logs/${SHA}/%x.error.log" \
-  slurm_testing/.github/scripts/launch_regtest_lite.SLURM
+  cpac_slurm_status launch \
+  --wd="${{ env.SSH_WORK_DIR }}/logs/${{ github.sha }}" \
+  --comparison-path="${{ env.COMPARISON_PATH }}" \
+  --dashboard-repo="${{ env.DASHBOARD_REPO}}" \
+  --home-dir="${{ env.SSH_WORK_DIR }}" \
+  --image="${{ env.DOCKER_TAG }}" \
+  --owner="${{ github.repository_owner }}" \
+  --path-extra="${{ env.GH_CLI_BIN_PATH }}" \
+  --repo="${{ github.repository }}" \
+  --slurm-testing-repo="${{ env.SLURM_TESTING_REPO }}" \
+  --sha="${{ github.sha }}" \
+  --token-file="${{ env.TOKEN_FILE }}"
 ```
 
 Once launched, the code from this repository will orchestrate the launches (and eventually the correlations and reporting).
@@ -47,7 +55,7 @@ See [:octocat: `FCP-INDI/C-PAC/.github/workflows/regression_test_lite.yml`](http
 ```mermaid
 graph TB
 
-launch_regtest_lite --> build_image{build_image}
+launch_regtest_lite[[cpac_slurm_status launch]] --> build_image{build_image}
 build_image --"success"--> regtest_lite --> status_regtest_lite_success
 build_image --"failure"--> status_regtest_lite_failure
 regtest_lite --> launch_jobs
