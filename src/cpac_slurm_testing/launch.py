@@ -61,7 +61,7 @@ class LaunchParameters:
         return f'--export={",".join(["=".join(item) for item in self.as_environment_variables.items() if item[0]])}'
 
 
-def launch(parameters: LaunchParameters) -> TotalStatus:
+def launch(parameters: LaunchParameters) -> None:
     """Launch a regression test."""
     with as_file(files("cpac_slurm_testing")) as repo:
         cmd = [
@@ -73,10 +73,12 @@ def launch(parameters: LaunchParameters) -> TotalStatus:
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
+    status = TotalStatus(image=parameters.image, image_name=parameters.image_name)
+    status.write()
+    LOGGER.info(status)
     LOGGER.info(cmd)
     if not parameters.dry_run:
         subprocess.run(cmd, check=False)
-    return TotalStatus(image=parameters.image, image_name=parameters.image_name)
 
 
 launch.__doc__ = __doc__
