@@ -186,7 +186,8 @@ def update(args: Namespace) -> None:
                 args.subject,
                 getattr(args, "status"),
             )
-        ]
+        ],
+        image=args.image,
     )
 
 

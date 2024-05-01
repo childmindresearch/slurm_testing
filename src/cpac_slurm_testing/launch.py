@@ -5,6 +5,7 @@ from logging import basicConfig, getLogger, INFO
 from pathlib import Path
 import subprocess
 
+from cpac_slurm_testing.status import TotalStatus
 from cpac_slurm_testing.status._global import LOG_FORMAT
 from cpac_slurm_testing.utils.typing import PATH_OR_STR
 
@@ -20,6 +21,7 @@ class LaunchParameters:
     dashboard_repo: str = ""
     home_dir: PATH_OR_STR = ""
     image: str = ""
+    image_name: str = ""
     owner: str = ""
     path_extra: str = ""
     repo: str = ""
@@ -59,7 +61,7 @@ class LaunchParameters:
         return f'--export={",".join(["=".join(item) for item in self.as_environment_variables.items() if item[0]])}'
 
 
-def launch(parameters: LaunchParameters) -> None:
+def launch(parameters: LaunchParameters) -> TotalStatus:
     """Launch a regression test."""
     with as_file(files("cpac_slurm_testing")) as repo:
         cmd = [
@@ -74,6 +76,7 @@ def launch(parameters: LaunchParameters) -> None:
     LOGGER.info(cmd)
     if not parameters.dry_run:
         subprocess.run(cmd, check=False)
+    return TotalStatus(image=parameters.image, image_name=parameters.image_name)
 
 
 launch.__doc__ = __doc__

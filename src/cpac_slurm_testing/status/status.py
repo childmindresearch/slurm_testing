@@ -282,14 +282,16 @@ class TotalStatus:
         self,
         runs: Optional[list[RunStatus]] = None,
         path: Path = Path.cwd() / "status.🥒",
-        image: str = "image",
-        image_name: str = "image_name",
+        image: Optional[str] = None,
+        image_name: Optional[str] = None,
     ) -> None:
         if _global.DRY_RUN:
             path = Path(f"{path.name}.dry")
         self.path = Path(path)
-        self.image = image
-        self.image_name = image_name
+        if image is not None:
+            self.image = image
+        if image_name is not None:
+            self.image_name = image_name
         """Path to status data on disk."""
         _runs = {} if runs is None else {run.key: run for run in runs}
         for run in _runs.values():
