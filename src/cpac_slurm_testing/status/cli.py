@@ -178,15 +178,13 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
 
 def update(args: Namespace) -> None:
     """Update a run."""
-    TotalStatus(
-        [
-            RunStatus(
-                args.data_source,
-                args.preconfig,
-                args.subject,
-                getattr(args, "status"),
-            )
-        ]
+    status = TotalStatus()
+    status += RunStatus(
+        args.data_source,
+        args.preconfig,
+        args.subject,
+        getattr(args, "status"),
+        _total=status,
     )
 
 
