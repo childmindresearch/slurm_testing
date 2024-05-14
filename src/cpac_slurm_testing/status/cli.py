@@ -44,6 +44,8 @@ def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
         )
     if wd:
         wd = str(wd)
+        if not os.path.exists(wd):
+            os.makedirs(wd, exist_ok=True)
         os.chdir(wd)
         _log = LOGGER.info, ["Set working directory to %s", wd]
     basicConfig(
