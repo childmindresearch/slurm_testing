@@ -300,6 +300,7 @@ class TotalStatus:
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary of runs with individual statuses."""
         self.load()
+        assert self.image_info != {}
         initial_state = self.status
         self.runs.update(_runs)
         for run in self.runs.values():
