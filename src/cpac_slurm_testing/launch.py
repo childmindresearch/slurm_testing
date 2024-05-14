@@ -36,6 +36,8 @@ class LaunchParameters:
         """Coerce Path typing."""
         self.comparison_path: Path = Path(self.comparison_path)
         self.home_dir: Path = Path(self.home_dir)
+        if not self.image_name:
+            self.image_name = self.sha
         self.log_dir: Path = self.home_dir / "logs" / self.sha
         if "/" in self.repo:
             self.repo = self.repo.split("/", 1)[-1]
