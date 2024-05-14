@@ -457,7 +457,12 @@ class TotalStatus:
         """Add a run to the total status."""
         runs = self.runs.copy()
         runs.update({other.key: other})
-        return TotalStatus(runs=list(runs.values()), path=self.path)
+        return TotalStatus(
+            runs=list(runs.values()),
+            path=self.path,
+            image=self.image,
+            image_name=self.image_name,
+        )
 
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
@@ -466,13 +471,19 @@ class TotalStatus:
 
     def __repr__(self):
         """Return reproducible string for TotalStatus."""
-        return f"TotalStatus({self.runs}, path='{self.path}')"
+        return (
+            f"TotalStatus({self.runs}, path='{self.path}', image='{self.image}',"
+            f" image_name='{self.image_name}')"
+        )
 
     def __str__(self):
         """Return string representation of TotalStatus."""
         return "\n".join(
             [
-                f"{key} ({value.job_id}): {value.status}"
-                for key, value in self.runs.items()
+                f"{self.image_name} ({self.image})",
+                *[
+                    f"{key} ({value.job_id}): {value.status}"
+                    for key, value in self.runs.items()
+                ],
             ]
         )
