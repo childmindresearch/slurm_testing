@@ -176,8 +176,8 @@ class RunStatus:
         return TEMPLATES[command_type].format(
             datapath=HOME_DIR / f"DATA/reg_5mm_pack/data/{self.data_source}",
             home_dir=HOME_DIR,
-            image=self._total.image,
-            image_name=self._total.image_name,
+            image=self._total.image_info["image"],
+            image_name=self._total.image_info["name"],
             output=self.out("lite") / self.data_source,
             pdsd=pdsd,
             pipeline=self.preconfig,
@@ -288,10 +288,11 @@ class TotalStatus:
         if _global.DRY_RUN:
             path = Path(f"{path.name}.dry")
         self.path = Path(path)
+        self.image_info = {}
         if image is not None:
-            self.image = image
+            self.image_info["image"] = image
         if image_name is not None:
-            self.image_name = image_name
+            self.image_info["name"] = image_name
         """Path to status data on disk."""
         _runs = {} if runs is None else {run.key: run for run in runs}
         for run in _runs.values():
@@ -316,7 +317,7 @@ class TotalStatus:
 
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
-        return HOME_DIR / lite_or_full / self.image_name
+        return HOME_DIR / lite_or_full / self.image_info["name"]
 
     def check_again_later(self, time: str) -> None:
         """Wait, then check the status again.
@@ -460,8 +461,8 @@ class TotalStatus:
         return TotalStatus(
             runs=list(runs.values()),
             path=self.path,
-            image=self.image,
-            image_name=self.image_name,
+            image=self.image_info["image"],
+            image_name=self.image_info["name"],
         )
 
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
@@ -469,18 +470,28 @@ class TotalStatus:
         self.runs.update({other.key: other})
         return self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return reproducible string for TotalStatus."""
-        return (
-            f"TotalStatus({self.runs}, path='{self.path}', image='{self.image}',"
-            f" image_name='{self.image_name}')"
+        image_info = (
+            (
+                f", image='{self.image_info['image']}'"
+                f", image_name='{self.image_info['name']}'"
+            )
+            if self.image_info
+            else ""
         )
+        return f"TotalStatus({self.runs}, path='{self.path}'{image_info})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return string representation of TotalStatus."""
+        image_info = (
+            [f"{self.image_info['name']} ({self.image_info['image']})"]
+            if self.image_info
+            else []
+        )
         return "\n".join(
             [
-                f"{self.image_name} ({self.image})",
+                *image_info,
                 *[
                     f"{key} ({value.job_id}): {value.status}"
                     for key, value in self.runs.items()
