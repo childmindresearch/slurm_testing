@@ -5,7 +5,7 @@ from logging import basicConfig, getLogger, INFO
 from pathlib import Path
 import subprocess
 
-from cpac_slurm_testing.status import TotalStatus
+from cpac_slurm_testing.status import Image, TotalStatus
 from cpac_slurm_testing.status._global import LOG_FORMAT
 from cpac_slurm_testing.utils.typing import PATH_OR_STR
 
@@ -75,7 +75,7 @@ def launch(parameters: LaunchParameters) -> None:
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
-    status = TotalStatus(image=parameters.image, image_name=parameters.image_name)
+    status = TotalStatus(image=Image(parameters.image, parameters.image_name))
     status.write()
     LOGGER.info(status)
     LOGGER.info(cmd)

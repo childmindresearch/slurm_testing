@@ -43,6 +43,7 @@ from cpac_slurm_testing.status._global import (
     HOME_DIR,
     JOB_STATES,
     LOG_FORMAT,
+    PATHSTR,
     TEMPLATES,
 )
 
@@ -59,6 +60,33 @@ def indented_lines(lines: str) -> str:
     """Return a multiline string with each line indented one tab."""
     _lines = lines.split("\n")
     return "\n".join([_lines[0], *[f"\t{line}" for line in _lines[1:]]]).rstrip()
+
+
+@dataclass
+class Image:
+    """Store an image path and name."""
+
+    image_path: PATHSTR
+    name: str = ""
+    """Name of the image."""
+
+    @property
+    def path(self) -> Path:
+        """Path to the image."""
+        assert isinstance(self.image_path, Path)
+        return self.image_path
+
+    @path.setter
+    def path(self, value: PATHSTR) -> None:
+        self.image_path = Path(value)
+
+    def __post_init__(self):
+        """Map initializing argument to property/setter."""
+        self.path = self.image_path
+
+    def __repr__(self) -> str:
+        """Return reproducible string representation of Image instance."""
+        return f"Image(image_path='{self.path.absolute()}', name='{self.name}')"
 
 
 class SlurmJobStatus:
@@ -176,8 +204,8 @@ class RunStatus:
         return TEMPLATES[command_type].format(
             datapath=HOME_DIR / f"DATA/reg_5mm_pack/data/{self.data_source}",
             home_dir=HOME_DIR,
-            image=self._total.image_info["image"],
-            image_name=self._total.image_info["name"],
+            image=self._total.image.path,
+            image_name=self._total.image.name,
             output=self.out("lite") / self.data_source,
             pdsd=pdsd,
             pipeline=self.preconfig,
@@ -282,25 +310,22 @@ class TotalStatus:
         self,
         runs: Optional[list[RunStatus]] = None,
         path: Path = Path.cwd() / "status.🥒",
-        image: Optional[str] = None,
-        image_name: Optional[str] = None,
+        image: Optional[Image] = None,
     ) -> None:
         if _global.DRY_RUN:
             path = Path(f"{path.name}.dry")
         self.path = Path(path)
-        self.image_info = {}
-        if image is not None:
-            self.image_info["image"] = image
-        if image_name is not None:
-            self.image_info["name"] = image_name
         """Path to status data on disk."""
+        if image is not None:
+            self.image = image
         _runs = {} if runs is None else {run.key: run for run in runs}
         for run in _runs.values():
+            run._total = self
             run.launch("lite_run")
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary of runs with individual statuses."""
         self.load()
-        assert self.image_info != {}
+        assert isinstance(self.image, Image)
         initial_state = self.status
         self.runs.update(_runs)
         for run in self.runs.values():
@@ -318,7 +343,7 @@ class TotalStatus:
 
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
-        return HOME_DIR / lite_or_full / self.image_info["name"]
+        return HOME_DIR / lite_or_full / self.image.name
 
     def check_again_later(self, time: str) -> None:
         """Wait, then check the status again.
@@ -400,8 +425,14 @@ class TotalStatus:
         If no status on disk (at ``self.path``), keep current status.
         """
         if self.path.exists():
-            with self.path.open("rb") as _pickle:
-                self.__dict__.update(pickle.load(_pickle).__dict__)
+            with self.path.open("rb") as _f:
+                status: "TotalStatus" = pickle.load(_f)
+                # assert isinstance(status, self.__class__)
+                if self.runs:
+                    for run in self.runs.values():
+                        status += run
+                self.runs = status.runs
+                self.image = status.image
         return self
 
     def log(self) -> None:
@@ -442,10 +473,10 @@ class TotalStatus:
 
     def write(self) -> None:
         """Write current status to disk."""
-        with self.path.open("wb") as _pickle:
-            flock(_pickle.fileno(), LOCK_EX)  # Lock the file
-            pickle.dump(self, _pickle)  # Write the pickle
-            flock(_pickle.fileno(), LOCK_UN)  # Unlock the file
+        with self.path.open("wb") as _f:
+            flock(_f.fileno(), LOCK_EX)  # Lock the file
+            pickle.dump(self, _f)  # Write the file
+            flock(_f.fileno(), LOCK_UN)  # Unlock the file
 
     def __getitem__(self, item: tuple[str, str, str]) -> RunStatus:
         """Get a run by `(data_source, pipeline, subject)`."""
@@ -462,8 +493,7 @@ class TotalStatus:
         return TotalStatus(
             runs=list(runs.values()),
             path=self.path,
-            image=self.image_info["image"],
-            image_name=self.image_info["name"],
+            image=self.image,
         )
 
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
@@ -473,23 +503,12 @@ class TotalStatus:
 
     def __repr__(self) -> str:
         """Return reproducible string for TotalStatus."""
-        image_info = (
-            (
-                f", image='{self.image_info['image']}'"
-                f", image_name='{self.image_info['name']}'"
-            )
-            if self.image_info
-            else ""
-        )
+        image_info = (f", image='{self.image}'") if self.image else ""
         return f"TotalStatus({self.runs}, path='{self.path}'{image_info})"
 
     def __str__(self) -> str:
         """Return string representation of TotalStatus."""
-        image_info = (
-            [f"{self.image_info['name']} ({self.image_info['image']})"]
-            if self.image_info
-            else []
-        )
+        image_info = [f"{self.image}"] if self.image else []
         return "\n".join(
             [
                 *image_info,
