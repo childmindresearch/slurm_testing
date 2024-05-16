@@ -66,7 +66,15 @@ class LaunchParameters:
 def launch(parameters: LaunchParameters) -> None:
     """Launch a regression test."""
     with as_file(files("cpac_slurm_testing")) as repo:
-        cmd = [
+        assert isinstance(parameters.home_dir, Path)
+        build: list[str] = [
+            "sbatch",
+            "--parsable",
+            str(repo / "regression_run_scripts/build_image.sh"),
+            f"--working_dir='{parameters.home_dir / 'lite' / parameters.sha}'",
+            f"--image='{parameters.image}'",
+        ]
+        cmd: list[str] = [
             "sbatch",
             parameters.as_slurm_export,
             f"--output={parameters.log_dir}/out.log",
@@ -78,9 +86,14 @@ def launch(parameters: LaunchParameters) -> None:
     status = TotalStatus(image=Image(parameters.image, parameters.image_name))
     status.write()
     LOGGER.info(status)
-    LOGGER.info(cmd)
     if not parameters.dry_run:
+        build_job: str = subprocess.run(
+            args=build, capture_output=True, check=False
+        ).stdout.decode()
+        cmd = [cmd[0], f"-d afterok:{build_job}", *cmd[1:]]
         subprocess.run(cmd, check=False)
+    LOGGER.info(build)
+    LOGGER.info(cmd)
 
 
 launch.__doc__ = __doc__
