@@ -309,9 +309,11 @@ class TotalStatus:
     def __init__(
         self,
         runs: Optional[list[RunStatus]] = None,
-        path: Path = Path.cwd() / "status.🥒",
+        path: Optional[Path] = None,
         image: Optional[Image] = None,
     ) -> None:
+        if path is None:
+            path = Path.cwd() / "status.🥒"
         if _global.DRY_RUN:
             path = Path(f"{path.name}.dry")
         self.path = Path(path)
