@@ -33,6 +33,7 @@ def set_working_directory(wd: Optional[Path | str] = None) -> None:
     2. `$REGTEST_LOG_DIR` if such environment variable is defined.
     3. Do nothing.
     """
+    filename = "status.log"
     if wd is None:
         wd = os.environ.get("REGTEST_LOG_DIR")
     if not wd:
@@ -46,8 +47,13 @@ def set_working_directory(wd: Optional[Path | str] = None) -> None:
             os.makedirs(wd, exist_ok=True)
         os.chdir(wd)
         _log = LOGGER.info, ["Set working directory to %s", wd]
+        _wdparts = wd.split("/")
+        _logpath = "/".join([*_wdparts[:-2], "logs", _wdparts[-1]])
+        if not os.path.exists(_logpath):
+            os.makedirs(_logpath, exist_ok=True)
+        filename = f"{_logpath}/{filename}"
     basicConfig(
-        filename="status.log",
+        filename=filename,
         encoding="utf8",
         force=True,
         format=LOG_FORMAT,
