@@ -67,8 +67,8 @@ def launch(parameters: LaunchParameters) -> None:
         assert isinstance(parameters.home_dir, Path)
         build: list[str] = [
             str(repo / "regression_run_scripts/build_image.sh"),
-            f"--working_dir='{parameters.home_dir / 'lite' / parameters.sha}'",
-            f"--image='{parameters.image}'",
+            f"--working_dir '{parameters.home_dir / 'lite' / parameters.sha}'",
+            f"--image '{parameters.image}'",
         ]
         cmd: list[str] = [
             "sbatch",
