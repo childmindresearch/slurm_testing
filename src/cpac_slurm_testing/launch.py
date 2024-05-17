@@ -66,6 +66,8 @@ def launch(parameters: LaunchParameters) -> None:
     with as_file(files("cpac_slurm_testing")) as repo:
         assert isinstance(parameters.home_dir, Path)
         build: list[str] = [
+            "sbatch",
+            "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
             f"--working_dir '{parameters.home_dir / 'lite' / parameters.sha}'",
             f"--image '{parameters.image}'",
@@ -83,7 +85,12 @@ def launch(parameters: LaunchParameters) -> None:
     status.write()
     LOGGER.info(status)
     if not parameters.dry_run:
-        subprocess.run(args=build, check=False)
+        build_job: str = (
+            subprocess.run(args=build, check=False, capture_output=True)
+            .stdout.decode()
+            .strip()
+        )
+        cmd = [cmd[0], f"--dependency=afterok:{build_job}", *cmd[1:]]
         subprocess.run(cmd, check=False)
     LOGGER.info(build)
     LOGGER.info(cmd)
