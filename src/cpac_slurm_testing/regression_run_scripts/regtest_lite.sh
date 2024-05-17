@@ -14,8 +14,6 @@ OUT="${HOME_DIR}/lite/${IMAGE_NAME}"
 PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 
-pip install --user --upgrade "https://github.com/${SLURM_TESTING_REPO}/archive/${SLURM_TESTING_BRANCH}.zip"
-
 for PIPELINE in ${PRECONFIGS}; do
 
     for DATA in ${DATA_SOURCE}; do
