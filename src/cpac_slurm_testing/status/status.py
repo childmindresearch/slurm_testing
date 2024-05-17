@@ -43,7 +43,6 @@ from cpac_slurm_testing.status._global import (
     HOME_DIR,
     JOB_STATES,
     LOG_FORMAT,
-    PATHSTR,
     TEMPLATES,
 )
 
@@ -60,33 +59,6 @@ def indented_lines(lines: str) -> str:
     """Return a multiline string with each line indented one tab."""
     _lines = lines.split("\n")
     return "\n".join([_lines[0], *[f"\t{line}" for line in _lines[1:]]]).rstrip()
-
-
-@dataclass
-class Image:
-    """Store an image path and name."""
-
-    image_path: PATHSTR
-    name: str = ""
-    """Name of the image."""
-
-    @property
-    def path(self) -> Path:
-        """Path to the image."""
-        assert isinstance(self.image_path, Path)
-        return self.image_path
-
-    @path.setter
-    def path(self, value: PATHSTR) -> None:
-        self.image_path = Path(value)
-
-    def __post_init__(self):
-        """Map initializing argument to property/setter."""
-        self.path = self.image_path
-
-    def __repr__(self) -> str:
-        """Return reproducible string representation of Image instance."""
-        return f"Image(image_path='{self.path.absolute()}', name='{self.name}')"
 
 
 class SlurmJobStatus:
@@ -204,8 +176,7 @@ class RunStatus:
         return TEMPLATES[command_type].format(
             datapath=HOME_DIR / f"DATA/reg_5mm_pack/data/{self.data_source}",
             home_dir=HOME_DIR,
-            image=self._total.image.path,
-            image_name=self._total.image.name,
+            image=self._total.image("path"),
             output=self.out("lite") / self.data_source,
             pdsd=pdsd,
             pipeline=self.preconfig,
@@ -310,7 +281,7 @@ class TotalStatus:
         self,
         runs: Optional[list[RunStatus]] = None,
         path: Optional[Path] = None,
-        image: Optional[Image] = None,
+        image: Optional[str] = None,
     ) -> None:
         if path is None:
             path = Path.cwd() / "status.🥒"
@@ -318,20 +289,17 @@ class TotalStatus:
             path = Path(f"{path.name}.dry")
         self.path = Path(path)
         """Path to status data on disk."""
-        if image is not None:
-            self.image = image
-        _runs = {} if runs is None else {run.key: run for run in runs}
-        for run in _runs.values():
-            run._total = self
-            run.launch("lite_run")
+        self._image: str = image if image is not None else ""
+        """Name of image."""
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary of runs with individual statuses."""
         self.load()
-        assert isinstance(self.image, Image)
         initial_state = self.status
-        self.runs.update(_runs)
+        if runs:
+            self.runs.update({run.key: run for run in runs})
         for run in self.runs.values():
             run._total = self
+            run.launch("lite_run")
         self.log()
         self.write()
         if initial_state == "idle":
@@ -343,9 +311,15 @@ class TotalStatus:
         else:
             self.check_again_later(time="now+30minutes")
 
+    def image(self, name_or_path: Literal["name", "path"] = "name") -> Path | str:
+        """Return the image name or path."""
+        if name_or_path == "name":
+            return self._image
+        return Path.cwd() / f"{self._image}.sif"
+
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
-        return HOME_DIR / lite_or_full / self.image.name
+        return HOME_DIR / lite_or_full / self.image("name")
 
     def check_again_later(self, time: str) -> None:
         """Wait, then check the status again.
@@ -434,7 +408,7 @@ class TotalStatus:
                     for run in self.runs.values():
                         status += run
                 self.runs = status.runs
-                self.image = status.image
+                self._image = status._image
         return self
 
     def log(self) -> None:
@@ -495,7 +469,7 @@ class TotalStatus:
         return TotalStatus(
             runs=list(runs.values()),
             path=self.path,
-            image=self.image,
+            image=self._image,
         )
 
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
@@ -505,12 +479,12 @@ class TotalStatus:
 
     def __repr__(self) -> str:
         """Return reproducible string for TotalStatus."""
-        image_info = (f", image='{self.image}'") if self.image else ""
+        image_info = (f", image='{self.image()}'") if self._image else ""
         return f"TotalStatus({self.runs}, path='{self.path}'{image_info})"
 
     def __str__(self) -> str:
         """Return string representation of TotalStatus."""
-        image_info = [f"{self.image}"] if self.image else []
+        image_info = [f"{self.image()}"] if self._image else []
         return "\n".join(
             [
                 *image_info,

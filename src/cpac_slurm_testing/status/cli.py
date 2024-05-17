@@ -2,15 +2,13 @@
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from logging import basicConfig, getLogger, INFO
 import os
+from pathlib import Path
 from typing import Optional
 
 from cpac_slurm_testing import __version__
 from cpac_slurm_testing.launch import launch, LaunchParameters
 from cpac_slurm_testing.status import _global
-from cpac_slurm_testing.status._global import (
-    LOG_FORMAT,
-    PATHSTR,
-)
+from cpac_slurm_testing.status._global import LOG_FORMAT
 from cpac_slurm_testing.status.status import RunStatus, TotalStatus
 
 LOGGER = getLogger(name=__name__)
@@ -27,7 +25,7 @@ def _argstring(arg: str) -> list[str]:
     )
 
 
-def set_working_directory(wd: Optional[PATHSTR] = None) -> None:
+def set_working_directory(wd: Optional[Path | str] = None) -> None:
     """Set working directory.
 
     Priority order:

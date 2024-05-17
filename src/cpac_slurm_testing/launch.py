@@ -5,7 +5,7 @@ from logging import basicConfig, getLogger, INFO
 from pathlib import Path
 import subprocess
 
-from cpac_slurm_testing.status import Image, TotalStatus
+from cpac_slurm_testing.status import TotalStatus
 from cpac_slurm_testing.status._global import LOG_FORMAT
 from cpac_slurm_testing.utils.typing import PATH_OR_STR
 
@@ -21,7 +21,6 @@ class LaunchParameters:
     dashboard_repo: str = ""
     home_dir: PATH_OR_STR = ""
     image: str = ""
-    image_name: str = ""
     owner: str = ""
     path_extra: str = ""
     repo: str = ""
@@ -36,12 +35,11 @@ class LaunchParameters:
         """Coerce Path typing."""
         self.comparison_path: Path = Path(self.comparison_path)
         self.home_dir: Path = Path(self.home_dir)
-        if not self.image_name:
-            self.image_name = self.sha
         self.log_dir: Path = self.home_dir / "logs" / self.sha
         if "/" in self.repo:
             self.repo = self.repo.split("/", 1)[-1]
         self.token_file: Path = Path(self.token_file)
+        self.wd: Path = self.home_dir / "lite" / self.sha
 
     @staticmethod
     def keys() -> list[str]:
@@ -68,8 +66,6 @@ def launch(parameters: LaunchParameters) -> None:
     with as_file(files("cpac_slurm_testing")) as repo:
         assert isinstance(parameters.home_dir, Path)
         build: list[str] = [
-            "sbatch",
-            "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
             f"--working_dir='{parameters.home_dir / 'lite' / parameters.sha}'",
             f"--image='{parameters.image}'",
@@ -83,14 +79,11 @@ def launch(parameters: LaunchParameters) -> None:
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
-    status = TotalStatus(image=Image(parameters.image, parameters.image_name))
+    status = TotalStatus(path=parameters.wd / "status.🥒", image=parameters.sha)
     status.write()
     LOGGER.info(status)
     if not parameters.dry_run:
-        build_job: str = subprocess.run(
-            args=build, capture_output=True, check=False
-        ).stdout.decode()
-        cmd = [cmd[0], f"-d afterok:{build_job}", *cmd[1:]]
+        subprocess.run(args=build, check=False)
         subprocess.run(cmd, check=False)
     LOGGER.info(build)
     LOGGER.info(cmd)

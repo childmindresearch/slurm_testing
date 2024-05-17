@@ -2,7 +2,7 @@
 from importlib.resources import files
 import os
 from pathlib import Path
-from typing import Literal, Union
+from typing import Literal
 
 _COMMAND_TYPES = Literal["lite_run"]
 DRY_RUN = False
@@ -29,7 +29,6 @@ JOB_STATES: dict[_JOB_STATE, _STATE] = {
     "SUSPENDED": "pending",
 }
 LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s:\n\t%(message)s\n"
-PATHSTR = Union[Path, str]
 TEMPLATES = {
     key: files("cpac_slurm_testing.templates").joinpath(f"{key}.ftxt").read_text()
     for key in ["lite_run"]
