@@ -71,8 +71,10 @@ def launch(parameters: LaunchParameters) -> None:
             slurm_env,
             "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
-            f"--working_dir '{parameters.home_dir / 'lite' / parameters.sha}'",
-            f"--image '{parameters.image}'",
+            "--working_dir",
+            f"{parameters.home_dir / 'lite' / parameters.sha}",
+            "--image",
+            f"{parameters.image}",
         ]
         cmd: list[str] = [
             "sbatch",
