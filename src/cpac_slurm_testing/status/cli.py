@@ -42,7 +42,7 @@ def set_working_directory(wd: Optional[Path | str] = None) -> None:
             ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."],
         )
     if wd:
-        wd = str(wd)
+        wd = str(Path(wd).absolute())
         if not os.path.exists(wd):
             os.makedirs(wd, exist_ok=True)
         os.chdir(wd)
@@ -200,8 +200,7 @@ def main() -> None:
     """Run the script from the commandline."""
     # Parse the arguments
     parser, _subparsers = _parser()
-    args = parser.parse_args()
-    args = NamespaceWithEnvFallback(args)
+    args = NamespaceWithEnvFallback(parser.parse_args())
     set_working_directory(args.wd)
     if getattr(args, "dry_run", False):
         _global.DRY_RUN = True
