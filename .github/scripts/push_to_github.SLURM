@@ -1,7 +1,7 @@
 #!/bin/bash
 # Required environment variables: $HOME_DIR, $IMAGE, $REPO, $SHA, $_WD
 #SBATCH -N 1
-#SBATCH -p RM-shared,RM-small
+#SBATCH -p RM-shared
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=1
 

@@ -10,7 +10,7 @@ function create_and_submit_job {
     cat << TMP > "regtest_${PIPELINE}_${DATA}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
-#SBATCH -p RM-shared,RM-small
+#SBATCH -p RM-shared
 #SBATCH -t ${TIME}
 #SBATCH --ntasks-per-node=20
 

@@ -32,7 +32,7 @@ do
             cat << TMP > "regtest_${pipeline}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
-#SBATCH -p RM-shared,RM-small
+#SBATCH -p RM-shared
 #SBATCH -t 1:00:00
 #SBATCH --ntasks-per-node=11
 
@@ -59,7 +59,7 @@ TMP
             cat << TMP > "regtest_${pipeline}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
-#SBATCH -p RM-shared,RM-small
+#SBATCH -p RM-shared
 #SBATCH -t 2:00:00
 #SBATCH --ntasks-per-node=11
 
@@ -93,7 +93,7 @@ TMP
                 cat << TMP > "regtest_${pipeline}_${data}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
-#SBATCH -p RM-shared,RM-small
+#SBATCH -p RM-shared
 #SBATCH -t 47:50:00
 #SBATCH --ntasks-per-node=20
 
@@ -120,7 +120,7 @@ TMP
                 cat << TMP > "regtest_${pipeline}_${data}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
-#SBATCH -p RM-shared,RM-small
+#SBATCH -p RM-shared
 #SBATCH -t 20:00:00
 #SBATCH --ntasks-per-node=20
 
@@ -146,7 +146,7 @@ TMP
                 cat << TMP > "regtest_${pipeline}_${data}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
-#SBATCH -p RM-shared,RM-small
+#SBATCH -p RM-shared
 #SBATCH -t 14:00:00
 #SBATCH --ntasks-per-node=20
 
