@@ -65,8 +65,10 @@ def launch(parameters: LaunchParameters) -> None:
     """Launch a regression test."""
     with as_file(files("cpac_slurm_testing")) as repo:
         assert isinstance(parameters.home_dir, Path)
+        slurm_env = parameters.as_slurm_export
         build: list[str] = [
             "sbatch",
+            slurm_env,
             "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
             f"--working_dir '{parameters.home_dir / 'lite' / parameters.sha}'",
@@ -74,7 +76,7 @@ def launch(parameters: LaunchParameters) -> None:
         ]
         cmd: list[str] = [
             "sbatch",
-            parameters.as_slurm_export,
+            slurm_env,
             f"--output={parameters.log_dir}/out.log",
             f"--error={parameters.log_dir}/error.log",
             str(repo / "regression_run_scripts/regtest_lite.sh"),

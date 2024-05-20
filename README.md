@@ -56,7 +56,7 @@ See [:octocat: `FCP-INDI/C-PAC/.github/workflows/regression_test_lite.yml`](http
 ```mermaid
 graph TB
 
-launch_regtest_lite[[cpac_slurm_status launch]] --> build_image{build_image}
+launch_regtest_lite[[cpac-slurm-status launch]] --> build_image{build_image}
 build_image --"success"--> regtest_lite --> status_regtest_lite_success
 build_image --"failure"--> status_regtest_lite_failure
 regtest_lite --> launch_jobs

@@ -24,7 +24,7 @@ for PIPELINE in ${PRECONFIGS}; do
 
         for SUBJECT_PATH in "${DATAPATH}"/sub-*; do
             SUBJECT=$(basename "${SUBJECT_PATH}")
-            cpac_slurm_status add --wd="${OUT}" --data_source="${DATA}" --preconfig="${PIPELINE}" --subject="${SUBJECT}"
+            cpac-slurm-status add --wd="${OUT}" --data_source="${DATA}" --preconfig="${PIPELINE}" --subject="${SUBJECT}"
 
         done
     done

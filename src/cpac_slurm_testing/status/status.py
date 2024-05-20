@@ -332,7 +332,7 @@ class TotalStatus:
         cmd = [
             "sbatch",
             f"--begin={time}",
-            "cpac_slurm_status",
+            "cpac-slurm-status",
             "check-all",
             f'--wd="{Path.cwd()}"',
         ]
