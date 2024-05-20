@@ -1,7 +1,7 @@
 #!/bin/bash
 # Required environment variables: $HOME_DIR, $OWNER, $PATH, $PUSH_LOGS, $REPO, $SHA, $STATUS
 #SBATCH -N 1
-#SBATCH -p RM-shared
+#SBATCH -p RM-shared,RM-small
 #SBATCH -t 00:05:00
 #SBATCH --ntasks-per-node=1
 

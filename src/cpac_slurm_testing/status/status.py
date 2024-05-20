@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # SBATCH -N 1
-# SBATCH -p RM-shared
+# SBATCH -p RM-shared,RM-small
 # SBATCH -t 00:05:00
 # SBATCH --ntasks-per-node=4
 """Consolidate job statistics into a single GitHub status.

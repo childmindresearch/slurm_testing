@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+set -x
+
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
         --working_dir) working_dir="$2"; shift ;;
@@ -16,14 +18,14 @@ done
 cat << TMP > "build_${IMAGE_NAME}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
-#SBATCH -p RM-shared
+#SBATCH -p RM-shared,RM-small
 #SBATCH -t 1:00:00
 #SBATCH --ntasks-per-node=20
 #SBATCH -o "${working_dir}/logs/${SHA}/launch/%x.out.log"
 #SBATCH --error "${working_dir}/logs/${SHA}/launch/%x.error.log"
 
 set -x
-
+cd ${working_dir}
 export APPTAINER_CACHEDIR="${working_dir}/.apptainer/cache" \
        APPTAINER_LOCALCACHEDIR="${working_dir}/.apptainer/tmp"
 yes | apptainer cache clean

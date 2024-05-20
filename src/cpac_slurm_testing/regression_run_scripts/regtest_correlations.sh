@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 #SBATCH -N 1
-#SBATCH -p RM-shared
+#SBATCH -p RM-shared,RM-small
 #SBATCH -t 24:00:00
 #SBATCH --ntasks-per-node=20
 
