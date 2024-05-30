@@ -69,6 +69,8 @@ def launch(parameters: LaunchParameters) -> None:
         build: list[str] = [
             "sbatch",
             slurm_env,
+            f"--output={parameters.log_dir}/build.out.log",
+            f"--error={parameters.log_dir}/build.err.log",
             "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
             "--working_dir",
@@ -79,8 +81,8 @@ def launch(parameters: LaunchParameters) -> None:
         cmd: list[str] = [
             "sbatch",
             slurm_env,
-            f"--output={parameters.log_dir}/out.log",
-            f"--error={parameters.log_dir}/error.log",
+            f"--output={parameters.log_dir}/launch.out.log",
+            f"--error={parameters.log_dir}/launch.err.log",
             str(repo / "regression_run_scripts/regtest_lite.sh"),
         ]
     if parameters.dry_run:
