@@ -287,7 +287,7 @@ class TotalStatus:
             path = Path.cwd() / "status.🥒"
         if _global.DRY_RUN:
             path = Path(f"{path.name}.dry")
-        self.path = Path(path)
+        self.path = Path(path).absolute()
         """Path to status data on disk."""
         self._image: str = image if image is not None else ""
         """Name of image."""

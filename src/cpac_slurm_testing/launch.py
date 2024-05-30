@@ -85,7 +85,7 @@ def launch(parameters: LaunchParameters) -> None:
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
-    status = TotalStatus(path=parameters.wd / "status.🥒", image=parameters.sha)
+    status = TotalStatus(image=parameters.sha)
     status.write()
     LOGGER.info(status)
     if not parameters.dry_run:
