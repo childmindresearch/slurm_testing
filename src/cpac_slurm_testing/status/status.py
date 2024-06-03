@@ -313,7 +313,8 @@ class TotalStatus:
             run.total = self
             run.launch("lite_run")
         self.log()
-        self.write()
+        if self.image():
+            self.write()
         if initial_state == "idle":
             if self.status != "idle" and not _global.DRY_RUN:
                 self.push()

@@ -88,7 +88,6 @@ def launch(parameters: LaunchParameters) -> None:
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
     status = TotalStatus(image=parameters.sha)
-    status.write()
     LOGGER.info(status)
     if not parameters.dry_run:
         build_job: str = (
