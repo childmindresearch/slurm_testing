@@ -176,7 +176,8 @@ class RunStatus:
         return TEMPLATES[command_type].format(
             datapath=HOME_DIR / f"DATA/reg_5mm_pack/data/{self.data_source}",
             home_dir=HOME_DIR,
-            image=self._total.image("path"),
+            image=self.total.image("path"),
+            image_name=self.total.image("name"),
             output=self.out("lite") / self.data_source,
             pdsd=pdsd,
             pipeline=self.preconfig,
@@ -226,8 +227,7 @@ class RunStatus:
 
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
-        assert self._total is not None
-        return self._total.out(lite_or_full)
+        return self.total.out(lite_or_full)
 
     @property
     def job_status(self) -> str:
@@ -236,11 +236,23 @@ class RunStatus:
             self.check_slurm()
         return self.status
 
+    @property
+    def total(self) -> "TotalStatus":
+        """Return TotalStatus that contains this RunStatus."""
+        assert self._total is not None
+        return self._total
+
+    @total.setter
+    def total(self, total_status: "TotalStatus") -> None:
+        """Set the TotalStatus that contains this RunStats."""
+        assert isinstance(total_status, TotalStatus)
+        self._total = total_status
+
     def __repr__(self) -> str:
         """Return reproducible string representation of the status."""
         return (
             f"RunStatus({self.data_source}, {self.preconfig}, {self.subject}, "
-            f"{self.status}, _total={self._total})"
+            f"{self.status}, _total={self.total})"
         )
 
     def __str__(self) -> str:
@@ -298,7 +310,7 @@ class TotalStatus:
         if runs:
             self.runs.update({run.key: run for run in runs})
         for run in self.runs.values():
-            run._total = self
+            run.total = self
             run.launch("lite_run")
         self.log()
         self.write()
