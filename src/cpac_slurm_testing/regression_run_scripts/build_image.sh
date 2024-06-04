@@ -19,8 +19,8 @@ cat << TMP > "build_${IMAGE_NAME}.sh"
 #SBATCH -p RM-shared
 #SBATCH -t 1:00:00
 #SBATCH --ntasks-per-node=20
-#SBATCH -o "${working_dir}/logs/${SHA}/launch/%x.out.log"
-#SBATCH --error "${working_dir}/logs/${SHA}/launch/%x.error.log"
+#SBATCH -o "${HOME_DIR}/logs/${SHA}/build.out.log"
+#SBATCH --error "${HOME_DIR}/logs/${SHA}/build.error.log"
 
 set -x
 
