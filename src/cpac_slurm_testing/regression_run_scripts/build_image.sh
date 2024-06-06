@@ -20,7 +20,7 @@ cat << TMP > "build_${IMAGE_NAME}.sh"
 #SBATCH -t 1:00:00
 #SBATCH --ntasks-per-node=20
 #SBATCH -o "${HOME_DIR}/logs/${SHA}/build.out.log"
-#SBATCH --error "${HOME_DIR}/logs/${SHA}/build.error.log"
+#SBATCH --error "${HOME_DIR}/logs/${SHA}/build.err.log"
 
 set -x
 

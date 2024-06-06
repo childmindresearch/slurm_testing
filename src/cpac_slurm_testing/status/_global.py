@@ -5,8 +5,6 @@ from pathlib import Path
 from typing import Literal
 
 _COMMAND_TYPES = Literal["lite_run"]
-DRY_RUN = False
-"""Skip actually running commands?"""
 HOME_DIR = Path(os.environ.get("HOME_DIR", os.path.expanduser("~")))
 _JOB_STATE = Literal[
     "COMPLETED",

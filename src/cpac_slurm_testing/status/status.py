@@ -35,7 +35,6 @@ from typing import Literal, Optional, overload, Union
 from github import Github
 from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 
-from cpac_slurm_testing.status import _global
 from cpac_slurm_testing.status._global import (
     _COMMAND_TYPES,
     _JOB_STATE,
@@ -48,6 +47,73 @@ from cpac_slurm_testing.status._global import (
 
 LOGGER = getLogger(name=__name__)
 basicConfig(format=LOG_FORMAT, level=INFO)
+
+
+class TestingPaths:
+    """Working and logging path management."""
+
+    def __init__(self, wd: Optional[Path] = None) -> None:
+        """Initialize TestingPaths."""
+        self._wd, self._log_dir = self.set_working_directory(wd)
+
+    @property
+    def log_dir(self) -> Path:
+        """Return log directory."""
+        return self._log_dir
+
+    def set_working_directory(
+        self, wd: Optional[Path | str] = None
+    ) -> tuple[Path, Path]:
+        """Set working directory.
+
+        Priority order:
+        1. `wd` if `wd` is given.
+        2. `$REGTEST_LOG_DIR` if such environment variable is defined.
+        3. Do nothing.
+
+        Returns
+        -------
+        wd
+            working directory
+
+        _logpath
+            log directory
+        """
+        filename = "status.log"
+        if wd is None:
+            wd = os.environ.get("REGTEST_LOG_DIR")
+        if not wd:
+            _log = (
+                LOGGER.warning,
+                ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."],
+            )
+        if wd:
+            wd = str(Path(wd).absolute())
+            if not os.path.exists(wd):
+                os.makedirs(wd, exist_ok=True)
+            os.chdir(wd)
+        else:
+            wd = Path.cwd().absolute()
+        _log = LOGGER.info, ["Set working directory to %s", str(wd)]
+        _wdparts = str(wd).split("/")
+        _logpath = "/".join([*_wdparts[:-2], "logs", _wdparts[-1]])
+        if not os.path.exists(_logpath):
+            os.makedirs(_logpath, exist_ok=True)
+        filename = f"{_logpath}/{filename}"
+        basicConfig(
+            filename=filename,
+            encoding="utf8",
+            force=True,
+            format=LOG_FORMAT,
+            level=INFO,
+        )
+        _log[0](*_log[1])  # log info or warning as appropriate
+        return Path(wd), Path(_logpath)
+
+    @property
+    def wd(self) -> Path:
+        """Return working directory."""
+        return self._wd
 
 
 def get_latest() -> str:
@@ -64,7 +130,7 @@ def indented_lines(lines: str) -> str:
 class SlurmJobStatus:
     """Store a SLURM job status."""
 
-    def __init__(self, scontrol_output: str):
+    def __init__(self, scontrol_output: str, dry_run: bool = False) -> None:
         """Convert the scontrol_output into individual values."""
         self._scontrol_dict: dict[str, Optional[str]] = {
             key: (value if value != "(null)" else None)
@@ -77,6 +143,7 @@ class SlurmJobStatus:
                 )
             ]
         }
+        self.dry_run = dry_run
 
     @overload
     def get(
@@ -98,7 +165,7 @@ class SlurmJobStatus:
     @property
     def job_state(self) -> _JOB_STATE:
         """Return JobState from SLURM."""
-        if _global.DRY_RUN:
+        if self.dry_run:
             return choice(list(JOB_STATES.keys()))
         return self["JobState"]
 
@@ -128,7 +195,7 @@ class SlurmJobStatus:
                 for key, value in self._scontrol_dict.items()
             ]
         )
-        return f"SlurmJobStatus('{_str}')"
+        return f"SlurmJobStatus('{_str}', dry_run={self.dry_run})"
 
     def __str__(self) -> str:
         """Return string representation of SLURM job status."""
@@ -139,6 +206,7 @@ class SlurmJobStatus:
 class RunStatus:
     """Store the status of a run for the GitHub Check."""
 
+    testing_paths: TestingPaths
     data_source: str
     preconfig: str
     subject: str
@@ -146,12 +214,15 @@ class RunStatus:
     job_id: Optional[int] = None
     _slurm_job_status: Optional[SlurmJobStatus] = None
     _total: Optional["TotalStatus"] = None
+    dry_run: bool = False
 
     def check_slurm(self) -> None:
         """Check SLURM job status."""
-        if _global.DRY_RUN:
+        if self.dry_run:
             if self.job_id:
-                self._slurm_job_status = SlurmJobStatus(f"JobId={self.job_id}")
+                self._slurm_job_status = SlurmJobStatus(
+                    f"JobId={self.job_id}", dry_run=self.dry_run
+                )
         else:
             try:
                 self._slurm_job_status = SlurmJobStatus(
@@ -159,33 +230,43 @@ class RunStatus:
                         ["scontrol", "show", "job", str(self.job_id)],
                         capture_output=True,
                         check=True,
-                    ).stdout.decode()
+                    ).stdout.decode(),
+                    dry_run=self.dry_run,
                 )
             except subprocess.CalledProcessError:
                 self.status = "error"
         if self.status != "error" and self._slurm_job_status:
             self.status = JOB_STATES[self._slurm_job_status.job_state]
 
+    def __post_init__(self) -> None:
+        """Set some determinable attributes after initializing."""
+        self.pdsd = f"{self.preconfig}-{self.data_source}-{self.subject}"
+        """preconfig-data_source-subject"""
+        self.wd = self.testing_paths.wd / f"slurm-{self.pdsd}"
+        """working directory"""
+        self.log_dir = self.testing_paths.log_dir / f"slurm-{self.pdsd}"
+        """log directory"""
+        for _dir in [self.wd, self.log_dir]:
+            if not _dir.exists():
+                LOGGER.info("mkdir %s", _dir)
+                _dir.mkdir(parents=True, exist_ok=True)
+
     def command(self, command_type: str) -> str:
         """Return a command string for a given command_type."""
-        pdsd = f"{self.preconfig}-{self.data_source}-{self.subject}"
-        wd = Path.cwd() / f"slurm-{pdsd}"
-        LOGGER.info("mkdir %s", wd)
-        wd.mkdir(parents=True, exist_ok=True)
         assert self._total is not None
         return TEMPLATES[command_type].format(
             datapath=HOME_DIR / f"DATA/reg_5mm_pack/data/{self.data_source}",
             home_dir=HOME_DIR,
+            log_dir=self.log_dir,
             image=self.total.image("path"),
             image_name=self.total.image("name"),
             output=self.out("lite") / self.data_source,
-            pdsd=pdsd,
+            pdsd=self.pdsd,
             pipeline=self.preconfig,
             pipeline_configs=str(
                 files("cpac_slurm_testing.pipeline_configs").joinpath("")
             ),
             subject=self.subject,
-            wd=Path.cwd(),
         )
 
     @property
@@ -214,7 +295,7 @@ class RunStatus:
                     "%s:\n\n\t%s", _f.name, indented_lines(_command_file.read())
                 )
             command = ["sbatch", "--parsable", _f.name]
-            if _global.DRY_RUN:
+            if self.dry_run:
                 LOGGER.info("Dry run.")
                 self.job_id = randint(1, 99999999)
             else:
@@ -252,7 +333,7 @@ class RunStatus:
         """Return reproducible string representation of the status."""
         return (
             f"RunStatus({self.data_source}, {self.preconfig}, {self.subject}, "
-            f"{self.status}, _total={self.total})"
+            f"{self.status}, _total={self.total}, dry_run={self.dry_run})"
         )
 
     def __str__(self) -> str:
@@ -291,15 +372,18 @@ class TotalStatus:
 
     def __init__(
         self,
+        testing_paths: TestingPaths,
         runs: Optional[list[RunStatus]] = None,
-        path: Optional[Path] = None,
         image: Optional[str] = None,
+        dry_run: bool = False,
     ) -> None:
-        if path is None:
-            path = Path.cwd() / "status.🥒"
-        if _global.DRY_RUN:
+        self.testing_paths = testing_paths
+        self.dry_run: bool = dry_run
+        """Skip actually running commands?"""
+        path = testing_paths.wd / "status.🥒"
+        if self.dry_run:
             path = Path(f"{path.name}.dry")
-        self.path = Path(path).absolute()
+        self.path = path
         """Path to status data on disk."""
         self._image: str = image if image is not None else ""
         """Name of image."""
@@ -316,9 +400,9 @@ class TotalStatus:
         if self.image():
             self.write()
         if initial_state == "idle":
-            if self.status != "idle" and not _global.DRY_RUN:
+            if self.status != "idle" and not self.dry_run:
                 self.push()
-        elif self.status != "pending" and not _global.DRY_RUN:
+        elif self.status != "pending" and not self.dry_run:
             self.push()
             self.correlate()
         else:
@@ -349,7 +433,7 @@ class TotalStatus:
             "check-all",
             f'--wd="{Path.cwd()}"',
         ]
-        if _global.DRY_RUN:
+        if self.dry_run:
             cmd = [*cmd, "--dry-run"]
         LOGGER.info(" ".join(cmd))
         subprocess.run(cmd, check=False)
@@ -359,7 +443,7 @@ class TotalStatus:
         this_pipeline = self.out("lite")
         latest_ref = this_pipeline.parent / get_latest()
         for data_source in self.runs:
-            if _global.DRY_RUN:
+            if self.dry_run:
                 LOGGER.info(
                     ", ".join(
                         [
@@ -480,9 +564,10 @@ class TotalStatus:
         runs = self.runs.copy()
         runs.update({other.key: other})
         return TotalStatus(
+            testing_paths=self.testing_paths,
             runs=list(runs.values()),
-            path=self.path,
             image=self._image,
+            dry_run=self.dry_run,
         )
 
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
@@ -492,12 +577,15 @@ class TotalStatus:
 
     def __repr__(self) -> str:
         """Return reproducible string for TotalStatus."""
-        image_info = (f", image='{self.image()}'") if self._image else ""
-        return f"TotalStatus({self.runs}, path='{self.path}'{image_info})"
+        image_info = (f", image='{self.image('name')}'") if self._image else ""
+        return (
+            f"TotalStatus(testing_paths={self.testing_paths!r}, runs={self.runs}"
+            f"{image_info}, dry_run={self.dry_run}"
+        )
 
     def __str__(self) -> str:
         """Return string representation of TotalStatus."""
-        image_info = [f"{self.image()}"] if self._image else []
+        image_info = [f"{self.image('name')}"] if self._image else []
         return "\n".join(
             [
                 *image_info,

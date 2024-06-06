@@ -5,7 +5,7 @@ from logging import basicConfig, getLogger, INFO
 from pathlib import Path
 import subprocess
 
-from cpac_slurm_testing.status import TotalStatus
+from cpac_slurm_testing.status import TestingPaths, TotalStatus
 from cpac_slurm_testing.status._global import LOG_FORMAT
 from cpac_slurm_testing.utils.typing import PATH_OR_STR
 
@@ -17,6 +17,7 @@ basicConfig(format=LOG_FORMAT, level=INFO)
 class LaunchParameters:
     """Parameters for launching a regression test."""
 
+    testing_paths: TestingPaths
     comparison_path: PATH_OR_STR = ""
     dashboard_repo: str = ""
     home_dir: PATH_OR_STR = ""
@@ -35,16 +36,25 @@ class LaunchParameters:
         """Coerce Path typing."""
         self.comparison_path: Path = Path(self.comparison_path)
         self.home_dir: Path = Path(self.home_dir)
-        self.log_dir: Path = self.home_dir / "logs" / self.sha
+        self.log_dir: Path = self.testing_paths.log_dir
         if "/" in self.repo:
             self.repo = self.repo.split("/", 1)[-1]
         self.token_file: Path = Path(self.token_file)
-        self.wd: Path = self.home_dir / "lite" / self.sha
+        self.wd: Path = self.testing_paths.wd
 
     @staticmethod
-    def keys() -> list[str]:
-        """Return list of parameters."""
-        return list(LaunchParameters.__dataclass_fields__.keys())
+    def keys(except_for: list[str] = []) -> list[str]:
+        """Return list of parameters.
+
+        Parameters
+        ----------
+        List of keys to exclude
+        """
+        return [
+            key
+            for key in LaunchParameters.__dataclass_fields__.keys()
+            if key not in except_for
+        ]
 
     @property
     def as_environment_variables(self) -> dict[str, str]:
@@ -69,8 +79,8 @@ def launch(parameters: LaunchParameters) -> None:
         build: list[str] = [
             "sbatch",
             slurm_env,
-            f"--output={parameters.log_dir}/build.out.log",
-            f"--error={parameters.log_dir}/build.err.log",
+            f"--output={parameters.testing_paths.log_dir}/build.out.log",
+            f"--error={parameters.testing_paths.log_dir}/build.err.log",
             "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
             "--working_dir",
@@ -81,13 +91,17 @@ def launch(parameters: LaunchParameters) -> None:
         cmd: list[str] = [
             "sbatch",
             slurm_env,
-            f"--output={parameters.log_dir}/launch.out.log",
-            f"--error={parameters.log_dir}/launch.err.log",
+            f"--output={parameters.testing_paths.log_dir}/launch.out.log",
+            f"--error={parameters.testing_paths.log_dir}/launch.err.log",
             str(repo / "regression_run_scripts/regtest_lite.sh"),
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
-    status = TotalStatus(image=parameters.sha)
+    status = TotalStatus(
+        testing_paths=parameters.testing_paths,
+        image=parameters.sha,
+        dry_run=parameters.dry_run,
+    )
     LOGGER.info(status)
     if not parameters.dry_run:
         build_job: str = (

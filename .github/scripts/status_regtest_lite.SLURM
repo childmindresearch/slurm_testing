@@ -13,7 +13,7 @@ then
     # shellcheck disable=SC1090
     source "${HOME_DIR}/C-PAC_slurm_testing/.github/scripts/wait_for_git_lock.sh"
     wait_for_git_lock
-    git add launch/*.error.log launch/*.out.log
+    git add launch/*.err.log launch/*.out.log
     wait_for_git_lock
     git commit -m "Add logs for ${PIPELINE} ${DATA} ${SHA}"
     cd "$_WD" || exit 1

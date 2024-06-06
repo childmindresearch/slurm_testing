@@ -2,14 +2,11 @@
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from logging import basicConfig, getLogger, INFO
 import os
-from pathlib import Path
-from typing import Optional
 
 from cpac_slurm_testing import __version__
 from cpac_slurm_testing.launch import launch, LaunchParameters
-from cpac_slurm_testing.status import _global
 from cpac_slurm_testing.status._global import LOG_FORMAT
-from cpac_slurm_testing.status.status import RunStatus, TotalStatus
+from cpac_slurm_testing.status.status import RunStatus, TestingPaths, TotalStatus
 
 LOGGER = getLogger(name=__name__)
 basicConfig(format=LOG_FORMAT, level=INFO)
@@ -25,46 +22,8 @@ def _argstring(arg: str) -> list[str]:
     )
 
 
-def set_working_directory(wd: Optional[Path | str] = None) -> None:
-    """Set working directory.
-
-    Priority order:
-    1. `wd` if `wd` is given.
-    2. `$REGTEST_LOG_DIR` if such environment variable is defined.
-    3. Do nothing.
-    """
-    filename = "status.log"
-    if wd is None:
-        wd = os.environ.get("REGTEST_LOG_DIR")
-    if not wd:
-        _log = (
-            LOGGER.warning,
-            ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."],
-        )
-    if wd:
-        wd = str(Path(wd).absolute())
-        if not os.path.exists(wd):
-            os.makedirs(wd, exist_ok=True)
-        os.chdir(wd)
-        _log = LOGGER.info, ["Set working directory to %s", wd]
-        _wdparts = wd.split("/")
-        _logpath = "/".join([*_wdparts[:-2], "logs", _wdparts[-1]])
-        if not os.path.exists(_logpath):
-            os.makedirs(_logpath, exist_ok=True)
-        filename = f"{_logpath}/{filename}"
-    basicConfig(
-        filename=filename,
-        encoding="utf8",
-        force=True,
-        format=LOG_FORMAT,
-        level=INFO,
-    )
-    _log[0](*_log[1])  # log info or warning as appropriate
-
-
-def check(args: Namespace) -> None:
+def check(status: TotalStatus, args: Namespace) -> None:
     """Check a run's status."""
-    status = TotalStatus()
     status[
         (
             args.data_source,
@@ -75,9 +34,8 @@ def check(args: Namespace) -> None:
     LOGGER.info(status)
 
 
-def check_all() -> None:
+def check_all(status: TotalStatus) -> None:
     """Check all runs' statuses."""
-    status = TotalStatus()
     for run in status.runs.values():
         run.job_status
     LOGGER.info(status)
@@ -88,11 +46,11 @@ def _env_varname(arg: str) -> str:
     return f"_CPAC_STATUS_{arg.upper().replace('-', '_')}"
 
 
-class NamespaceWithEnvFallback(Namespace):
-    """Namespace, but with additional ``_env_fallback`` method."""
+class SlurmTestingNamespace(Namespace):
+    """Namespace, but with additional ``_env_fallback`` method.
 
-    def __init__(self, original: Namespace):
-        self.__dict__.update(original.__dict__)
+    Also updates wd to an absolute path and sets up logging.
+    """
 
     def _env_fallback(self: Namespace, arg: str) -> str:
         """Get an argument value from ENV if not passed as an argument."""
@@ -111,6 +69,19 @@ class NamespaceWithEnvFallback(Namespace):
                 )
                 raise LookupError(msg)
         return value
+
+    def __init__(self, original: Namespace) -> None:
+        """Initialize Namespace."""
+        super().__init__(
+            **{
+                key: value if value else self._env_fallback(key)
+                for key, value in vars(original).items()
+            }
+        )
+        if not hasattr(self, "dry_run"):
+            self.dry_run: bool = False
+            """Skip actually running commands?"""
+        self.testing_paths = TestingPaths(self.wd)
 
 
 def _parser_arg_helpstring(arg: str) -> str:
@@ -163,11 +134,10 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
         "launch", description=_description, help=_description, parents=[base_parser]
     )
     del _description
-    for arg in LaunchParameters().keys():
-        if arg != "dry_run":
-            subparsers.choices["launch"].add_argument(
-                *_argstring(arg), help=_parser_arg_helpstring(arg)
-            )
+    for arg in LaunchParameters.keys(except_for=["dry_run", "testing_paths"]):
+        subparsers.choices["launch"].add_argument(
+            *_argstring(arg), help=_parser_arg_helpstring(arg)
+        )
     parser.add_argument(
         "--version", "-v", action="version", version=f"%(prog)s {__version__}"
     )
@@ -182,15 +152,15 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     return parser, subparsers.choices
 
 
-def update(args: Namespace) -> None:
+def update(status: TotalStatus, args: Namespace) -> None:
     """Update a run."""
-    status = TotalStatus()
     run = RunStatus(
         args.data_source,
         args.preconfig,
         args.subject,
         getattr(args, "status"),
         _total=status,
+        dry_run=status.dry_run,
     )
     run.launch("lite_run")
     status += run
@@ -200,23 +170,22 @@ def main() -> None:
     """Run the script from the commandline."""
     # Parse the arguments
     parser, _subparsers = _parser()
-    args = NamespaceWithEnvFallback(parser.parse_args())
-    set_working_directory(args.wd)
-    if getattr(args, "dry_run", False):
-        _global.DRY_RUN = True
+    args = SlurmTestingNamespace(parser.parse_args())
     # Update the status
-    if args.command in ["add", "finalize"]:
-        update(args)
-    elif args.command == "check":
-        check(args)
-    elif args.command == "check-all":
-        check_all()
-    elif args.command == "launch":
+    if args.command == "launch":
         launch(
             LaunchParameters(
                 **{key: getattr(args, key) for key in LaunchParameters.keys()}
             )
         )
+    else:
+        status = TotalStatus(testing_paths=args.testing_paths, dry_run=args.dry_run)
+        if args.command in ["add", "finalize"]:
+            update(status, args)
+        elif args.command == "check":
+            check(status, args)
+        elif args.command == "check-all":
+            check_all(status)
 
 
 if __name__ == "__main__":

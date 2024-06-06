@@ -3,8 +3,8 @@
 #SBATCH -p RM-shared
 #SBATCH -t 10:00:00
 #SBATCH --ntasks-per-node=11
-#SBATCH -o {wd}/slurm-{pdsd}/%x.out.log
-#SBATCH --error {wd}/slurm-{pdsd}/%x.error.log
+#SBATCH -o {log_dir}/slurm-{pdsd}/%x.out.log
+#SBATCH --error {log_dir}/slurm-{pdsd}/%x.err.log
 #SBATCH -J {pdsd}-{image_name}-reglite
 
 set -x
@@ -24,7 +24,7 @@ apptainer run \
     --participant_label {subject} \
     --n_cpus 10 --mem_gb 40
 
-if grep -q "CPAC run complete" {wd}/slurm-{pdsd}/*.out.log
+if grep -q "CPAC run complete" {log_dir}/slurm-{pdsd}/*.out.log
 then
   exit 0  # Exit with success code
 else
