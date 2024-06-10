@@ -52,11 +52,13 @@ class SlurmTestingNamespace(Namespace):
     Also updates wd to an absolute path and sets up logging.
     """
 
-    def _env_fallback(self: Namespace, arg: str) -> str:
+    def _env_fallback(self: Namespace, arg: str) -> str | bool:
         """Get an argument value from ENV if not passed as an argument."""
         try:
             value = getattr(self, arg)
         except AttributeError:
+            if arg == "dry_run":
+                return False
             value = None
         if value is None:
             env_var = _env_varname(arg)
