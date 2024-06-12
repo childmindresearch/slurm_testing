@@ -372,11 +372,18 @@ class TotalStatus:
 
     def __init__(
         self,
-        testing_paths: TestingPaths,
+        testing_paths: Path | str | TestingPaths,
         runs: Optional[list[RunStatus]] = None,
         image: Optional[str] = None,
         dry_run: bool = False,
     ) -> None:
+        if isinstance(testing_paths, str):
+            testing_paths = Path(testing_paths)
+        if isinstance(testing_paths, Path):
+            testing_paths = TestingPaths(testing_paths)
+        if not isinstance(testing_paths, TestingPaths):
+            msg = f"{testing_paths} is not an instance of {TestingPaths}"
+            raise TypeError(msg)
         self.testing_paths = testing_paths
         self.dry_run: bool = dry_run
         """Skip actually running commands?"""
