@@ -157,6 +157,7 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
 def update(status: TotalStatus, args: Namespace) -> None:
     """Update a run."""
     run = RunStatus(
+        status.testing_paths,
         args.data_source,
         args.preconfig,
         args.subject,
