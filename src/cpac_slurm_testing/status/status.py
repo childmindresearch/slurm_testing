@@ -49,66 +49,91 @@ LOGGER = getLogger(name=__name__)
 basicConfig(format=LOG_FORMAT, level=INFO)
 
 
+def _set_intermediate_directory(
+    directory: Path | str, intermediate: str, mkdir: bool = True
+) -> Path:
+    """Set directory between user and image.
+
+    Examples
+    --------
+    >>> str(_set_intermediate_directory('/home/user/full/image', 'lite', False))
+    '/home/user/lite/image'
+    >>> str(_set_intermediate_directory('/home/user/full/image', 'logs', False))
+    '/home/user/logs/image'
+    """
+    _parts = str(directory).split("/")
+    path = Path("/".join([*_parts[:-2], intermediate, _parts[-1]]))
+    if mkdir and not path.exists():
+        os.makedirs(str(path), exist_ok=True)
+    return path
+
+
+def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]:
+    """Set working directory.
+
+    Priority order:
+    1. `wd` if `wd` is given.
+    2. `$REGTEST_LOG_DIR` if such environment variable is defined.
+    3. Do nothing.
+
+    Returns
+    -------
+    wd
+        working directory
+
+    _logpath
+        log directory
+    """
+    filename = "status.log"
+    if wd is None:
+        wd = os.environ.get("REGTEST_LOG_DIR")
+    if not wd:
+        _log = (
+            LOGGER.warning,
+            ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."],
+        )
+    if wd:
+        wd = _set_intermediate_directory(Path(wd).absolute(), "lite")
+    else:
+        from datetime import datetime
+        from time import localtime, strftime
+
+        wd = (
+            Path.cwd().absolute()
+            / "lite"
+            / "".join(
+                [
+                    datetime.now().strftime("%Y%m%d%H%M%S.%f%Z"),
+                    strftime("%Z", localtime()),
+                ]
+            )
+        )
+    os.chdir(str(wd))
+    _log = LOGGER.info, ["Set working directory to %s", str(wd)]
+    _logpath = _set_intermediate_directory(wd, "logs")
+    filename = f"{_logpath}/{filename}"
+    basicConfig(
+        filename=filename,
+        encoding="utf8",
+        force=True,
+        format=LOG_FORMAT,
+        level=INFO,
+    )
+    _log[0](*_log[1])  # log info or warning as appropriate
+    return Path(wd), Path(_logpath)
+
+
 class TestingPaths:
     """Working and logging path management."""
 
     def __init__(self, wd: Optional[Path] = None) -> None:
         """Initialize TestingPaths."""
-        self._wd, self._log_dir = self.set_working_directory(wd)
+        self._wd, self._log_dir = _set_working_directory(wd)
 
     @property
     def log_dir(self) -> Path:
         """Return log directory."""
         return self._log_dir
-
-    def set_working_directory(
-        self, wd: Optional[Path | str] = None
-    ) -> tuple[Path, Path]:
-        """Set working directory.
-
-        Priority order:
-        1. `wd` if `wd` is given.
-        2. `$REGTEST_LOG_DIR` if such environment variable is defined.
-        3. Do nothing.
-
-        Returns
-        -------
-        wd
-            working directory
-
-        _logpath
-            log directory
-        """
-        filename = "status.log"
-        if wd is None:
-            wd = os.environ.get("REGTEST_LOG_DIR")
-        if not wd:
-            _log = (
-                LOGGER.warning,
-                ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."],
-            )
-        if wd:
-            wd = str(Path(wd).absolute())
-            if not os.path.exists(wd):
-                os.makedirs(wd, exist_ok=True)
-            os.chdir(wd)
-        else:
-            wd = Path.cwd().absolute()
-        _log = LOGGER.info, ["Set working directory to %s", str(wd)]
-        _wdparts = str(wd).split("/")
-        _logpath = "/".join([*_wdparts[:-2], "logs", _wdparts[-1]])
-        if not os.path.exists(_logpath):
-            os.makedirs(_logpath, exist_ok=True)
-        filename = f"{_logpath}/{filename}"
-        basicConfig(
-            filename=filename,
-            encoding="utf8",
-            force=True,
-            format=LOG_FORMAT,
-            level=INFO,
-        )
-        _log[0](*_log[1])  # log info or warning as appropriate
-        return Path(wd), Path(_logpath)
 
     @property
     def wd(self) -> Path:
@@ -246,10 +271,6 @@ class RunStatus:
         """working directory"""
         self.log_dir = self.testing_paths.log_dir / f"slurm-{self.pdsd}"
         """log directory"""
-        for _dir in [self.wd, self.log_dir]:
-            if not _dir.exists():
-                LOGGER.info("mkdir %s", _dir)
-                _dir.mkdir(parents=True, exist_ok=True)
 
     def command(self, command_type: str) -> str:
         """Return a command string for a given command_type."""
