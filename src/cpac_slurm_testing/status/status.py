@@ -30,7 +30,7 @@ import pickle
 from random import choice, randint
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import Literal, Optional, overload, Union
+from typing import Iterable, Literal, Optional, overload, Union
 
 from github import Github
 from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
@@ -108,6 +108,9 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
                 ]
             )
         )
+        for parent in reversed(wd.parents):
+            parent.mkdir(mode=0o777, exist_ok=True)
+        wd.mkdir(mode=0o777, exist_ok=True)
     os.chdir(str(wd))
     _log = LOGGER.info, ["Set working directory to %s", str(wd)]
     _logpath = _set_intermediate_directory(wd, "logs")
@@ -139,6 +142,28 @@ class TestingPaths:
     def wd(self) -> Path:
         """Return working directory."""
         return self._wd
+
+    def __iter__(self) -> Iterable[Path]:
+        """Return an iterator of working and logging directories."""
+        yield self.wd
+        yield self.log_dir
+
+    def __len__(self) -> int:
+        """Return the number of testing paths."""
+        _attrs = 0
+        for _attr in ["wd", "log_dir"]:
+            if hasattr(self, _attr):
+                _attrs += 1
+        return _attrs
+
+    def __repr__(self) -> str:
+        """Return reproducible TestingPaths."""
+        return f"TestingPaths(Path('{self.wd}'))"
+
+    def __str__(self) -> str:
+        """Return a string representation of TestingPaths."""
+        _parts = str(self.log_dir).rsplit("/logs/", 1)
+        return "/l(ite|ogs)/".join(_parts)
 
 
 def get_latest() -> str:
