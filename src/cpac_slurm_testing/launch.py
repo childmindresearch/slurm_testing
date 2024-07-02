@@ -99,6 +99,7 @@ def launch(parameters: LaunchParameters) -> None:
         cmd = [*cmd, "--dry-run"]
     status = TotalStatus(
         testing_paths=parameters.testing_paths,
+        home_dir=parameters.home_dir,
         image=parameters.sha,
         dry_run=parameters.dry_run,
     )

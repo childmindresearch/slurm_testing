@@ -8,7 +8,6 @@
 
 Requires the following environment variables:
 - GITHUB_TOKEN: A GitHub token with access to the repository.
-- HOME_DIR: Path to the home directory that contains the .apptainer directory for caching
 - OWNER: The owner of the repository.
 - REPO: The repository.
 - SHA: The commit SHA.
@@ -39,7 +38,6 @@ from cpac_slurm_testing.status._global import (
     _COMMAND_TYPES,
     _JOB_STATE,
     _STATE,
-    HOME_DIR,
     JOB_STATES,
     LOG_FORMAT,
     TEMPLATES,
@@ -301,8 +299,8 @@ class RunStatus:
         """Return a command string for a given command_type."""
         assert self._total is not None
         return TEMPLATES[command_type].format(
-            datapath=HOME_DIR / f"DATA/reg_5mm_pack/data/{self.data_source}",
-            home_dir=HOME_DIR,
+            datapath=self.total.home_dir / f"DATA/reg_5mm_pack/data/{self.data_source}",
+            home_dir=self.total.home_dir,
             log_dir=self.log_dir,
             image=self.total.image("path"),
             image_name=self.total.image("name"),
@@ -416,10 +414,11 @@ class TotalStatus:
 
     successes.__doc__ = success.__doc__
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         testing_paths: Path | str | TestingPaths,
         runs: Optional[list[RunStatus]] = None,
+        home_dir: Optional[Path | str] = None,
         image: Optional[str] = None,
         dry_run: bool = False,
     ) -> None:
@@ -444,6 +443,8 @@ class TotalStatus:
         """Dictionary of runs with individual statuses."""
         self.load()
         initial_state = self.status
+        if home_dir:
+            self.home_dir = Path(home_dir)
         if runs:
             self.runs.update({run.key: run for run in runs})
         for run in self.runs.values():
@@ -469,7 +470,7 @@ class TotalStatus:
 
     def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
         """Return the path to the output directory."""
-        return HOME_DIR / lite_or_full / self.image("name")
+        return self.home_dir / lite_or_full / self.image("name")
 
     def check_again_later(self, time: str) -> None:
         """Wait, then check the status again.
