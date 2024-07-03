@@ -20,7 +20,7 @@ apptainer run \
     -B {pipeline_configs}:/pipeline_configs \
     {image} /data /outputs participant \
     --save_working_dir --skip_bids_validator \
-    --pipeline_file /pipeline_configs/{pipeline}-5mm.yml \
+    --pipeline_file /pipeline_configs/{pipeline}-5mm.yaml \
     --participant_label {subject} \
     --n_cpus 10 --mem_gb 40
 
