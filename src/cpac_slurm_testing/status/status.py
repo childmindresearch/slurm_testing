@@ -298,13 +298,15 @@ class RunStatus:
     def command(self, command_type: str) -> str:
         """Return a command string for a given command_type."""
         assert self._total is not None
+        if not self.log_dir.exists():
+            self.log_dir.mkdir(mode=0o777, exist_ok=True)
         return TEMPLATES[command_type].format(
             datapath=self.total.home_dir / f"DATA/reg_5mm_pack/data/{self.data_source}",
             home_dir=self.total.home_dir,
             log_dir=self.log_dir,
             image=self.total.image("path"),
             image_name=self.total.image("name"),
-            output=self.out("lite") / self.data_source,
+            output=self.out("lite") / self.preconfig,
             pdsd=self.pdsd,
             pipeline=self.preconfig,
             pipeline_configs=str(
@@ -634,7 +636,7 @@ class TotalStatus:
         image_info = (f", image='{self.image('name')}'") if self._image else ""
         return (
             f"TotalStatus(testing_paths={self.testing_paths!r}, runs={self.runs}"
-            f"{image_info}, dry_run={self.dry_run}"
+            f"{image_info}, dry_run={self.dry_run})"
         )
 
     def __str__(self) -> str:
