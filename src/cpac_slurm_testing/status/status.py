@@ -302,6 +302,7 @@ class RunStatus:
             self.log_dir.mkdir(mode=0o777, exist_ok=True)
         return TEMPLATES[command_type].format(
             datapath=self.total.home_dir / f"DATA/reg_5mm_pack/data/{self.data_source}",
+            regdatapath=self.total.home_dir / "DATA/reg_5mm_pack/data",
             home_dir=self.total.home_dir,
             log_dir=self.log_dir,
             image=self.total.image("path"),

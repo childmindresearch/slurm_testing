@@ -16,6 +16,7 @@ apptainer run \
     --cleanenv \
     -B {home_dir} \
     -B {datapath}:/data \
+    -B {regdatapath}:/reg-data \
     -B {output}:/outputs \
     -B {pipeline_configs}:/pipeline_configs \
     {image} /data /outputs participant \
