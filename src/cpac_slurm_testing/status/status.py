@@ -554,7 +554,7 @@ class TotalStatus:
         if self.path.exists():
             with self.path.open("rb") as _f:
                 status: "TotalStatus" = pickle.load(_f)
-                # assert isinstance(status, self.__class__)
+                self.home_dir = status.home_dir
                 if self.runs:
                     for run in self.runs.values():
                         status += run
