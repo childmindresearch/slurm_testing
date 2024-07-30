@@ -49,7 +49,7 @@ sbatch \
 
 Once launched, the code from this repository will orchestrate the launches (and eventually the correlations and reporting).
 
-See [:octocat: `FCP-INDI/C-PAC/.github/workflows/regression_test_lite.yml`](https://github.com/FCP-INDI/C-PAC/blob/eabf86cc4cb87a6d4fb42364ac954f2274770fa7/.github/workflows/regression_test_lite.yml) for an example GitHub Actions workflow configuration file that calls this script.
+See [:octocat: `FCP-INDI/C-PAC/.github/workflows/regression_test_lite.yml`](https://github.com/FCP-INDI/C-PAC/blob/c0bf5e8ae26dec4846f0606cd99aa7817138a8c2/.github/workflows/regression_test_lite.yml#L90-L103) for an example GitHub Actions workflow configuration file that calls this script.
 
 #### What this repository does once launched
 
