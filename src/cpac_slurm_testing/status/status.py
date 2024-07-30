@@ -258,10 +258,10 @@ class RunStatus:
     data_source: str
     preconfig: str
     subject: str
+    _total: "TotalStatus"
     status: _STATE = "pending"
     job_id: Optional[int] = None
     _slurm_job_status: Optional[SlurmJobStatus] = None
-    _total: Optional["TotalStatus"] = None
     dry_run: bool = False
 
     def check_slurm(self) -> None:
@@ -294,6 +294,7 @@ class RunStatus:
         """working directory"""
         self.log_dir = self.testing_paths.log_dir / f"slurm-{self.pdsd}"
         """log directory"""
+        self._total += self
 
     def command(self, command_type: str) -> str:
         """Return a command string for a given command_type."""
