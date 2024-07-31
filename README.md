@@ -11,14 +11,22 @@ Note: this repository is currently in the process of transitioning to a <span ti
 
 Set up a GitHub Actions workflow configuration file to call [`cpac-slurm-status launch`](./src/cpac_slurm_testing/status/cli.py#L209-L222). Use contexts, secrets and environment variables to pass the required variables to the script from GitHub Actions.
 
-#### Required variables
+#### Required commandline parameters or environment variables
 
-* `HOME_DIR`: Home directory of the machine user on the remote server (e.g., `/ocean/projects/med####p/${USERNAME}`).
-* `IMAGE`: The name and tag of the image to test (e.g., `ghcr.io/fcp-indi/c-pac:nightly`).
-* `OWNER`: The owner of the C-PAC repository being tested (e.g., `FCP-INDI`).
-* `PATH_EXTRA`: Any paths that need to be added to `PATH` to run these scripts on the remote server as the machine user.
-* `REPO`: The name of the C-PAC repository being tested (e.g., `C-PAC`).
-* `SHA`: The SHA of the commit or name of the branch or tag being tested.
+| commandline parameter | environment variable | description | required |
+| :--- | :--- | :--- | :---: |
+| `--comparison-path`,<br>`--comparison_path` | `$_CPAC_STATUS_COMPARISON_PATH` | Path to previous run (top level containing the various `DATA_SOURCE`s) to correlate against. | ✅ |
+| `--dashboard-repo`,<br>`--dashboard_repo` | `$_CPAC_STATUS_DASHBOARD_REPO` | `FCP-INDI/C-PAC_regression_dashboard` or `{owner}/{repo}` name of drop-in replacement (e.g., a fork of [FCP-INDI/C-PAC_regression_dashboard](https://github.com/FCP-INDI/C-PAC_regression_dashboard).) | ✅ |
+| `--home-dir` | `$_CPAC_STATUS_HOME_DIR` | Home directory of the machine user on the remote server (e.g., `/ocean/projects/med####p/${USERNAME}`). | ✅ |
+| `--image` | `$_CPAC_STATUS_IMAGE` | The name and tag of the image to test (e.g., `ghcr.io/fcp-indi/c-pac:nightly`). | ✅ |
+| `--owner` | `$_CPAC_STATUS_OWNER` | The owner of the C-PAC repository being tested (e.g., `FCP-INDI`). | ✅ |
+| `--path-extra`,<br>`--path_extra` | `$_CPAC_STATUS_PATH_EXTRA` | Any paths that need to be added to `PATH` to run these scripts on the remote server as the machine user. | ✅ |
+| `--repo` | `$_CPAC_STATUS_REPO` | The name of the C-PAC repository being tested (e.g., `C-PAC`). | ✅ |
+| `--sha` | `$_CPAC_STATUS_SHA` | The SHA of the commit or name of the branch or tag being tested. | ✅ |
+| `--slurm-testing-branch`,<br>`--slurm_testing_branch` | `$_CPAC_STATUS_SLURM_TESTING_BRANCH` | Branch of `slurm_testing_repo` to use for testing | ✅ |
+| `--slurm-testing-repo`,<br>`--slurm_testing_repo` | `$_CPAC_STATUS_SLURM_TESTING_REPO` | `childmindresearch/slurm_testing` or `{owner}/{repo}` name of drop-in replacement (e.g., a fork of [childmindresearch/slurm_testing](https://github.com/childmindresearch/slurm_testing).) | ✅ |
+| `--token-file`,<br>`--token_file` | `$_CPAC_STATUS_TOKEN_FILE` | Path on testing server to a [GitHub personal access token](https://docs.github.com/en/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens?apiVersion=2022-11-28) with adequate permissions to update GitHub Checks. | ✅ |
+| `--dry-run` | N/A | Simulate rather than run. | ❌ |
 
 #### Steps for launch from GitHub Actions
 
