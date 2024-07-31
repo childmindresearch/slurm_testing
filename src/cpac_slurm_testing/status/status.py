@@ -203,7 +203,7 @@ class SlurmJobStatus:
     def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
         ...
 
-    def get(self, key, default):
+    def get(self, key, default=None):
         """Return the value for key if key is in the SLURM job status, else default."""
         try:
             return getattr(self, key)
@@ -255,14 +255,23 @@ class RunStatus:
     """Store the status of a run for the GitHub Check."""
 
     testing_paths: TestingPaths
+    """Paths for working and log directories."""
     data_source: str
+    """Directory name (just final level), e.g. "HNU_1"."""
     preconfig: str
+    """Preconfiguration to test."""
     subject: str
+    """Subject ID."""
     _total: "TotalStatus"
+    """TotalStatus that includes this RunStatus."""
     status: _STATE = "pending"
+    """Success/failure/pending status of this run."""
     job_id: Optional[int] = None
+    """Scheduler job ID."""
     _slurm_job_status: Optional[SlurmJobStatus] = None
+    """Schedulre job status."""
     dry_run: bool = False
+    """Is this a dry run?"""
 
     def check_slurm(self) -> None:
         """Check SLURM job status."""

@@ -40,6 +40,7 @@ repos:
   rev: 0.12.4
   hooks:
   - id: ssort
+    exclude: src/cpac_slurm_testing/status/status.py  # ssort detaches attribute docstrings
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.5.0
