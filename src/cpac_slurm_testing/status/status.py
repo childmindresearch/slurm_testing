@@ -381,7 +381,7 @@ class RunStatus:
         """Return reproducible string representation of the status."""
         return (
             f"RunStatus({self.data_source}, {self.preconfig}, {self.subject}, "
-            f"{self.status}, _total={self.total}, dry_run={self.dry_run})"
+            f"status={self.status}, _total={self.total}, dry_run={self.dry_run})"
         )
 
     def __str__(self) -> str:
@@ -453,7 +453,6 @@ class TotalStatus:
             self.runs.update({run.key: run for run in runs})
         for run in self.runs.values():
             run.total = self
-            run.launch("lite_run")
         self.log()
         if self.image():
             self.write()
@@ -585,7 +584,7 @@ class TotalStatus:
             f"/{os.environ['REPO']}_{os.environ['SHA']}/launch"
         )
         commit.create_status(
-            status=self.status,
+            state=self.status,
             target_url=target_url,
             description=self.description,
             context="lite regression test",
