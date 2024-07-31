@@ -34,13 +34,13 @@ class LaunchParameters:
 
     def __post_init__(self) -> None:
         """Coerce Path typing."""
-        self.comparison_path: Path = Path(self.comparison_path)
-        self.home_dir: Path = Path(self.home_dir)
-        self.log_dir: Path = self.testing_paths.log_dir
+        self.comparison_path = Path(self.comparison_path)
+        self.home_dir = Path(self.home_dir)
+        self.log_dir = self.testing_paths.log_dir
         if "/" in self.repo:
             self.repo = self.repo.split("/", 1)[-1]
-        self.token_file: Path = Path(self.token_file)
-        self.wd: Path = self.testing_paths.wd
+        self.token_file = Path(self.token_file)
+        self.wd = self.testing_paths.wd
 
     @staticmethod
     def keys(except_for: list[str] = []) -> list[str]:
