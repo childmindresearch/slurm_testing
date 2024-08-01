@@ -317,7 +317,7 @@ class RunStatus:
             log_dir=self.log_dir,
             image=self.total.image("path"),
             image_name=self.total.image("name"),
-            output=self.out("lite") / self.preconfig,
+            output=self.out("lite") / self.preconfig / self.data_source,
             pdsd=self.pdsd,
             pipeline=self.preconfig,
             pipeline_configs=str(
