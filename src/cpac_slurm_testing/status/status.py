@@ -474,6 +474,11 @@ class TotalStatus:
         else:
             self.check_again_later(time="now+30minutes")
 
+    @property
+    def datasources(self) -> list[str]:
+        """Return a list of all unique datasources in a TotalStatus."""
+        return list({datasource for datasource, _, _ in self.runs.keys()})
+
     def image(self, name_or_path: Literal["name", "path"] = "name") -> Path | str:
         """Return the image name or path."""
         if name_or_path == "name":
@@ -508,7 +513,7 @@ class TotalStatus:
         """Launch correlation process."""
         this_pipeline = self.out("lite")
         latest_ref = this_pipeline.parent / get_latest()
-        for data_source in self.runs:
+        for data_source in self.datasources:
             if self.dry_run:
                 LOGGER.info(
                     ", ".join(
