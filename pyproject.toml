@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "cpac_slurm_testing"
 version = "0.1.0.dev1"
-description = "A beautiful description."
+description = "Run C-PAC regression tests via Slurm."
 authors = ["Amy Gutierrez <58920810+amygutierrez@users.noreply.github.com>", "Jon Clucas <jon.clucas@@childmind.org>"]
 license = "LGPL-2.1"
 readme = "README.md"
