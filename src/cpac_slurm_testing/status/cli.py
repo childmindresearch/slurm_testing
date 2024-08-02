@@ -161,7 +161,7 @@ def update(status: TotalStatus, args: Namespace) -> None:
         data_source=args.data_source,
         preconfig=args.preconfig,
         subject=args.subject,
-        status=getattr(args, "status"),
+        status=getattr(args, "status", "pending"),
         _total=status,
         dry_run=status.dry_run,
     )

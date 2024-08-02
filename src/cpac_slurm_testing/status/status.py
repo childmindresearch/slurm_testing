@@ -32,6 +32,8 @@ from tempfile import NamedTemporaryFile
 from typing import Iterable, Literal, Optional, overload, Union
 
 from github import Github
+from github.Commit import Commit
+from github.Repository import Repository
 from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 
 from cpac_slurm_testing.status._global import (
@@ -162,11 +164,6 @@ class TestingPaths:
         """Return a string representation of TestingPaths."""
         _parts = str(self.log_dir).rsplit("/logs/", 1)
         return "/l(ite|ogs)/".join(_parts)
-
-
-def get_latest() -> str:
-    """Get the latest C-PAC ref."""
-    return ""  # TODO
 
 
 def indented_lines(lines: str) -> str:
@@ -512,7 +509,7 @@ class TotalStatus:
     def correlate(self, n_cpus: int = 4) -> None:
         """Launch correlation process."""
         this_pipeline = self.out("lite")
-        latest_ref = this_pipeline.parent / get_latest()
+        latest_ref = this_pipeline.parent / self.latest
         for data_source in self.datasources:
             if self.dry_run:
                 LOGGER.info(
@@ -521,21 +518,23 @@ class TotalStatus:
                             f"cpac_yaml(pipeline1={this_pipeline})",
                             "pipeline2={latest_ref}",
                             f"correlations_dir={this_pipeline.parent / 'correlations'}",
-                            f"run_name={os.environ['SHA']}",
+                            f"run_name={self.image('name')}",
                             f"n_cpus={n_cpus}",
-                            f"branch={os.environ['SHA']}",
+                            f"branch={self.image('name')}",
                             f"data_source={data_source})",
                         ]
                     )
                 )
             else:
                 cpac_yaml(
-                    pipeline1=str(this_pipeline),
+                    pipeline1=str(
+                        this_pipeline
+                    ),  # TODO: fill in preconfig and datasource
                     pipeline2=str(latest_ref),
                     correlations_dir=str(this_pipeline.parent / "correlations"),
-                    run_name=os.environ["SHA"],
+                    run_name=str(self.image("name")),
                     n_cpus=n_cpus,
-                    branch=os.environ["SHA"],
+                    branch=str(self.image("name")),
                     data_source=data_source,
                 )
         pass  # TODO
@@ -562,6 +561,21 @@ class TotalStatus:
         except ZeroDivisionError:
             msg = "No runs have been logged as started."
             raise ProcessLookupError(msg)
+
+    @property
+    def github_repo(self) -> Repository:
+        """Get a Github.repo for C-PAC."""
+        if not hasattr(self, "_github_repo"):
+            github_client: Github = Github(os.environ["GITHUB_TOKEN"])
+            self._github_repo: Repository = github_client.get_repo(
+                f"{os.environ['OWNER']}/{os.environ['REPO']}"
+            )
+        return self._github_repo
+
+    @property
+    def latest(self) -> str:
+        """Return the latest C-PAC ref."""
+        return self.github_repo.get_latest_release().tag_name
 
     def load(self) -> "TotalStatus":
         """Load status from disk, replacing current status.
@@ -590,10 +604,9 @@ class TotalStatus:
 
     def push(self) -> None:
         """Push the status to GitHub."""
-        github_client = Github(os.environ["GITHUB_TOKEN"])
-        repo = github_client.get_repo(f"{os.environ['OWNER']}/{os.environ['REPO']}")
-        commit = repo.get_commit(sha=os.environ["SHA"])
-        target_url = (
+        repo: Repository = self.github_repo
+        commit: Commit = repo.get_commit(sha=os.environ["SHA"])
+        target_url: str = (
             f"https://github.com/{os.environ['OWNER']}/regtest-runlogs/tree"
             f"/{os.environ['REPO']}_{os.environ['SHA']}/launch"
         )
