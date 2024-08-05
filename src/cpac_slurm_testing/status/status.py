@@ -22,14 +22,14 @@ from dataclasses import dataclass
 from fcntl import flock, LOCK_EX, LOCK_UN
 from fractions import Fraction
 from importlib.resources import files
-from logging import basicConfig, getLogger, INFO
+from logging import basicConfig, getLogger, INFO, Logger
 import os
 from pathlib import Path
 import pickle
 from random import choice, randint
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import cast, Iterable, Literal, Optional, overload, Union
+from typing import Callable, cast, Iterable, Literal, Optional, overload, Union
 
 from github import Github
 from github.Commit import Commit
@@ -45,7 +45,7 @@ from cpac_slurm_testing.status._global import (
     TEMPLATES,
 )
 
-LOGGER = getLogger(name=__name__)
+LOGGER: Logger = getLogger(name=__name__)
 basicConfig(format=LOG_FORMAT, level=INFO)
 
 
@@ -61,7 +61,7 @@ def _set_intermediate_directory(
     >>> str(_set_intermediate_directory('/home/user/full/image', 'logs', False))
     '/home/user/logs/image'
     """
-    _parts = str(directory).split("/")
+    _parts: list[str] = str(directory).split("/")
     path = Path("/".join([*_parts[:-2], intermediate, _parts[-1]]))
     if mkdir and not path.exists():
         os.makedirs(str(path), exist_ok=True)
@@ -84,14 +84,14 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
     _logpath
         log directory
     """
-    filename = "status.log"
+    filename: str = "status.log"
+    _logger: Callable
+    _log_msg: list[str]
     if wd is None:
         wd = os.environ.get("REGTEST_LOG_DIR")
     if not wd:
-        _log = (
-            LOGGER.warning,
-            ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."],
-        )
+        _logger = LOGGER.warning
+        _log_msg = ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."]
     if wd:
         wd = _set_intermediate_directory(Path(wd).absolute(), "lite")
     else:
@@ -112,8 +112,9 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
             parent.mkdir(mode=0o777, exist_ok=True)
         wd.mkdir(mode=0o777, exist_ok=True)
     os.chdir(str(wd))
-    _log = LOGGER.info, ["Set working directory to %s", str(wd)]
-    _logpath = _set_intermediate_directory(wd, "logs")
+    _logger = LOGGER.info
+    _log_msg = ["Set working directory to %s", str(wd)]
+    _logpath: Path = _set_intermediate_directory(wd, "logs")
     filename = f"{_logpath}/{filename}"
     basicConfig(
         filename=filename,
@@ -122,7 +123,7 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
         format=LOG_FORMAT,
         level=INFO,
     )
-    _log[0](*_log[1])  # log info or warning as appropriate
+    _logger(*_log_msg)  # log info or warning as appropriate
     return Path(wd), Path(_logpath)
 
 
@@ -131,6 +132,8 @@ class TestingPaths:
 
     def __init__(self, wd: Optional[Path] = None) -> None:
         """Initialize TestingPaths."""
+        self._log_dir: Path
+        self._wd: Path
         self._wd, self._log_dir = _set_working_directory(wd)
 
     @property
@@ -162,13 +165,13 @@ class TestingPaths:
 
     def __str__(self) -> str:
         """Return a string representation of TestingPaths."""
-        _parts = str(self.log_dir).rsplit("/logs/", 1)
+        _parts: list[str] = str(self.log_dir).rsplit("/logs/", 1)
         return "/l(ite|ogs)/".join(_parts)
 
 
 def indented_lines(lines: str) -> str:
     """Return a multiline string with each line indented one tab."""
-    _lines = lines.split("\n")
+    _lines: list[str] = lines.split("\n")
     return "\n".join([_lines[0], *[f"\t{line}" for line in _lines[1:]]]).rstrip()
 
 
@@ -188,7 +191,7 @@ class SlurmJobStatus:
                 )
             ]
         }
-        self.dry_run = dry_run
+        self.dry_run: bool = dry_run
 
     @overload
     def get(
@@ -200,7 +203,7 @@ class SlurmJobStatus:
     def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
         ...
 
-    def get(self, key, default=None):
+    def get(self, key, default=None) -> Optional[str]:
         """Return the value for key if key is in the SLURM job status, else default."""
         try:
             return getattr(self, key)
@@ -222,7 +225,7 @@ class SlurmJobStatus:
     def __getitem__(self, item: str) -> Optional[str]:
         ...
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> Optional[str]:
         """Return an item from the scontrol output."""
         return self._scontrol_dict.get(item)
 
@@ -234,7 +237,7 @@ class SlurmJobStatus:
 
     def __repr__(self) -> str:
         """Return reproducible string represntation of SLURM job status."""
-        _str = " ".join(
+        _str: str = " ".join(
             [
                 "=".join([key, (value if value else "(null)")])
                 for key, value in self._scontrol_dict.items()
@@ -294,11 +297,11 @@ class RunStatus:
 
     def __post_init__(self) -> None:
         """Set some determinable attributes after initializing."""
-        self.pdsd = f"{self.preconfig}-{self.data_source}-{self.subject}"
+        self.pdsd: str = f"{self.preconfig}-{self.data_source}-{self.subject}"
         """preconfig-data_source-subject"""
-        self.wd = self.testing_paths.wd / f"slurm-{self.pdsd}"
+        self.wd: Path = self.testing_paths.wd / f"slurm-{self.pdsd}"
         """working directory"""
-        self.log_dir = self.testing_paths.log_dir / f"slurm-{self.pdsd}"
+        self.log_dir: Path = self.testing_paths.log_dir / f"slurm-{self.pdsd}"
         """log directory"""
         self._total += self
 
@@ -330,7 +333,7 @@ class RunStatus:
 
     def launch(self, command_type: _COMMAND_TYPES) -> None:
         """Launch a SLURM job and set its job ID."""
-        _command_types = eval(
+        _command_types: list[str] = eval(
             str(_COMMAND_TYPES).replace(
                 str(
                     _COMMAND_TYPES.__origin__  # type: ignore[attr-defined]
@@ -339,7 +342,7 @@ class RunStatus:
             )
         )
         if command_type not in _command_types:
-            msg = f"{command_type} not in {_command_types}"
+            msg: str = f"{command_type} not in {_command_types}"
             raise KeyError(msg)
         with NamedTemporaryFile(mode="w", encoding="utf8", delete=False) as _f:
             _f.write(self.command(command_type))
@@ -348,7 +351,7 @@ class RunStatus:
                 LOGGER.info(
                     "%s:\n\n\t%s", _f.name, indented_lines(_command_file.read())
                 )
-            command = ["sbatch", "--parsable", _f.name]
+            command: list[str] = ["sbatch", "--parsable", _f.name]
             if self.dry_run:
                 LOGGER.info("Dry run.")
                 self.job_id = randint(1, 99999999)
@@ -437,22 +440,22 @@ class TotalStatus:
         if isinstance(testing_paths, Path):
             testing_paths = TestingPaths(testing_paths)
         if not isinstance(testing_paths, TestingPaths):
-            msg = f"{testing_paths} is not an instance of {TestingPaths}"
+            msg: str = f"{testing_paths} is not an instance of {TestingPaths}"
             raise TypeError(msg)
-        self.testing_paths = testing_paths
+        self.testing_paths: TestingPaths = testing_paths
         self.dry_run: bool = dry_run
         """Skip actually running commands?"""
-        path = testing_paths.wd / "status.🥒"
+        path: Path = testing_paths.wd / "status.🥒"
         if self.dry_run:
             path = Path(f"{path.name}.dry")
-        self.path = path
+        self.path: Path = path
         """Path to status data on disk."""
         self._image: str = image if image is not None else ""
         """Name of image."""
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary like `{(datasource, preconfig, subject): run}` of runs with individual statuses."""
         self.load()
-        initial_state = self.status
+        initial_state: _STATE | Literal["idle"] = self.status
         if home_dir:
             self.home_dir = Path(home_dir)
         if runs:
@@ -663,7 +666,7 @@ class TotalStatus:
 
     def __add__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
-        runs = self.runs.copy()
+        runs: dict[tuple[str, str, str], RunStatus] = self.runs.copy()
         runs.update({other.key: other})
         return TotalStatus(
             testing_paths=self.testing_paths,
@@ -687,7 +690,7 @@ class TotalStatus:
 
     def __str__(self) -> str:
         """Return string representation of TotalStatus."""
-        image_info = [f"{self.image('name')}"] if self._image else []
+        image_info: list[str] = [f"{self.image('name')}"] if self._image else []
         return "\n".join(
             [
                 *image_info,
