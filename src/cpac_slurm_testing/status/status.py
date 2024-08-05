@@ -34,6 +34,7 @@ from typing import Callable, cast, Iterable, Literal, Optional, overload, Union
 from github import Github
 from github.Commit import Commit
 from github.Repository import Repository
+from cpac_correlations import cpac_correlations, CpacCorrelationsNamespace
 from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 
 from cpac_slurm_testing.status._global import (
@@ -550,7 +551,7 @@ class TotalStatus:
                         )
                     )
                 else:
-                    regression_correlation_yaml: Path = cpac_yaml(  # noqa: F841  # TODO: Use YAML to run correlations
+                    regression_correlation_yaml: Path = cpac_yaml(
                         pipeline1=pipelines[0],
                         pipeline2=pipelines[1],
                         correlations_dir=correlations_dir,
@@ -558,6 +559,13 @@ class TotalStatus:
                         n_cpus=n_cpus,
                         branch=branch,
                         data_source=data_source,
+                    )
+                    cpac_correlations(
+                        CpacCorrelationsNamespace(
+                            branch=branch,
+                            data_source=data_source,
+                            input_yaml=str(regression_correlation_yaml),
+                        )
                     )
 
     @property
