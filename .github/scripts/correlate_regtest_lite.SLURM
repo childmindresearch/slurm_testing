@@ -37,4 +37,4 @@ export _CPAC_STATUS_STATE="${STATE}"
 
 export GITHUB_WORKSPACE="${HOME_DIR}/${IMAGE_NAME}"
 
-cpac_regsuite_create_yaml --pipeline1 "${COMPARISON_PATH}/${PIPELINE}/${DATA}" --pipeline2 "${GITHUB_WORKSPACE}/lite/${PIPELINE}/${DATA}" --workspace "${GITHUB_WORKSPACE}" --data_source "${DATA}"
+cpac_regsuite_create_yaml --pipeline1 "${COMPARISON_PATH}/${PIPELINE}/${DATA}" --pipeline2 "${GITHUB_WORKSPACE}/lite/${PIPELINE}/${DATA}" --workspace "${GITHUB_WORKSPACE}" --data_source "${DATA}" --branch="${SHA}"

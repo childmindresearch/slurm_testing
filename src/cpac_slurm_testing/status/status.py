@@ -29,7 +29,7 @@ import pickle
 from random import choice, randint
 import subprocess
 from tempfile import NamedTemporaryFile
-from typing import Iterable, Literal, Optional, overload, Union
+from typing import cast, Iterable, Literal, Optional, overload, Union
 
 from github import Github
 from github.Commit import Commit
@@ -450,7 +450,7 @@ class TotalStatus:
         self._image: str = image if image is not None else ""
         """Name of image."""
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
-        """Dictionary of runs with individual statuses."""
+        """Dictionary like `{(datasource, preconfig, subject): run}` of runs with individual statuses."""
         self.load()
         initial_state = self.status
         if home_dir:
@@ -475,6 +475,16 @@ class TotalStatus:
     def datasources(self) -> list[str]:
         """Return a list of all unique datasources in a TotalStatus."""
         return list({datasource for datasource, _, _ in self.runs.keys()})
+
+    @property
+    def preconfigs(self) -> list[str]:
+        """Return a list of all unique preconfigs in a TotalStatus."""
+        return list({preconfig for _, preconfig, _ in self.runs.keys()})
+
+    @property
+    def subjects(self) -> list[str]:
+        """Return a list of all unique subjects in a TotalStatus."""
+        return list({subject for _, _, subject in self.runs.keys()})
 
     def image(self, name_or_path: Literal["name", "path"] = "name") -> Path | str:
         """Return the image name or path."""
@@ -508,36 +518,44 @@ class TotalStatus:
 
     def correlate(self, n_cpus: int = 4) -> None:
         """Launch correlation process."""
-        this_pipeline = self.out("lite")
-        latest_ref = this_pipeline.parent / self.latest
+        this_pipeline: Path = self.out("lite")
+        latest_ref: Path = this_pipeline.parent / self.latest
+        correlations_dir: str = str(this_pipeline.parent / "correlations")
+        branch: str = cast(str, self.image("name"))
         for data_source in self.datasources:
-            if self.dry_run:
-                LOGGER.info(
-                    ", ".join(
-                        [
-                            f"cpac_yaml(pipeline1={this_pipeline})",
-                            "pipeline2={latest_ref}",
-                            f"correlations_dir={this_pipeline.parent / 'correlations'}",
-                            f"run_name={self.image('name')}",
-                            f"n_cpus={n_cpus}",
-                            f"branch={self.image('name')}",
-                            f"data_source={data_source})",
-                        ]
+            for preconfig in self.preconfigs:
+                pipelines: tuple[str, str] = cast(
+                    tuple[str, str],
+                    tuple(
+                        str(pipeline / preconfig / data_source)
+                        for pipeline in [this_pipeline, latest_ref]
+                    ),
+                )
+                run_name: str = f"{branch}_{data_source}_{preconfig}"
+                if self.dry_run:
+                    LOGGER.info(
+                        ", ".join(
+                            [
+                                f"cpac_yaml(pipeline1={pipelines[0]})",
+                                f"pipeline2={pipelines[1]}",
+                                f"correlations_dir={correlations_dir}",
+                                f"run_name={run_name}",
+                                f"n_cpus={n_cpus}",
+                                f"branch={branch}",
+                                f"data_source={data_source})",
+                            ]
+                        )
                     )
-                )
-            else:
-                cpac_yaml(
-                    pipeline1=str(
-                        this_pipeline
-                    ),  # TODO: fill in preconfig and datasource
-                    pipeline2=str(latest_ref),
-                    correlations_dir=str(this_pipeline.parent / "correlations"),
-                    run_name=str(self.image("name")),
-                    n_cpus=n_cpus,
-                    branch=str(self.image("name")),
-                    data_source=data_source,
-                )
-        pass  # TODO
+                else:
+                    regression_correlation_yaml: Path = cpac_yaml(  # noqa: F841
+                        pipeline1=pipelines[0],
+                        pipeline2=pipelines[1],
+                        correlations_dir=correlations_dir,
+                        run_name=run_name,
+                        n_cpus=n_cpus,
+                        branch=branch,
+                        data_source=data_source,
+                    )
 
     @property
     def _denominator(self) -> int:
