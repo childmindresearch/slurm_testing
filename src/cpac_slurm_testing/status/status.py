@@ -547,7 +547,7 @@ class TotalStatus:
                         )
                     )
                 else:
-                    regression_correlation_yaml: Path = cpac_yaml(  # noqa: F841
+                    regression_correlation_yaml: Path = cpac_yaml(  # noqa: F841  # TODO: Use YAML to run correlations
                         pipeline1=pipelines[0],
                         pipeline2=pipelines[1],
                         correlations_dir=correlations_dir,
