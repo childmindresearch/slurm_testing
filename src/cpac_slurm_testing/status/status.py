@@ -686,6 +686,7 @@ class TotalStatus:
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
         self.runs.update({other.key: other})
+        self.write()
         return self
 
     def __repr__(self) -> str:
