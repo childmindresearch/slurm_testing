@@ -271,8 +271,6 @@ class RunStatus:
     """Scheduler job ID."""
     _slurm_job_status: Optional[SlurmJobStatus] = None
     """Schedulre job status."""
-    dry_run: bool = False
-    """Is this a dry run?"""
 
     def check_slurm(self) -> None:
         """Check SLURM job status."""
@@ -326,6 +324,16 @@ class RunStatus:
             ),
             subject=self.subject,
         )
+
+    @property
+    def dry_run(self) -> bool:
+        """Is this a dry run?"""
+        return self._total.dry_run
+
+    @dry_run.setter
+    def dry_run(self, dry_run) -> None:
+        """Make this a dry run?"""
+        self._total.dry_run = dry_run
 
     @property
     def key(self) -> tuple[str, str, str]:
@@ -540,13 +548,13 @@ class TotalStatus:
                     LOGGER.info(
                         ", ".join(
                             [
-                                f"cpac_yaml(pipeline1={pipelines[0]})",
-                                f"pipeline2={pipelines[1]}",
-                                f"correlations_dir={correlations_dir}",
-                                f"run_name={run_name}",
-                                f"n_cpus={n_cpus}",
-                                f"branch={branch}",
-                                f"data_source={data_source})",
+                                f"cpac_yaml(pipeline1='{pipelines[0]}'",
+                                f"pipeline2='{pipelines[1]}'",
+                                f"correlations_dir='{correlations_dir}'",
+                                f"run_name='{run_name}'",
+                                f"n_cpus='{n_cpus}'",
+                                f"branch='{branch}'",
+                                f"data_source='{data_source}')",
                             ]
                         )
                     )
