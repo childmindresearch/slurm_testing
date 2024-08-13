@@ -163,7 +163,6 @@ def update(status: TotalStatus, args: Namespace) -> None:
         subject=args.subject,
         status=getattr(args, "status", "pending"),
         _total=status,
-        dry_run=status.dry_run,
     )
     run.launch("lite_run")
     status += run

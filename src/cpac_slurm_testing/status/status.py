@@ -327,12 +327,12 @@ class RunStatus:
 
     @property
     def dry_run(self) -> bool:
-        """Is this a dry run?"""
+        """Is this a dry run?"""  # noqa: D400
         return self._total.dry_run
 
     @dry_run.setter
     def dry_run(self, dry_run) -> None:
-        """Make this a dry run?"""
+        """Make this a dry run?"""  # noqa: D400
         self._total.dry_run = dry_run
 
     @property
@@ -399,7 +399,7 @@ class RunStatus:
         """Return reproducible string representation of the status."""
         return (
             f"RunStatus({self.data_source}, {self.preconfig}, {self.subject}, "
-            f"status={self.status}, _total={self.total}, dry_run={self.dry_run})"
+            f"status={self.status}, _total={self.total})"
         )
 
     def __str__(self) -> str:
