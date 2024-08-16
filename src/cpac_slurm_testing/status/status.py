@@ -45,6 +45,7 @@ from cpac_slurm_testing.status._global import (
     LOG_FORMAT,
     TEMPLATES,
 )
+from cpac_slurm_testing.utils.typing import coerce_to_Path
 
 LOGGER: Logger = getLogger(name=__name__)
 basicConfig(format=LOG_FORMAT, level=INFO)
@@ -89,12 +90,12 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
     _logger: Callable
     _log_msg: list[str]
     if wd is None:
-        wd = os.environ.get("REGTEST_LOG_DIR")
+        wd = coerce_to_Path(os.environ.get("REGTEST_LOG_DIR"))
     if not wd:
         _logger = LOGGER.warning
         _log_msg = ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."]
     if wd:
-        wd = _set_intermediate_directory(Path(wd).absolute(), "lite")
+        wd = _set_intermediate_directory(coerce_to_Path(wd).absolute(), "lite")
     else:
         from datetime import datetime
         from time import localtime, strftime
@@ -131,7 +132,7 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
 class TestingPaths:
     """Working and logging path management."""
 
-    def __init__(self, wd: Optional[Path] = None) -> None:
+    def __init__(self, wd: Optional[Path | str] = None) -> None:
         """Initialize TestingPaths."""
         self._log_dir: Path
         self._wd: Path
@@ -466,7 +467,7 @@ class TotalStatus:
         self.load()
         initial_state: _STATE | Literal["idle"] = self.status
         if home_dir:
-            self.home_dir = Path(home_dir)
+            self.home_dir: Path = coerce_to_Path(home_dir)
         if runs:
             self.runs.update({run.key: run for run in runs})
         for run in self.runs.values():
