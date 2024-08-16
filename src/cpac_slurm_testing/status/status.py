@@ -584,8 +584,12 @@ class TotalStatus:
     @property
     def description(self) -> str:
         """Return the description of the status."""
+        fractions: list[int] = [
+            int(fraction * self._denominator)
+            for fraction in [self.success, self.failure, self.pending]
+        ]
         return (
-            f"{self.success} successful, {self.failures} failed, {self.pending} pending"
+            f"{fractions[0]} successful, {fractions[1]} failed, {fractions[2]} pending"
         )
 
     def fraction(self, status: _STATE) -> Fraction:
