@@ -97,11 +97,14 @@ def launch(parameters: LaunchParameters) -> None:
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
+    with open(parameters.token_file, "r", encoding="utf8") as _token_file:
+        github_token: str = _token_file.read().strip()
     status = TotalStatus(
         testing_paths=parameters.testing_paths,
         home_dir=parameters.home_dir,
         image=parameters.sha,
         dry_run=parameters.dry_run,
+        github_token=github_token,
     )
     LOGGER.info(status)
     if not parameters.dry_run:

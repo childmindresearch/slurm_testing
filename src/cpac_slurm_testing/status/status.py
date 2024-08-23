@@ -7,7 +7,6 @@
 """Consolidate job statistics into a single GitHub status.
 
 Requires the following environment variables:
-- GITHUB_TOKEN: A GitHub token with access to the repository.
 - OWNER: The owner of the repository.
 - REPO: The repository.
 - SHA: The commit SHA.
@@ -444,6 +443,7 @@ class TotalStatus:
         home_dir: Optional[Path | str] = None,
         image: Optional[str] = None,
         dry_run: bool = False,
+        github_token: Optional[str] = None,
     ) -> None:
         if isinstance(testing_paths, str):
             testing_paths = Path(testing_paths)
@@ -464,6 +464,7 @@ class TotalStatus:
         """Name of image."""
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary like `{(datasource, preconfig, subject): run}` of runs with individual statuses."""
+        self.github_token: Optional[str] = github_token
         self.load()
         initial_state: _STATE | Literal["idle"] = self.status
         if home_dir:
@@ -608,7 +609,7 @@ class TotalStatus:
     def github_repo(self) -> Repository:
         """Get a Github.repo for C-PAC."""
         if not hasattr(self, "_github_repo"):
-            github_client: Github = Github(os.environ["GITHUB_TOKEN"])
+            github_client: Github = Github(self.github_token)
             self._github_repo: Repository = github_client.get_repo(
                 f"{os.environ['OWNER']}/{os.environ['REPO']}"
             )
