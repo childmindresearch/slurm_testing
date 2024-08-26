@@ -360,7 +360,15 @@ class RunStatus:
                 LOGGER.info(
                     "%s:\n\n\t%s", _f.name, indented_lines(_command_file.read())
                 )
-            command: list[str] = ["sbatch", "--parsable", _f.name]
+            command: list[str] = [
+                "sbatch",
+                f"--output={self.log_dir}/launch.out.log",
+                f"--error={self.log_dir}/launch.err.log",
+                "--job-name",
+                self.subject.split("sub-", 1)[-1],
+                "--parsable",
+                _f.name,
+            ]
             if self.dry_run:
                 LOGGER.info("Dry run.")
                 self.job_id = randint(1, 99999999)
