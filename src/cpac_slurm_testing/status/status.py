@@ -271,6 +271,8 @@ class RunStatus:
     """Scheduler job ID."""
     _slurm_job_status: Optional[SlurmJobStatus] = None
     """Schedulre job status."""
+    _command_file: Optional[Path] = None
+    """Temporary file holding SLURM command."""
 
     def check_slurm(self) -> None:
         """Check SLURM job status."""
@@ -354,6 +356,7 @@ class RunStatus:
             msg: str = f"{command_type} not in {_command_types}"
             raise KeyError(msg)
         with NamedTemporaryFile(mode="w", encoding="utf8", delete=False) as _f:
+            self._command_file = Path(_f.name)
             _f.write(self.command(command_type))
             _f.close()
             with open(_f.name, "r", encoding="utf8") as _command_file:
@@ -489,9 +492,18 @@ class TotalStatus:
                 self.push()
         elif self.status != "pending" and not self.dry_run:
             self.push()
+            self.clean_up()
             self.correlate()
         else:
             self.check_again_later(time="now+30minutes")
+
+    def clean_up(self) -> None:
+        """Remove temporary files and image file."""
+        for run in self.runs.values():
+            if run._command_file:
+                run._command_file.unlink()  # remove launch script
+        self.image("path").unlink()  # remove Apptainer image
+        self.path.unlink()  # remove launch pickle
 
     @property
     def datasources(self) -> list[str]:
@@ -507,6 +519,14 @@ class TotalStatus:
     def subjects(self) -> list[str]:
         """Return a list of all unique subjects in a TotalStatus."""
         return list({subject for _, _, subject in self.runs.keys()})
+
+    @overload
+    def image(self, name_or_path: Literal["name"] = "name") -> str:
+        ...
+
+    @overload
+    def image(self, name_or_path: Literal["path"]) -> Path:
+        ...
 
     def image(self, name_or_path: Literal["name", "path"] = "name") -> Path | str:
         """Return the image name or path."""
