@@ -36,6 +36,7 @@ from github.Repository import Repository
 from cpac_correlations import cpac_correlations, CpacCorrelationsNamespace
 from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 
+from cpac_slurm_testing.correlation.correlation import init_repo
 from cpac_slurm_testing.status._global import (
     _COMMAND_TYPES,
     _JOB_STATE,
@@ -605,6 +606,11 @@ class TotalStatus:
                             input_yaml=str(regression_correlation_yaml),
                         )
                     )
+        init_repo(
+            correlations_dir=correlations_dir,
+            branch_name=f"{os.environ['REPO']}_{branch}",
+            github_token=getattr(self, "github_token", os.environ["GITHUB_TOKEN"]),
+        )
 
     @property
     def _denominator(self) -> int:
