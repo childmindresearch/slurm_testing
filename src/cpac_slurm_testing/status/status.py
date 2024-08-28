@@ -33,10 +33,10 @@ from typing import Callable, cast, Iterable, Literal, Optional, overload, Union
 from github import Github
 from github.Commit import Commit
 from github.Repository import Repository
-from cpac_correlations import cpac_correlations, CpacCorrelationsNamespace
+from cpac_correlations import CpacCorrelationsNamespace
 from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 
-from cpac_slurm_testing.correlation.correlation import init_repo
+from cpac_slurm_testing.correlation.correlation import correlate, init_repo
 from cpac_slurm_testing.status._global import (
     _COMMAND_TYPES,
     _JOB_STATE,
@@ -599,12 +599,13 @@ class TotalStatus:
                         branch=branch,
                         data_source=data_source,
                     )
-                    cpac_correlations(
+                    correlate(
+                        correlations_dir,
                         CpacCorrelationsNamespace(
                             branch=branch,
                             data_source=data_source,
                             input_yaml=str(regression_correlation_yaml),
-                        )
+                        ),
                     )
         init_repo(
             correlations_dir=correlations_dir,

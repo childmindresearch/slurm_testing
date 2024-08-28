@@ -5,6 +5,20 @@ from pathlib import Path
 from dulwich import porcelain
 from dulwich.repo import Repo
 from git import Repo as GitRepo
+from cpac_correlations import cpac_correlations, CpacCorrelationsNamespace
+from cpac_regression_dashboard.utils.html_script import body
+
+
+def correlate(
+    correlations_dir: str | Path, namespace: CpacCorrelationsNamespace
+) -> None:
+    """Generate a JSON file from which to graph correlations."""
+    all_keys, data_source, branch = cpac_correlations(namespace)
+    json_data = body(all_keys, data_source)
+    with open(
+        f"{correlations_dir}/{data_source}_{branch}.json", "w", encoding="utf-8"
+    ) as file:
+        file.write(json_data)
 
 
 def init_repo(
