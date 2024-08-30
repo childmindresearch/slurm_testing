@@ -18,6 +18,7 @@ Also optionally accepts the following environment variables (or these can be pas
 - _CPAC_STATUS_STATE: The status of the run. Defaults to "pending".
 """
 from dataclasses import dataclass
+from datetime import datetime
 from fcntl import flock, LOCK_EX, LOCK_UN
 from fractions import Fraction
 from importlib.resources import files
@@ -44,6 +45,7 @@ from cpac_slurm_testing.status._global import (
     _STATE,
     JOB_STATES,
     LOG_FORMAT,
+    SBATCH_START,
     TEMPLATES,
 )
 from cpac_slurm_testing.utils.typing import coerce_to_Path
@@ -366,7 +368,7 @@ class RunStatus:
                     "%s:\n\n\t%s", _f.name, indented_lines(_command_file.read())
                 )
             command: list[str] = [
-                "sbatch",
+                *SBATCH_START,
                 f"--output={self.log_dir}/launch.out.log",
                 f"--error={self.log_dir}/launch.err.log",
                 "--job-name",
@@ -556,8 +558,13 @@ class TotalStatus:
         time : str
            A ``time`` for SLURM. See https://slurm.schedmd.com/sbatch.html#OPT_begin
         """
+        timestamp: str = datetime.now().strftime("%F-%H-%M-%S.%f")
         cmd = [
-            "sbatch",
+            *SBATCH_START[:-1],
+            "-t",
+            "00:00:10",
+            f"--output={self.testing_paths.log_dir}/check_{timestamp}.out.log"
+            f"--error={self.testing_paths.log_dir}/check_{timestamp}.err.log"
             f"--begin={time}",
             "cpac-slurm-status",
             "check-all",

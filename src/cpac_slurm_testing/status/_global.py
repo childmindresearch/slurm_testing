@@ -31,3 +31,4 @@ TEMPLATES = {
     key: files("cpac_slurm_testing.templates").joinpath(f"{key}.ftxt").read_text()
     for key in ["lite_run"]
 }
+SBATCH_START: list[str] = ["sbatch", "-p", "RM-shared", "--ntasks-per-node=4"]

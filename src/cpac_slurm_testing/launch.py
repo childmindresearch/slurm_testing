@@ -8,7 +8,7 @@ import subprocess
 
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status import TestingPaths, TotalStatus
-from cpac_slurm_testing.status._global import LOG_FORMAT
+from cpac_slurm_testing.status._global import LOG_FORMAT, SBATCH_START
 from cpac_slurm_testing.utils.typing import PATH_OR_STR
 
 LOGGER = getLogger(name=__name__)
@@ -89,7 +89,7 @@ def launch(parameters: LaunchParameters) -> None:
         assert isinstance(parameters.home_dir, Path)
         slurm_env = parameters.as_slurm_export
         build: list[str] = [
-            "sbatch",
+            *SBATCH_START[:-1],
             slurm_env,
             f"--output={parameters.testing_paths.log_dir}/build.out.log",
             f"--error={parameters.testing_paths.log_dir}/build.err.log",
@@ -101,7 +101,9 @@ def launch(parameters: LaunchParameters) -> None:
             f"{parameters.image}",
         ]
         cmd: list[str] = [
-            "sbatch",
+            *SBATCH_START,
+            "-t",
+            "00:00:20",
             slurm_env,
             f"--output={parameters.testing_paths.log_dir}/launch.out.log",
             f"--error={parameters.testing_paths.log_dir}/launch.err.log",
