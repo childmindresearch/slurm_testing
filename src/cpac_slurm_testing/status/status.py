@@ -37,6 +37,7 @@ from cpac_correlations import CpacCorrelationsNamespace
 from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 
 from cpac_slurm_testing.correlation.correlation import correlate, init_repo
+from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status._global import (
     _COMMAND_TYPES,
     _JOB_STATE,
@@ -455,7 +456,7 @@ class TotalStatus:
         home_dir: Optional[Path | str] = None,
         image: Optional[str] = None,
         dry_run: bool = False,
-        github_token: Optional[str] = None,
+        git_remote: Optional[GitRemoteInfo] = None,
     ) -> None:
         if isinstance(testing_paths, str):
             testing_paths = Path(testing_paths)
@@ -472,15 +473,23 @@ class TotalStatus:
             path = Path(f"{path.name}.dry")
         self.path: Path = path
         """Path to status data on disk."""
-        self._image: str = image if image is not None else ""
-        """Name of image."""
+        if git_remote:  # We're initializing a new TotalStatus, not loading existing one
+            self._image: str = image if image is not None else ""
+            """Name of image."""
+            self.owner: str = git_remote.owner
+            """Owner of repository on GitHub."""
+            self.repo: str = git_remote.repo
+            """Repository name on GitHub."""
+            self.sha: str = git_remote.sha
+            """SHA of the commit we're testing here."""
+            self.github_token: str = git_remote.token
+            """GitHub PAT."""
+            self.home_dir: Path = coerce_to_Path(home_dir)
+            """Home directory."""
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary like `{(datasource, preconfig, subject): run}` of runs with individual statuses."""
-        self.github_token: Optional[str] = github_token
         self.load()
         initial_state: _STATE | Literal["idle"] = self.status
-        if home_dir:
-            self.home_dir: Path = coerce_to_Path(home_dir)
         if runs:
             self.runs.update({run.key: run for run in runs})
         for run in self.runs.values():
@@ -609,8 +618,9 @@ class TotalStatus:
                     )
         init_repo(
             correlations_dir=correlations_dir,
-            branch_name=f"{os.environ['REPO']}_{branch}",
-            github_token=getattr(self, "github_token", os.environ["GITHUB_TOKEN"]),
+            branch_name=f"{self.repo}_{branch}",
+            owner=self.owner,
+            github_token=self.github_token,
         )
 
     @property
@@ -646,7 +656,7 @@ class TotalStatus:
         if not hasattr(self, "_github_repo"):
             github_client: Github = Github(self.github_token)
             self._github_repo: Repository = github_client.get_repo(
-                f"{os.environ['OWNER']}/{os.environ['REPO']}"
+                f"{self.owner}/{self.repo}"
             )
         return self._github_repo
 
@@ -663,12 +673,22 @@ class TotalStatus:
         if self.path.exists():
             with self.path.open("rb") as _f:
                 status: "TotalStatus" = pickle.load(_f)
-                self.home_dir = status.home_dir
+                for attr in [
+                    "dry_run",
+                    "github_token",
+                    "home_dir",
+                    "_image",
+                    "owner",
+                    "path",
+                    "repo",
+                    "sha",
+                    "testing_paths",
+                ]:
+                    setattr(self, attr, getattr(status, attr))
                 if self.runs:
                     for run in self.runs.values():
                         status += run
                 self.runs = status.runs
-                self._image = status._image
         return self
 
     def log(self) -> None:
@@ -683,10 +703,10 @@ class TotalStatus:
     def push(self) -> None:
         """Push the status to GitHub."""
         repo: Repository = self.github_repo
-        commit: Commit = repo.get_commit(sha=os.environ["SHA"])
+        commit: Commit = repo.get_commit(sha=self.sha)
         target_url: str = (
-            f"https://github.com/{os.environ['OWNER']}/regtest-runlogs/tree"
-            f"/{os.environ['REPO']}_{os.environ['SHA']}/launch"
+            f"https://github.com/{self.owner}/regtest-runlogs/tree"
+            f"/{self.repo}_{self.sha}/launch"
         )
         commit.create_status(
             state=self.status,

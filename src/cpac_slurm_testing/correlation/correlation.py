@@ -1,6 +1,7 @@
 """Correlation run logs."""
 import os
 from pathlib import Path
+from typing import cast
 
 from dulwich import porcelain
 from dulwich.repo import Repo
@@ -22,16 +23,16 @@ def correlate(
 
 
 def init_repo(
-    correlations_dir: Path | str, branch_name: str, github_token: str
+    correlations_dir: str | Path, branch_name: str, owner: str, github_token: str
 ) -> GitRepo:
     """Create and push a respository for a correlation run's logs."""
     repo: Repo | GitRepo
-    remote = f"{os.environ['OWNER']}/regtest-runlogs"
+    remote: str = f"{owner}/regtest-runlogs"
     try:
-        repo = porcelain.init(correlations_dir)
+        repo = porcelain.init(str(correlations_dir))
     except FileExistsError:
-        repo = porcelain.open_repo(correlations_dir)
-    _orig_path = Path(".").absolute()
+        repo = cast(Repo, porcelain.open_repo(correlations_dir))
+    _orig_path: Path = Path(".").absolute()
     os.chdir(correlations_dir)
     porcelain.add()
     porcelain.commit(message=":memo: Document correlations")
@@ -40,7 +41,7 @@ def init_repo(
         porcelain.remote_add(
             repo,
             "origin",
-            f"https://{os.environ['USER']}:{github_token}@github.com/{remote}.git",
+            f"https://{owner}:{github_token}@github.com/{remote}.git",
         )
     except porcelain.RemoteExists:
         pass

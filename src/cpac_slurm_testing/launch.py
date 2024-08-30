@@ -2,9 +2,11 @@
 from dataclasses import asdict, dataclass, KW_ONLY
 from importlib.resources import as_file, files
 from logging import basicConfig, getLogger, INFO
+import os
 from pathlib import Path
 import subprocess
 
+from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status import TestingPaths, TotalStatus
 from cpac_slurm_testing.status._global import LOG_FORMAT
 from cpac_slurm_testing.utils.typing import PATH_OR_STR
@@ -33,7 +35,7 @@ class LaunchParameters:
     dry_run: bool = False
 
     def __post_init__(self) -> None:
-        """Coerce Path typing."""
+        """Coerce Path typing and check for env variables."""
         self.comparison_path = Path(self.comparison_path)
         self.home_dir = Path(self.home_dir)
         self.log_dir = self.testing_paths.log_dir
@@ -41,6 +43,16 @@ class LaunchParameters:
             self.repo = self.repo.split("/", 1)[-1]
         self.token_file = Path(self.token_file)
         self.wd = self.testing_paths.wd
+        _git_defaults = {"owner": "FCP-INDI", "repo": "C-PAC"}
+        for attr in ["owner", "repo", "sha"]:
+            if not getattr(self, attr):
+                try:
+                    setattr(
+                        self, attr, os.environ.get(attr.upper(), _git_defaults[attr])
+                    )
+                except (AttributeError, KeyError, LookupError):
+                    msg = "SHA is required."
+                    raise LookupError(msg)
 
     @staticmethod
     def keys(except_for: list[str] = []) -> list[str]:
@@ -99,12 +111,18 @@ def launch(parameters: LaunchParameters) -> None:
         cmd = [*cmd, "--dry-run"]
     with open(parameters.token_file, "r", encoding="utf8") as _token_file:
         github_token: str = _token_file.read().strip()
+    git_remote = GitRemoteInfo(
+        owner=parameters.owner,
+        repo=parameters.repo,
+        sha=parameters.sha,
+        token=github_token,
+    )
     status = TotalStatus(
         testing_paths=parameters.testing_paths,
         home_dir=parameters.home_dir,
         image=parameters.sha,
         dry_run=parameters.dry_run,
-        github_token=github_token,
+        git_remote=git_remote,
     )
     LOGGER.info(status)
     if not parameters.dry_run:
