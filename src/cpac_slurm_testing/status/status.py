@@ -563,8 +563,8 @@ class TotalStatus:
             *SBATCH_START[:-1],
             "-t",
             "00:00:10",
-            f"--output={self.testing_paths.log_dir}/check_{timestamp}.out.log"
-            f"--error={self.testing_paths.log_dir}/check_{timestamp}.err.log"
+            f"--output={self.testing_paths.log_dir}/check_{timestamp}.out.log",
+            f"--error={self.testing_paths.log_dir}/check_{timestamp}.err.log",
             f"--begin={time}",
             "cpac-slurm-status",
             "check-all",
