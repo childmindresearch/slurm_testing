@@ -113,6 +113,8 @@ def launch(parameters: LaunchParameters) -> None:
         cmd = [*cmd, "--dry-run"]
     with open(parameters.token_file, "r", encoding="utf8") as _token_file:
         github_token: str = _token_file.read().strip()
+        if "GITHUB_TOKEN=" in github_token:
+            github_token = github_token.split("GITHUB_TOKEN=", 1)[1]
     git_remote = GitRemoteInfo(
         owner=parameters.owner,
         repo=parameters.repo,
