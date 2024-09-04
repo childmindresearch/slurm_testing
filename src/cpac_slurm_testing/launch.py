@@ -9,7 +9,7 @@ import subprocess
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status import TestingPaths, TotalStatus
 from cpac_slurm_testing.status._global import LOG_FORMAT, SBATCH_START
-from cpac_slurm_testing.utils.typing import PATH_OR_STR
+from cpac_slurm_testing.utils import PATH_OR_STR
 
 LOGGER = getLogger(name=__name__)
 basicConfig(format=LOG_FORMAT, level=INFO)

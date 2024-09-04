@@ -48,7 +48,7 @@ from cpac_slurm_testing.status._global import (
     SBATCH_START,
     TEMPLATES,
 )
-from cpac_slurm_testing.utils.typing import coerce_to_Path
+from cpac_slurm_testing.utils import coerce_to_Path, unlink
 
 LOGGER: Logger = getLogger(name=__name__)
 basicConfig(format=LOG_FORMAT, level=INFO)
@@ -513,9 +513,9 @@ class TotalStatus:
         """Remove temporary files and image file."""
         for run in self.runs.values():
             if run._command_file:
-                run._command_file.unlink()  # remove launch script
-        self.image("path").unlink()  # remove Apptainer image
-        self.path.unlink()  # remove launch pickle
+                unlink(run._command_file)  # remove launch script
+        unlink(self.image("path"))  # remove Apptainer image
+        unlink(self.path)  # remove launch pickle
 
     @property
     def datasources(self) -> list[str]:
