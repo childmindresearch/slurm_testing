@@ -72,7 +72,7 @@ class LaunchParameters:
     def as_environment_variables(self) -> dict[str, str]:
         """Return a dictionary of environment variable keys and values."""
         return {
-            key.upper(): str(value)
+            key.upper(): str(value.wd) if key == "testing_paths" else str(value)
             for key, value in asdict(self).items()
             if key != "dry_run"
         }
