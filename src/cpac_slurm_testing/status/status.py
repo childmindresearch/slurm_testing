@@ -298,7 +298,11 @@ class RunStatus:
             except subprocess.CalledProcessError:
                 self.status = "error"
         if self.status != "error" and self._slurm_job_status:
-            self.status = JOB_STATES[self._slurm_job_status.job_state]
+            job_state = self._slurm_job_status.job_state
+            try:
+                self.status = JOB_STATES[job_state]
+            except KeyError:
+                LOGGER.error("Unknown job state '%s'", job_state)
 
     def __post_init__(self) -> None:
         """Set some determinable attributes after initializing."""
