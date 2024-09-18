@@ -16,6 +16,10 @@ def correlate(
     """Generate a JSON file from which to graph correlations."""
     all_keys, data_source, branch = cpac_correlations(namespace)
     json_data = body(all_keys, data_source)
+    if not isinstance(correlations_dir, Path):
+        correlations_dir = Path(correlations_dir)
+    if not correlations_dir.exists():
+        correlations_dir.mkdir(mode=777, parents=True, exist_ok=True)
     with open(
         f"{correlations_dir}/{data_source}_{branch}.json", "w", encoding="utf-8"
     ) as file:
