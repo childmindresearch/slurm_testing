@@ -594,6 +594,7 @@ class TotalStatus:
                         for pipeline in [this_pipeline, latest_ref]
                     ),
                 )
+                print(f"pipelines: {pipelines}")
                 run_name: str = f"{branch}_{data_source}_{preconfig}"
                 if self.dry_run:
                     LOGGER.info(
