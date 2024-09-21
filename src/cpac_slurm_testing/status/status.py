@@ -611,15 +611,18 @@ class TotalStatus:
                         )
                     )
                 else:
-                    regression_correlation_yaml: Path = cpac_yaml(
-                        pipeline1=pipelines[0],
-                        pipeline2=pipelines[1],
-                        correlations_dir=correlations_dir,
-                        run_name=run_name,
-                        n_cpus=n_cpus,
-                        branch=branch,
-                        data_source=data_source,
-                    )
+                    try:
+                        regression_correlation_yaml: Path = cpac_yaml(
+                            pipeline1=pipelines[0],
+                            pipeline2=pipelines[1],
+                            correlations_dir=correlations_dir,
+                            run_name=run_name,
+                            n_cpus=n_cpus,
+                            branch=branch,
+                            data_source=data_source,
+                        )
+                    except AssertionError:
+                        continue
                     correlate(
                         correlations_dir,
                         CpacCorrelationsNamespace(
