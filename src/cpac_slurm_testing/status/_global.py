@@ -1,8 +1,9 @@
 """Global values for status checking."""
 from importlib.resources import files
+import logging
 import os
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 
 _COMMAND_TYPES = Literal["lite_run"]
 HOME_DIR = Path(os.environ.get("HOME_DIR", os.path.expanduser("~")))
@@ -34,3 +35,46 @@ TEMPLATES = {
     for key in ["lite_run"]
 }
 SBATCH_START: list[str] = ["sbatch", "-p", "RM-shared", "--ntasks-per-node=4"]
+StrPath = str | Path
+
+
+def logger_set_handlers(  # noqa: PLR0913
+    logger: logging.Logger,
+    encoding: str = "utf8",
+    filename: Optional[StrPath] = None,
+    force: bool = False,
+    fmt: str = LOG_FORMAT,
+    level: int | str = logging.INFO,
+) -> logging.Logger:
+    """Set handlers on a :py:class:`~logging.Logger`."""
+    if force:
+        for handler in list(logger.handlers):
+            logger.removeHandler(handler)
+    if not logger.handlers:
+        if filename:
+            handler = logging.FileHandler(filename=filename, encoding=encoding)
+        else:
+            handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter(fmt))
+        logger.setLevel(level)
+        logger.addHandler(handler)
+    return logger
+
+
+def get_logger(  # noqa: PLR0913
+    name: Optional[str],
+    encoding: str = "utf8",
+    filename: Optional[StrPath] = None,
+    force: bool = False,
+    fmt: str = LOG_FORMAT,
+    level: int | str = logging.INFO,
+) -> logging.Logger:
+    """Get a :py:class:`~logging.Logger` by name or the root Logger."""
+    return logger_set_handlers(
+        logging.getLogger(name=name),
+        encoding=encoding,
+        filename=filename,
+        force=force,
+        fmt=fmt,
+        level=level,
+    )

@@ -1,15 +1,14 @@
 """CLI tooling for C-PAC SLURM testing."""
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
-from logging import basicConfig, getLogger, INFO
+from logging import Logger
 import os
 
 from cpac_slurm_testing import __version__
 from cpac_slurm_testing.launch import launch, LaunchParameters
-from cpac_slurm_testing.status._global import LOG_FORMAT
+from cpac_slurm_testing.status._global import get_logger
 from cpac_slurm_testing.status.status import RunStatus, TestingPaths, TotalStatus
 
-LOGGER = getLogger(name=__name__)
-basicConfig(format=LOG_FORMAT, level=INFO)
+LOGGER: Logger = get_logger(name=__name__)
 
 
 def _argstring(arg: str) -> list[str]:

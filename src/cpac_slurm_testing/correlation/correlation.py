@@ -1,4 +1,5 @@
 """Correlation run logs."""
+from logging import Logger
 import os
 from pathlib import Path
 from typing import cast
@@ -8,6 +9,10 @@ from dulwich.repo import Repo
 from git import Repo as GitRepo
 from cpac_correlations import cpac_correlations, CpacCorrelationsNamespace
 from cpac_regression_dashboard.utils.html_script import body
+
+from cpac_slurm_testing.status._global import get_logger
+
+LOGGER: Logger = get_logger(name=__name__)
 
 
 def correlate(

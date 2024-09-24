@@ -1,18 +1,17 @@
 """Launch a C-PAC regression test workflow."""
 from dataclasses import asdict, dataclass, KW_ONLY
 from importlib.resources import as_file, files
-from logging import basicConfig, getLogger, INFO
+from logging import Logger
 import os
 from pathlib import Path
 import subprocess
 
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status import TestingPaths, TotalStatus
-from cpac_slurm_testing.status._global import LOG_FORMAT, SBATCH_START
+from cpac_slurm_testing.status._global import get_logger, SBATCH_START
 from cpac_slurm_testing.utils import PATH_OR_STR
 
-LOGGER = getLogger(name=__name__)
-basicConfig(format=LOG_FORMAT, level=INFO)
+LOGGER: Logger = get_logger(name=__name__)
 
 
 @dataclass

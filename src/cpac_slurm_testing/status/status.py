@@ -22,7 +22,7 @@ from datetime import datetime
 from fcntl import flock, LOCK_EX, LOCK_UN
 from fractions import Fraction
 from importlib.resources import files
-from logging import basicConfig, getLogger, INFO, Logger
+from logging import Logger
 import os
 from pathlib import Path
 import pickle
@@ -43,15 +43,14 @@ from cpac_slurm_testing.status._global import (
     _COMMAND_TYPES,
     _JOB_STATE,
     _STATE,
+    get_logger,
     JOB_STATES,
-    LOG_FORMAT,
     SBATCH_START,
     TEMPLATES,
 )
 from cpac_slurm_testing.utils import coerce_to_Path, unlink
 
-LOGGER: Logger = getLogger(name=__name__)
-basicConfig(format=LOG_FORMAT, level=INFO)
+LOGGER: Logger = get_logger(name=__name__)
 
 
 def _set_intermediate_directory(
@@ -95,6 +94,7 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
     if wd is None:
         wd = coerce_to_Path(os.environ.get("REGTEST_LOG_DIR"))
     if not wd:
+        LOGGER: Logger = get_logger(name=__name__)
         _logger = LOGGER.warning
         _log_msg = ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."]
     if wd:
@@ -117,17 +117,10 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
             parent.mkdir(mode=0o777, exist_ok=True)
         wd.mkdir(mode=0o777, exist_ok=True)
     os.chdir(str(wd))
-    _logger = LOGGER.info
     _log_msg = ["Set working directory to %s", str(wd)]
     _logpath: Path = _set_intermediate_directory(wd, "logs")
-    filename = f"{_logpath}/{filename}"
-    basicConfig(
-        filename=filename,
-        encoding="utf8",
-        force=True,
-        format=LOG_FORMAT,
-        level=INFO,
-    )
+    LOGGER = get_logger(name=__name__, filename=f"{_logpath}/{filename}", force=True)
+    _logger = LOGGER.info
     _logger(*_log_msg)  # log info or warning as appropriate
     return Path(wd), Path(_logpath)
 
