@@ -583,7 +583,11 @@ class TotalStatus:
         """Launch correlation process."""
         this_pipeline: Path = self.out("lite")
         latest_ref: Path = this_pipeline.parent / self.latest
-        correlations_dir: str = str(this_pipeline.parent / "correlations")
+        correlations_dir: Path | str = this_pipeline / "correlations"
+        assert isinstance(correlations_dir, Path)
+        if not correlations_dir.exists():
+            correlations_dir.mkdir(mode=0o777, exist_ok=True)
+        correlations_dir = str(correlations_dir)
         branch: str = cast(str, self.image("name"))
         for data_source in self.datasources:
             for preconfig in self.preconfigs:
@@ -594,7 +598,6 @@ class TotalStatus:
                         for pipeline in [this_pipeline, latest_ref]
                     ),
                 )
-                print(f"pipelines: {pipelines}")
                 run_name: str = f"{branch}_{data_source}_{preconfig}"
                 if self.dry_run:
                     LOGGER.info(
