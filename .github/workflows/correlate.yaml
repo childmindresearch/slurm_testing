@@ -79,8 +79,8 @@ jobs:
             WORKSPACE=${{ env.SSH_WORK_DIR }}/regtest_lite/${{ inputs.ref }}/correlations
             mkdir -p ${WORKSPACE}
             cd ${WORKSPACE}
-            CREATE_YAML=$(sbatch --parsable --wrap "cpac_regsuite_create_yml --pipeline1 ${{ inputs.pipeline1 }} --pipeline2 ${{ inputs.pipeline2 }} --workspace ${WORKSPACE} --branch ${{ inputs.ref }} --data_source ${{ inputs.data_source }}")
+            CREATE_YAML=$(sbatch -p RM-shared --parsable --wrap "cpac_regsuite_create_yml --pipeline1 ${{ inputs.pipeline1 }} --pipeline2 ${{ inputs.pipeline2 }} --workspace ${WORKSPACE} --branch ${{ inputs.ref }} --data_source ${{ inputs.data_source }}")
             YAML_FILE="${WORKSPACE}/${{ inputs.ref }}_${{ inputs.data_source }}.yml"
-            CORRELATE=$(sbatch --parsable --dependency=afterok:"${CREATE_YAML}" --wrap "cpac_correlations --data_source ${{ inputs.data_source }} --branch ${{ inputs.ref }} $YAML_FILE")
+            CORRELATE=$(sbatch -p RM-shared --parsable --dependency=afterok:"${CREATE_YAML}" --wrap "cpac_correlations --data_source ${{ inputs.data_source }} --branch ${{ inputs.ref }} $YAML_FILE")
             export TESTING_OWNER=$(echo ${{ env.SLURM_TESTING_REPO }} | cut -d'/' -f1)
             sbatch --dependency=afterok:"${CORRELATE}" --dependency=afterok:"$CORRELATE" --export="OWNER=${{ inputs.OWNER }},REPO=${{ inputs.repo }},SHA=${{ inputs.ref }},TESTING_OWNER=${TESTING_OWNER}" --wrap "cpac_regsuite_generate_comment"
