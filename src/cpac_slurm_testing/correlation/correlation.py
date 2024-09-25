@@ -55,6 +55,6 @@ def init_repo(
     except porcelain.RemoteExists:
         pass
     repo = GitRepo(correlations_dir)
-    repo.remotes.origin.push(branch_name)
+    repo.remotes.origin.push(f"{branch_name}:{branch_name}")
     os.chdir(_orig_path)
     return repo
