@@ -34,7 +34,7 @@ do
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 1:00:00
-#SBATCH --ntasks-per-node=11
+#SBATCH --ntasks=4
 
 export HOME=${HOME}
 apptainer run \
@@ -48,7 +48,7 @@ apptainer run \
     --save_working_dir --skip_bids_validator \
     --pipeline_file "${PIPELINE_CONFIGS}/${pipeline}_seed.yml" \
     --data_config_file "${CONFIG}/data_config_regtest_rodent.yml" \
-    --n_cpus 10 --mem_gb 40
+    --n_cpus 3 --mem_gb 40
 
 TMP
             chmod +x "regtest_${pipeline}.sh"
@@ -61,7 +61,7 @@ TMP
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 2:00:00
-#SBATCH --ntasks-per-node=11
+#SBATCH --ntasks=4
 
 export HOME="${HOME}"
 apptainer run \
@@ -75,7 +75,7 @@ apptainer run \
     --save_working_dir --skip_bids_validator \
     --pipeline_file "${PIPELINE_CONFIGS}/${pipeline}_seed.yml" \
     --data_config_file "${CONFIG}/data_config_regtest_nhp.yml" \
-    --n_cpus 10 --mem_gb 40
+    --n_cpus 3 --mem_gb 40
 
 TMP
             chmod +x "regtest_${pipeline}.sh"
@@ -95,7 +95,7 @@ TMP
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 47:50:00
-#SBATCH --ntasks-per-node=20
+#SBATCH --ntasks=4
 
 export HOME="${HOME}"
 apptainer run \
@@ -109,7 +109,7 @@ apptainer run \
     --save_working_dir --skip_bids_validator \
     --pipeline_file "${PIPELINE_CONFIGS}/${pipeline}_seed.yml" \
     --data_config_file "${CONFIG}/data_config_regtest_${data}.yml" \
-    --n_cpus 18 --mem_gb 60
+    --n_cpus 3 --mem_gb 60
 
 TMP
                 chmod +x "regtest_${pipeline}_${data}.sh"
@@ -122,7 +122,7 @@ TMP
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 20:00:00
-#SBATCH --ntasks-per-node=20
+#SBATCH --ntasks=4
 
 export HOME="${HOME}"
 apptainer run \
@@ -136,7 +136,7 @@ apptainer run \
     --save_working_dir --skip_bids_validator \
     --pipeline_file "${PIPELINE_CONFIGS}/${pipeline}_seed.yml" \
     --data_config_file "${CONFIG}/data_config_regtest_${data}.yml" \
-    --n_cpus 18 --mem_gb 60
+    --n_cpus 3 --mem_gb 60
 
 TMP
                 chmod +x "regtest_${pipeline}_${data}.sh"
@@ -148,7 +148,7 @@ TMP
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 14:00:00
-#SBATCH --ntasks-per-node=20
+#SBATCH --ntasks=4
 
 HOME=${HOME} \
 apptainer run \
@@ -162,7 +162,7 @@ apptainer run \
     --save_working_dir --skip_bids_validator \
     --pipeline_file ${PIPELINE_CONFIGS}/${pipeline}_seed.yml \
     --data_config_file ${CONFIG}/data_config_regtest_${data}.yml \
-    --n_cpus 18 --mem_gb 60
+    --n_cpus 3 --mem_gb 60
 
 TMP
                 chmod +x "regtest_${pipeline}_${data}.sh"

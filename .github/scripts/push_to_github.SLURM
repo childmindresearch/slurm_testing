@@ -3,7 +3,7 @@
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 00:05:00
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks=1
 
 export GIT_REPO_DIR="${HOME_DIR}/logs/${SHA}"
 cd "${GIT_REPO_DIR}"

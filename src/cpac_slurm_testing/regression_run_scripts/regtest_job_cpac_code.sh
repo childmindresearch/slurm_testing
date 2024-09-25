@@ -12,7 +12,7 @@ function create_and_submit_job {
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t ${TIME}
-#SBATCH --ntasks-per-node=20
+#SBATCH --ntasks=4
 
 export HOME="${HOME}"
 apptainer run \
@@ -29,7 +29,7 @@ apptainer run \
     --save_working_dir --skip_bids_validator \
     --pipeline_file "${PIPELINE_CONFIGS}/${PIPELINE}_seed.yml" \
     --data_config_file "${DATA_CONFIG_FILE}" \
-    --n_cpus 18 --mem_gb 40
+    --n_cpus 3 --mem_gb 40
 
 TMP
     chmod +x "regtest_${PIPELINE}_${DATA}.sh"

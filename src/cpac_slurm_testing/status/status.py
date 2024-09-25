@@ -3,7 +3,7 @@
 # SBATCH -N 1
 # SBATCH -p RM-shared
 # SBATCH -t 00:05:00
-# SBATCH --ntasks-per-node=4
+# SBATCH --ntasks=1
 """Consolidate job statistics into a single GitHub status.
 
 Requires the following environment variables:
