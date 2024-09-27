@@ -502,6 +502,9 @@ class TotalStatus:
         elif self.status != "pending" and not self.dry_run:
             self.push()
             self.clean_up()
+            os.environ.setdefault(
+                "PLAYWRIGHT_BROWSERS_PATH", str(self.home_dir / ".playwright_browsers")
+            )
             self.correlate()
         else:
             self.check_again_later(time="now+30minutes")

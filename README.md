@@ -5,6 +5,14 @@ The scripts in this repo allow you to submit `sbatch` jobs on Bridges-2.
 
 Note: this repository is currently in the process of transitioning to a <span title="continuous integration">CI</span>-initiated flow from a manually initiated flow and contains code and documentation for both during the transition period.
 
+## Requirements
+
+For generating an SVG of the interactive correlations graph for a GitHub comment, the system running these scripts needs to have `playwright` and `chromium` installed. Once `playwright` is installed and `$PLAYWRIGHT_BROWSERS_PATH` is set, `chromium` can be installed by running
+
+```BASH
+playwright install chromium
+```
+
 ## GitHub Actions initiated
 
 ### Launch a 'lite' regression test run
@@ -27,6 +35,7 @@ Set up a GitHub Actions workflow configuration file to call [`cpac-slurm-status 
 | `--slurm-testing-repo`,<br>`--slurm_testing_repo` | `$_CPAC_STATUS_SLURM_TESTING_REPO` | `childmindresearch/slurm_testing` or `{owner}/{repo}` name of drop-in replacement (e.g., a fork of [childmindresearch/slurm_testing](https://github.com/childmindresearch/slurm_testing).) | ✅ |
 | `--token-file`,<br>`--token_file` | `$_CPAC_STATUS_TOKEN_FILE` | Path on testing server to a [GitHub personal access token](https://docs.github.com/en/rest/authentication/permissions-required-for-fine-grained-personal-access-tokens?apiVersion=2022-11-28) with adequate permissions to update GitHub Checks. | ✅ |
 | `--dry-run` | N/A | Simulate rather than run. | ❌ |
+| N/A | `$PLAYWRIGHT_BROWSERS_PATH` | Path to directory containing Playwright Chromium installation. | defaults to `${_CPAC_STATUS_HOME_DIR}/.playwright_browsers` if not set. |
 
 #### Steps for launch from GitHub Actions
 
