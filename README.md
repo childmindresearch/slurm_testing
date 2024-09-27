@@ -13,6 +13,23 @@ For generating an SVG of the interactive correlations graph for a GitHub comment
 playwright install chromium
 ```
 
+### Project-specific dependencies
+
+This project is specifically for integration- and regression-testing C-PAC on an HPC using SLURM. Here is a mapping of the interdependencies that are separately maintained and forkable/branchable:
+
+```mermaid
+graph TD;
+    cpac-slurm-status[<code>cpac-slurm-status</code> CLI] --> childmindresearch/slurm_testing;
+    childmindresearch/slurm_testing[childmindresearch/slurm_testing] --> FCP-INDI/C-PAC_regression_dashboard;
+    cpac-slurm-status --> image[C-PAC Apptainer image];
+    image --> C-PAC[FCP-INDI/C-PAC];
+    childmindresearch/slurm_testing --> dashboard;
+    FCP-INDI/C-PAC_regression_dashboard[FCP-INDI/C-PAC_regression_dashboard] --> cpac-correlations[<code>cpac-correlations</code> CLI];
+    dashboard[fcp-indi.github.io/C-PAC_regression_dashboard] --> gh-pages[FCP-INDI/C-PAC_regression_dashboard@gh-pages];
+    gh-pages --> FCP-INDI/C-PAC_regression_dashboard;
+    cpac-correlations --> FCP-INDI/CPAC_regtest_pack[FCP-INDI/CPAC_regtest_pack]
+```
+
 ## GitHub Actions initiated
 
 ### Launch a 'lite' regression test run
