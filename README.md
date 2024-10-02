@@ -87,15 +87,13 @@ See [:octocat: `FCP-INDI/C-PAC/.github/workflows/regression_test_lite.yml`](http
 
 #### What this repository does once launched
 
+Note: All jobs run through SLURM; this graph only shows which jobs retrieve information from SLURM.
+
 ```mermaid
 graph TD
 SLURM([SLURM]) --> updateRunStatuses;
 
 launch[[<code>sbatch cpac-slurm-status launch</code>]] --> launch_subgraph;
-
-launch --> SLURM;
-
-TotalStatus --> SLURM;
 
 subgraph TotalStatus
    direction LR
@@ -119,12 +117,8 @@ subgraph launch_subgraph[launch.launch]
   regtest_lite.sh[<code>sbatch regression_run_scripts/regtest_lite.sh</code>]
 --<code>for PIPELINE in ${PRECONFIGS}; do for DATA in ${DATA_SOURCE}; do for SUBJECT_PATH in ''${DATAPATH}''/sub-*; do</code>--> add["<code>cpac-slurm-status add --wd=${OUT} --data_source=${DATA} --preconfig=${PIPELINE} --subject=${SUBJECT}</code>"]
 
-  regtest_lite.sh --> SLURM;
-
   add --> NamedTemporaryFile[write and run <code>NamedTemporaryFile</code> based on template in <code>templates</code>]
 end
-
-NamedTemporaryFile --> SLURM;
 
 TotalStatus --> push_or_check{ };
 
@@ -149,15 +143,9 @@ subgraph correlate
   cpac_yaml --> cpac_correlations[run <code>cpac_correlations</code> to create JSON file];
 end
 
-correlate --> SLURM;
-
 correlate --> init_branch["commit correlation images to SHA-specific branch in <code>regtest-runlogs<code> repository"];
 
-init_branch --> SLURM;
-
 init_branch --> comment["push comment to commit on GitHub"];
-
-comment --> SLURM;
 ```
 
 ## Manually initiated
