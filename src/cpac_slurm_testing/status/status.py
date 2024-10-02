@@ -37,7 +37,7 @@ from github.Repository import Repository
 from cpac_correlations import CpacCorrelationsNamespace
 from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 
-from cpac_slurm_testing.correlation.correlation import correlate, init_repo
+from cpac_slurm_testing.correlation.correlation import correlate, init_branch
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status._global import (
     _COMMAND_TYPES,
@@ -579,7 +579,9 @@ class TotalStatus:
         """Launch correlation process."""
         this_pipeline: Path = self.out("lite")
         latest_ref: Path = this_pipeline.parent / self.latest
-        correlations_dir: Path | str = this_pipeline / "correlations"
+        correlations_dir: Path | str = (
+            this_pipeline / self.preconfigs[0] / "correlations"
+        )
         assert isinstance(correlations_dir, Path)
         if not correlations_dir.exists():
             correlations_dir.mkdir(mode=0o777, exist_ok=True)
@@ -630,7 +632,7 @@ class TotalStatus:
                             input_yaml=str(regression_correlation_yaml),
                         ),
                     )
-        init_repo(
+        init_branch(
             correlations_dir=correlations_dir,
             branch_name=f"{self.repo}_{branch}",
             owner=self.owner,

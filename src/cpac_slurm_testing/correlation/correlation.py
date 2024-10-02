@@ -31,10 +31,10 @@ def correlate(
         file.write(json_data)
 
 
-def init_repo(
+def init_branch(
     correlations_dir: str | Path, branch_name: str, owner: str, github_token: str
 ) -> GitRepo:
-    """Create and push a respository for a correlation run's logs."""
+    """Create and push a branch for a correlation run's logs."""
     repo: Repo | GitRepo
     remote: str = f"{owner}/regtest-runlogs"
     try:

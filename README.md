@@ -88,33 +88,64 @@ See [:octocat: `FCP-INDI/C-PAC/.github/workflows/regression_test_lite.yml`](http
 #### What this repository does once launched
 
 ```mermaid
-graph TB
+graph TD
+SLURM([SLURM]) --> updateRunStatuses;
 
-launch_regtest_lite[[cpac-slurm-status launch]] --> build_image{build_image}
-build_image --"success"--> regtest_lite --> status_regtest_lite_success
-build_image --"failure"--> status_regtest_lite_failure
-regtest_lite --> launch_jobs
-subgraph launch_jobs["for PIPELINE in ${PRECONFIGS} for DATA in ${DATA_SOURCE}"]
-  reglite{"reglite_${IMAGE_NAME}_${PIPELINE}_${DATA}"}
-  gh_initiate_check["Initiate Check\n(GitHub Check for specific run)"]
+launch[[<code>sbatch cpac-slurm-status launch</code>]] --> launch_subgraph;
+
+subgraph TotalStatus
+   direction LR
+   setPaths["set paths (create if not exist) and GitHub token"] --> loadPickle["load status pickle (if exists)"];
+
+   loadPickle --> updateRunStatuses[update run statuses from SLURM];
+
+   updateRunStatuses --> logRunStatuses[log run statuses];
+
+   logRunStatuses --> writeUpdatedPickle[write updated status pickle];
 end
 
-subgraph status_regtest_lite["status_regtest_lite\n(Update GitHub Check status for launch)"]
-  status_regtest_lite_success[[success]]
-  status_regtest_lite_failure[[failure]]
+subgraph launch_subgraph[launch.launch]
+  direction LR
+  build_image <--> SLURM;
+
+  build_image{build Apptainer image} --> TotalStatus;
+
+  build_image --success--> regtest_lite.sh
+
+  regtest_lite.sh[<code>sbatch regression_run_scripts/regtest_lite.sh</code>]
+--<code>for PIPELINE in ${PRECONFIGS}; do for DATA in ${DATA_SOURCE}; do for SUBJECT_PATH in ''${DATAPATH}''/sub-*; do</code>--> add["<code>cpac-slurm-status add --wd=${OUT} --data_source=${DATA} --preconfig=${PIPELINE} --subject=${SUBJECT}</code>"]
+
+  add --> NamedTemporaryFile[write and run <code>NamedTemporaryFile</code> based on template in <code>templates</code>]
 end
 
-status_regtest_lite_failure --> push_to_github["push_to_github\n(push logs to GitHub)"]
+NamedTemporaryFile --> SLURM;
 
-reglite --> FULL_SUCCESS_DEPENDENCIES --> push_to_github
-reglite --"success"--> correlate_regtest_lite
-reglite --"failure"--> failed_regtest_lite["failed_regtest_lite\n(Update GitHub Check status for specific run)"]
+TotalStatus --> push_or_check{ };
 
-correlate_regtest_lite -. "correlations not connected yet,\nbut will feed into dependencies\nonce they are" .-> FULL_SUCCESS_DEPENDENCIES
+push_or_check --"initial_state == 'idle'"--> notIdle{"TotalStatus.status != 'idle'"};
 
-subgraph FULL_SUCCESS_DEPENDENCIES["${FULL_SUCCESS_DEPENDENCIES}\n(SLURM job statuses)"]
+notIdle{"TotalStatus.status != 'idle'"} --true--> updateGitHubCheck[update GitHub check];
 
+push_or_check --"TotalStatus.status != 'pending'"--> uGHC2[update GitHub check];
+
+uGHC2 --> cleanUp["TotalStatus.clean_up()"];
+
+cleanUp --> correlate;
+
+push_or_check --"else"--> check_again_later[check status again in 30 minutes];
+
+check_again_later --> TotalStatus;
+
+subgraph correlate
+  direction LR
+  setCorrelationDir[set correlations directory] --<code>for data_source in TotalStatus.datasources:\n\tfor preconfig in TotalStatus.preconfigs:</code>--> cpac_yaml[create correlation config YAML];
+
+  cpac_yaml --> cpac_correlations[run <code>cpac_correlations</code> to create JSON file];
 end
+
+correlate --> init_branch["commit correlation images to SHA-specific branch in <code>regtest-runlogs<code> repository"];
+
+init_branch --> comment["push comment to commit on GitHub"]
 ```
 
 ## Manually initiated
