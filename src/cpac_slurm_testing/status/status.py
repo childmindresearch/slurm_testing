@@ -745,9 +745,11 @@ class TotalStatus:
     def write(self) -> None:
         """Write current status to disk."""
         with self.path.open("wb") as _f:
-            flock(_f.fileno(), LOCK_EX)  # Lock the file
-            pickle.dump(self, _f)  # Write the file
-            flock(_f.fileno(), LOCK_UN)  # Unlock the file
+            try:
+                flock(_f.fileno(), LOCK_EX)  # Lock the file
+                pickle.dump(self, _f)  # Write the file
+            finally:
+                flock(_f.fileno(), LOCK_UN)  # Unlock the file
 
     def __getitem__(self, item: tuple[str, str, str]) -> RunStatus:
         """Get a run by `(data_source, pipeline, subject)`."""
