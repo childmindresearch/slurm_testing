@@ -6,7 +6,7 @@ import os
 from cpac_slurm_testing import __version__
 from cpac_slurm_testing.launch import launch, LaunchParameters
 from cpac_slurm_testing.status._global import get_logger
-from cpac_slurm_testing.status.status import RunStatus, TestingPaths, TotalStatus
+from cpac_slurm_testing.status.status import TestingPaths, TotalStatus
 
 LOGGER: Logger = get_logger(name=__name__)
 
@@ -19,25 +19,6 @@ def _argstring(arg: str) -> list[str]:
             for argstr in [arg, arg.replace("-", "_"), arg.replace("_", "-")]
         }
     )
-
-
-def check(status: TotalStatus, args: Namespace) -> None:
-    """Check a run's status."""
-    status[
-        (
-            args.data_source,
-            args.preconfig,
-            args.subject,
-        )
-    ].job_status
-    LOGGER.info(status)
-
-
-def check_all(status: TotalStatus) -> None:
-    """Check all runs' statuses."""
-    for run in status.runs.values():
-        run.job_status
-    LOGGER.info(status)
 
 
 def _env_varname(arg: str) -> str:
@@ -153,20 +134,6 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     return parser, subparsers.choices
 
 
-def update(status: TotalStatus, args: Namespace) -> None:
-    """Update a run."""
-    run = RunStatus(
-        testing_paths=status.testing_paths,
-        data_source=args.data_source,
-        preconfig=args.preconfig,
-        subject=args.subject,
-        status=getattr(args, "status", "pending"),
-        _total=status,
-    )
-    run.launch("lite_run")
-    status += run
-
-
 def main() -> None:
     """Run the script from the commandline."""
     # Parse the arguments
@@ -182,11 +149,9 @@ def main() -> None:
     else:
         status = TotalStatus(testing_paths=args.testing_paths, dry_run=args.dry_run)
         if args.command in ["add", "finalize"]:
-            update(status, args)
+            status.update(args)
         elif args.command == "check":
-            check(status, args)
-        elif args.command == "check-all":
-            check_all(status)
+            status.check(args)
 
 
 if __name__ == "__main__":

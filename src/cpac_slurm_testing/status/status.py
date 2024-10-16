@@ -17,6 +17,7 @@ Also optionally accepts the following environment variables (or these can be pas
 - _CPAC_STATUS_SUBJECT: The subject.
 - _CPAC_STATUS_STATE: The status of the run. Defaults to "pending".
 """
+from argparse import Namespace
 from dataclasses import dataclass
 from datetime import datetime
 from fcntl import flock, LOCK_EX, LOCK_UN
@@ -490,6 +491,7 @@ class TotalStatus:
         self.load()
         initial_state: _STATE | Literal["idle"] = self.status
         if runs:
+            self.check_all()
             self.runs.update({run.key: run for run in runs})
         for run in self.runs.values():
             run.total = self
@@ -550,6 +552,17 @@ class TotalStatus:
         """Return the path to the output directory."""
         return self.home_dir / lite_or_full / self.image("name")
 
+    def check(self: "TotalStatus", args: Namespace) -> None:
+        """Check a run's status."""
+        self[
+            (
+                args.data_source,
+                args.preconfig,
+                args.subject,
+            )
+        ].job_status
+        LOGGER.info(self)
+
     def check_again_later(self, time: str) -> None:
         """Wait, then check the status again.
 
@@ -574,6 +587,12 @@ class TotalStatus:
             cmd = [*cmd, "--dry-run"]
         LOGGER.info(" ".join(cmd))
         subprocess.run(cmd, check=False)
+
+    def check_all(self: "TotalStatus") -> None:
+        """Check all runs' statuses."""
+        for run in self.runs.values():
+            run.job_status
+        LOGGER.info(self)
 
     def correlate(self, n_cpus: int = 4) -> None:
         """Launch correlation process."""
@@ -741,6 +760,19 @@ class TotalStatus:
         if self.success > self.failure:
             return "success"
         return "failure"
+
+    def update(self: "TotalStatus", args: Namespace) -> None:
+        """Update a run in a TotalStatus."""
+        run = RunStatus(
+            testing_paths=self.testing_paths,
+            data_source=args.data_source,
+            preconfig=args.preconfig,
+            subject=args.subject,
+            status=getattr(args, "status", "pending"),
+            _total=self,
+        )
+        run.launch("lite_run")
+        self += run
 
     def write(self) -> None:
         """Write current status to disk."""
