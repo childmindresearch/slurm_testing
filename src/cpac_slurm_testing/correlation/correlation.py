@@ -2,28 +2,46 @@
 from logging import Logger
 import os
 from pathlib import Path
+import subprocess
 from typing import cast
 
 from dulwich import porcelain
 from dulwich.repo import Repo
-from git import Repo as GitRepo
-from cpac_correlations import cpac_correlations, CpacCorrelationsNamespace
+from cpac_correlations import CpacCorrelationsNamespace
 
-from cpac_slurm_testing.status._global import get_logger
+from cpac_slurm_testing.status._global import get_logger, SBATCH_START
 
 LOGGER: Logger = get_logger(name=__name__)
 
 
-def correlate(namespace: CpacCorrelationsNamespace) -> None:
-    """Generate a JSON file from which to graph correlations."""
-    cpac_correlations(namespace)
+def correlate(namespace: CpacCorrelationsNamespace) -> int:
+    """Generate a JSON file from which to graph correlations.
+
+    Returns
+    -------
+    job_id : int
+        SLURM job ID for correlation job.
+    """
+    command: list[str] = [
+        *SBATCH_START,
+        "--job-name",
+        "_".join([namespace.branch, namespace.data_source]),
+        "--parsable",
+        "cpac_correlations",
+        *namespace.cli_args,
+    ]
+    return int(
+        subprocess.run(command, capture_output=True, check=False)
+        .stdout.decode()
+        .split(" ")[0]
+    )
 
 
 def init_branch(
     correlations_dir: str | Path, branch_name: str, owner: str, github_token: str
-) -> GitRepo:
+) -> Repo:
     """Create and push a branch for a correlation run's logs."""
-    repo: Repo | GitRepo
+    repo: Repo
     remote: str = f"{owner}/regtest-runlogs"
     try:
         repo = porcelain.init(str(correlations_dir))
@@ -42,7 +60,5 @@ def init_branch(
         )
     except porcelain.RemoteExists:
         pass
-    repo = GitRepo(correlations_dir)
-    repo.remotes.origin.push(f"{branch_name}:{branch_name}")
     os.chdir(_orig_path)
     return repo

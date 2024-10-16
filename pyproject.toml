@@ -24,6 +24,8 @@ pre-commit = "^3.7.0"
 [tool.poetry.scripts]
 "cpac-slurm-status" = "cpac_slurm_testing.status.cli:main"
 cpac_slurm_status = "cpac_slurm_testing.status.cli:main"
+"cpac-slurm-push-branch" = "cpac_slurm_testing.correlation.push_branch:main"
+cpac_slurm_push_branch = "cpac_slurm_testing.correlation.push_branch:main"
 
 [tool.mypy]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/src/cpac_slurm_testing"

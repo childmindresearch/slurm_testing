@@ -592,14 +592,13 @@ class TotalStatus:
         """Launch correlation process."""
         this_pipeline: Path = self.out("lite")
         latest_ref: Path = this_pipeline.parent / self.latest
-        correlations_dir: Path | str = (
-            this_pipeline / self.preconfigs[0] / "correlations"
-        )
+        correlations_dir: Path | str = this_pipeline / "correlations"
         assert isinstance(correlations_dir, Path)
         if not correlations_dir.exists():
             correlations_dir.mkdir(mode=0o777, exist_ok=True)
         correlations_dir = str(correlations_dir)
         branch: str = cast(str, self.image("name"))
+        correlation_slurm_jobs: list[int] = []
         for data_source in self.datasources:
             for preconfig in self.preconfigs:
                 pipelines: tuple[str, str] = cast(
@@ -637,19 +636,32 @@ class TotalStatus:
                         )
                     except AssertionError:
                         continue
-                    correlate(
-                        CpacCorrelationsNamespace(
-                            branch=branch,
-                            data_source=data_source,
-                            input_yaml=str(regression_correlation_yaml),
-                        ),
+                    correlation_slurm_jobs.append(
+                        correlate(
+                            CpacCorrelationsNamespace(
+                                branch=branch,
+                                data_source=data_source,
+                                input_yaml=str(regression_correlation_yaml),
+                            ),
+                        )
                     )
+
         init_branch(
             correlations_dir=correlations_dir,
             branch_name=f"{self.repo}_{branch}",
             owner=self.owner,
             github_token=self.github_token,
         )
+        push_command: list[str] = [
+            *SBATCH_START[:-1],
+            f"--dependency=afterany:{':'.join(str(job_id) for job_id in correlation_slurm_jobs)}",
+            "cpac-slurm-push-branch",
+            f"--correlations_dir={correlations_dir}",
+            f"--branch={branch}",
+        ]
+        subprocess.run(
+            push_command, check=False
+        )  # push to GitHub on completion of all correlations
 
     @property
     def _denominator(self) -> int:
