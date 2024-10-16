@@ -8,27 +8,15 @@ from dulwich import porcelain
 from dulwich.repo import Repo
 from git import Repo as GitRepo
 from cpac_correlations import cpac_correlations, CpacCorrelationsNamespace
-from cpac_regression_dashboard.utils.html_script import body
 
 from cpac_slurm_testing.status._global import get_logger
 
 LOGGER: Logger = get_logger(name=__name__)
 
 
-def correlate(
-    correlations_dir: str | Path, namespace: CpacCorrelationsNamespace
-) -> None:
+def correlate(namespace: CpacCorrelationsNamespace) -> None:
     """Generate a JSON file from which to graph correlations."""
-    all_keys, data_source, branch = cpac_correlations(namespace)
-    json_data = body(all_keys, data_source)
-    if not isinstance(correlations_dir, Path):
-        correlations_dir = Path(correlations_dir)
-    if not correlations_dir.exists():
-        correlations_dir.mkdir(mode=777, parents=True, exist_ok=True)
-    with open(
-        f"{correlations_dir}/{data_source}_{branch}.json", "w", encoding="utf-8"
-    ) as file:
-        file.write(json_data)
+    cpac_correlations(namespace)
 
 
 def init_branch(

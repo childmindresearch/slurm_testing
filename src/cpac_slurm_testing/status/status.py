@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# SBATCH -N 1
-# SBATCH -p RM-shared
-# SBATCH -t 00:05:00
-# SBATCH --ntasks=1
 """Consolidate job statistics into a single GitHub status.
 
 Requires the following environment variables:
@@ -644,7 +638,6 @@ class TotalStatus:
                     except AssertionError:
                         continue
                     correlate(
-                        correlations_dir,
                         CpacCorrelationsNamespace(
                             branch=branch,
                             data_source=data_source,
