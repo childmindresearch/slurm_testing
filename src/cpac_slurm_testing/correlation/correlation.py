@@ -2,6 +2,7 @@
 from logging import Logger
 import os
 from pathlib import Path
+from shutil import copy2
 import subprocess
 from typing import cast
 
@@ -37,6 +38,24 @@ def correlate(namespace: CpacCorrelationsNamespace) -> int:
     )
 
 
+def _copy_plot(plot_dir: Path) -> None:
+    """Copy plots from single site-pipeline-specific directory."""
+    destination: Path = plot_dir.parent / "correlations"
+    prefix: str = plot_dir.name[13:].split("_", 1)[-1]
+    for file_path in plot_dir.iterdir():
+        if file_path.is_file():
+            copy2(file_path, destination / f"{prefix}_{file_path.name}")
+
+
+def copy_plots(plot_dirs: list[Path]) -> None:
+    """Copy plots from site-pipeline-specific directories to single directory.
+
+    For reporting.
+    """
+    for plot_dir in plot_dirs:
+        _copy_plot(plot_dir)
+
+
 def init_branch(
     correlations_dir: str | Path, branch_name: str, owner: str, github_token: str
 ) -> Repo:
@@ -49,6 +68,12 @@ def init_branch(
         repo = cast(Repo, porcelain.open_repo(correlations_dir))
     _orig_path: Path = Path(".").absolute()
     os.chdir(correlations_dir)
+    plot_dirs: list[Path] = [
+        corr_dir
+        for corr_dir in Path(correlations_dir).parent.iterdir()
+        if corr_dir.name.startswith("correlations_")
+    ]
+    copy_plots(plot_dirs)
     porcelain.add()
     porcelain.commit(message=":memo: Document correlations")
     porcelain.branch_create(repo, branch_name, force=True)
