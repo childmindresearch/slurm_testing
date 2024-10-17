@@ -467,9 +467,11 @@ class TotalStatus:
             path = Path(f"{path.name}.dry")
         self.path: Path = path
         """Path to status data on disk."""
+        self._image: str = ""
+        """Name of image."""
+
         if git_remote:  # We're initializing a new TotalStatus, not loading existing one
-            self._image: str = image if image is not None else ""
-            """Name of image."""
+            self._image = image if image is not None else ""
             self.owner: str = git_remote.owner
             """Owner of repository on GitHub."""
             self.repo: str = git_remote.repo
@@ -503,7 +505,9 @@ class TotalStatus:
             )
             self.correlate()
         else:
-            self.check_again_later(time="now+30minutes")
+            self.check_again_later(
+                time=f"now+{30 * self.pending * self._denominator}minutes"
+            )
 
     def clean_up(self) -> None:
         """Remove temporary files and image file."""
