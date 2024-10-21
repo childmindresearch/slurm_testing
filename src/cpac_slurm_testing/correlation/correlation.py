@@ -77,6 +77,7 @@ def init_branch(
     porcelain.add()
     porcelain.commit(message=":memo: Document correlations")
     porcelain.branch_create(repo, branch_name, force=True)
+    porcelain.checkout_branch(repo, branch_name, force=True)
     try:
         porcelain.remote_add(
             repo,
