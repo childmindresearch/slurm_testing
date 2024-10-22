@@ -1,0 +1,47 @@
+name: Post regtest results comment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+      SHA:
+        description: SHA of commit to comment on
+        type: string
+        required: true
+
+jobs:
+  post_to_commit:
+    name: Post results comment to GitHub
+    environment: ACCESS
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ secrets.PLAYWRIGHT_BROWSERS_PATH }}
+      SHA: ${{ inputs.SHA }}
+      SLURM_TESTING_REPO: ${{ vars.SLURM_TESTING_REPO }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_WORK_DIR: ${{ secrets.SSH_WORK_DIR }}
+      TOKEN_FILE: ${{ secrets.TOKEN_FILE }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post comment from HPC
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_PRIVATE_KEY }}
+          command_timeout: 200m
+          script: |
+            export TOKEN_FILE=${{ env.TOKEN_FILE }}
+            export SLURM_TESTING_REPO=${{ env.SLURM_TESTING_REPO }}
+            if [ -n "${TOKEN_FILE}" ]
+            then
+              source ${TOKEN_FILE}
+            fi
+            export TESTING_OWNER=${SLURM_TESTING_REPO%%/*}
+            cpac_regsuite_generate_comment ${{ env.SSH_WORK_DIR }}/lite/${{ env.SHA }}/correlations
+
+      - name: Cleanup SSH
+        run: |
+          rm -rf ~/.ssh
