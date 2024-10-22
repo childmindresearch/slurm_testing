@@ -649,10 +649,10 @@ class TotalStatus:
                             ),
                         )
                     )
-
+        branch_name: str = f"{self.repo}_{branch}"
         init_branch(
             correlations_dir=correlations_dir,
-            branch_name=f"{self.repo}_{branch}",
+            branch_name=branch_name,
             owner=self.owner,
             github_token=self.github_token,
         )
@@ -661,7 +661,7 @@ class TotalStatus:
             f"--dependency=afterany:{':'.join(str(job_id) for job_id in correlation_slurm_jobs)}",
             "cpac-slurm-push-branch",
             f"--correlations_dir={correlations_dir}",
-            f"--branch={branch}",
+            f"--branch_name={branch_name}",
         ]
         subprocess.run(
             push_command, check=False
