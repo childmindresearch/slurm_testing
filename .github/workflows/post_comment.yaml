@@ -49,6 +49,7 @@ jobs:
               source ${TOKEN_FILE}
             fi
             export OWNER=${{ env.OWNER }}
+            export PLAYWRIGHT_BROWSERS_PATH=${{ env.PLAYWRIGHT_BROWSERS_PATH }}
             export REPO=${{ env.REPO }}
             export SHA=${{ env.SHA }}
             export TESTING_OWNER=${{ github.repository_owner }}
