@@ -5,6 +5,15 @@ on:
     inputs:
       environment:
         type: environment
+      OWNER:
+        description: Owner of repository to comment on
+        type: string
+        required: false
+      REPO:
+        description: Repository to comment on
+        type: string
+        default: C-PAC
+        required: false
       SHA:
         description: SHA of commit to comment on
         type: string
@@ -15,7 +24,9 @@ jobs:
     name: Post results comment to GitHub
     environment: ACCESS
     env:
+      OWNER: ${{ inputs.OWNER || github.repository_owner }}
       PLAYWRIGHT_BROWSERS_PATH: ${{ secrets.PLAYWRIGHT_BROWSERS_PATH }}
+      REPO: ${{ inputs.REPO }}
       SHA: ${{ inputs.SHA }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -37,6 +48,9 @@ jobs:
             then
               source ${TOKEN_FILE}
             fi
+            export OWNER=${{ env.OWNER }}
+            export REPO=${{ env.REPO }}
+            export SHA=${{ env.SHA }}
             export TESTING_OWNER=${{ github.repository_owner }}
             cpac_regsuite_generate_comment ${{ env.SSH_WORK_DIR }}/lite/${{ env.SHA }}/correlations
 
