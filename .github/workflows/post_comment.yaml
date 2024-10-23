@@ -17,7 +17,6 @@ jobs:
     env:
       PLAYWRIGHT_BROWSERS_PATH: ${{ secrets.PLAYWRIGHT_BROWSERS_PATH }}
       SHA: ${{ inputs.SHA }}
-      SLURM_TESTING_REPO: ${{ vars.SLURM_TESTING_REPO }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
@@ -34,12 +33,11 @@ jobs:
           command_timeout: 200m
           script: |
             export TOKEN_FILE=${{ env.TOKEN_FILE }}
-            export SLURM_TESTING_REPO=${{ env.SLURM_TESTING_REPO }}
             if [ -n "${TOKEN_FILE}" ]
             then
               source ${TOKEN_FILE}
             fi
-            export TESTING_OWNER=${SLURM_TESTING_REPO%%/*}
+            export TESTING_OWNER=${{ github.repository_owner }}
             cpac_regsuite_generate_comment ${{ env.SSH_WORK_DIR }}/lite/${{ env.SHA }}/correlations
 
       - name: Cleanup SSH
