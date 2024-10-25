@@ -8,6 +8,8 @@
 from argparse import ArgumentParser, Namespace
 import os
 from pathlib import Path
+import stat
+from tempfile import NamedTemporaryFile
 from typing import Optional
 
 from git import Repo
@@ -16,27 +18,28 @@ from github import Github
 from github.Repository import Repository
 import requests
 
+from cpac_slurm_testing.correlation.git_utils import GITHUB_TOKEN
+
 
 def push_branch(correlations_dir: Path, branch_name: str) -> tuple[Repo, str]:
     """Create and push a branch for a correlation run's logs."""
     repo = Repo(correlations_dir)
-    repo.remotes.origin.push(f"{branch_name}:{branch_name}")
-    return repo, branch_name[-40:]
+    with NamedTemporaryFile(delete=False, mode="w") as askpass_script:
+        askpass_script.write(f"#!/bin/sh\necho {GITHUB_TOKEN}")
+        askpass_script.flush()
+        os.chmod(askpass_script.name, stat.S_IREAD | stat.S_IEXEC)
+
+    try:
+        with repo.git.custom_environment(GIT_ASKPASS=askpass_script.name):
+            repo.remotes.origin.push(f"{branch_name}:{branch_name}")
+    finally:
+        os.remove(askpass_script.name)
+        return repo, branch_name[-40:]
 
 
 def push_comment(repository: Repo, sha: str) -> None:
     """Create and push comment via GitHub Actions."""
-    try:
-        github_token: str = repository.remotes.origin.url.split(":", 2)[2].split(
-            "@", 1
-        )[0]
-    except IndexError:
-        try:
-            github_token = os.environ.get("GITHUB_TOKEN", os.environ["GH_TOKEN"])
-        except KeyError:
-            msg = "Could not determine PAT for GitHub access."
-            raise LookupError(msg)
-    github_client: Github = Github(github_token)
+    github_client: Github = Github(GITHUB_TOKEN)
     name_owner_slash_repo: str = repository.remotes.origin.url.split("github.com", 1)[
         1
     ][1:-4]
@@ -46,7 +49,7 @@ def push_comment(repository: Repo, sha: str) -> None:
         "post_comment.yaml/dispatches"
     )
     headers: dict[str, str] = {
-        "Authorization": f"Bearer {github_token}",
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
         "Accept": "application/vnd.github.v3+json",
     }
     testing_branch: str

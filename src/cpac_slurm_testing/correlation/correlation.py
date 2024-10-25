@@ -82,7 +82,7 @@ def init_branch(
         porcelain.remote_add(
             repo,
             "origin",
-            f"https://{owner}:{github_token}@github.com/{remote}.git",
+            f"https://github.com/{remote}.git",
         )
     except porcelain.RemoteExists:
         pass
