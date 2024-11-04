@@ -24,6 +24,7 @@ def get_github_token() -> str:
 
 
 try:
-    GITHUB_TOKEN: str = get_github_token()
+    GITHUB_TOKEN: Optional[str] = get_github_token()
 except LookupError as lookup_error:
     warn(str(lookup_error))
+    GITHUB_TOKEN = None

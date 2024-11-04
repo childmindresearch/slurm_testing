@@ -6,6 +6,7 @@
 # SBATCH --ntasks=1
 """Push run logs to GitHub."""
 from argparse import ArgumentParser, Namespace
+from importlib.resources import files
 import os
 from pathlib import Path
 import stat
@@ -40,9 +41,9 @@ def push_branch(correlations_dir: Path, branch_name: str) -> tuple[Repo, str]:
 def push_comment(repository: Repo, sha: str) -> None:
     """Create and push comment via GitHub Actions."""
     github_client: Github = Github(GITHUB_TOKEN)
-    name_owner_slash_repo: str = repository.remotes.origin.url.split("github.com", 1)[
-        1
-    ][1:-4]
+    name_owner_slash_repo: str = Repo(
+        list(Path(str(files("cpac_slurm_testing"))).parents)[1]
+    ).remotes.origin.url.split("github.com", 1)[1][1:-4]
     github_repo: Repository = github_client.get_repo(name_owner_slash_repo)
     workflow_dispatch_url: str = (
         f"https://api.github.com/repos/{name_owner_slash_repo}/actions/workflows/"
