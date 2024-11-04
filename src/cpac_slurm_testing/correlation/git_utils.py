@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 from typing import Optional
+from warnings import warn
 
 
 def get_github_token() -> str:
@@ -22,4 +23,7 @@ def get_github_token() -> str:
     raise LookupError(msg)
 
 
-GITHUB_TOKEN: str = get_github_token()
+try:
+    GITHUB_TOKEN: str = get_github_token()
+except LookupError as lookup_error:
+    warn(str(lookup_error))

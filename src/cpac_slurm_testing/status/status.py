@@ -659,6 +659,7 @@ class TotalStatus:
         push_command: list[str] = [
             *SBATCH_START[:-1],
             f"--dependency=afterany:{':'.join(str(job_id) for job_id in correlation_slurm_jobs)}",
+            f"--export=GITHUB_TOKEN={self.github_token}",
             "cpac-slurm-push-branch",
             f"--correlations_dir={correlations_dir}",
             f"--branch_name={branch_name}",
