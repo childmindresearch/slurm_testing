@@ -1,8 +1,11 @@
 """Git and GitHub utilities for repo management."""
 import os
 from pathlib import Path
-from typing import Optional
+from time import sleep
+from typing import Any, Callable, Optional
 from warnings import warn
+
+from git.exc import GitCommandError
 
 
 def get_github_token() -> str:
@@ -21,6 +24,26 @@ def get_github_token() -> str:
             return token
     msg = "Could not determine PAT for GitHub access."
     raise LookupError(msg)
+
+
+def await_git_lock(
+    fxn: Callable,
+    args: Optional[list[Any]] = None,
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Any:
+    """Retry operation if we hit a lock error."""
+    if not args:
+        args = []
+    if not kwargs:
+        kwargs = {}
+    try:
+        return fxn(*args, **kwargs)
+    except GitCommandError as git_command_error:
+        if "lock" in str(git_command_error):
+            warn(f"{git_command_error}\nRetrying in 5 seconds")
+            sleep(5)
+            return await_git_lock(fxn, args, kwargs)
+        raise git_command_error
 
 
 try:

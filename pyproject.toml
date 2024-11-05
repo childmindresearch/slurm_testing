@@ -13,7 +13,6 @@ script = "./src/cpac_slurm_testing/__init__.py"
 
 [tool.poetry.dependencies]
 cpac_regression_dashboard = {git = "https://github.com/shnizzedy/dashboard.git", branch = "correlate_D3"}
-dulwich = ">=0.22.1"
 gitpython = ">=3.1.40"
 pygithub = ">=2.4.0"
 python = ">=3.10"

@@ -4,12 +4,11 @@ import os
 from pathlib import Path
 from shutil import copy2
 import subprocess
-from typing import cast
 
-from dulwich import porcelain
-from dulwich.repo import Repo
+from git import Repo
 from cpac_correlations import CpacCorrelationsNamespace
 
+from cpac_slurm_testing.correlation.git_utils import await_git_lock
 from cpac_slurm_testing.status._global import get_logger, SBATCH_START
 
 LOGGER: Logger = get_logger(name=__name__)
@@ -62,10 +61,11 @@ def init_branch(
     """Create and push a branch for a correlation run's logs."""
     repo: Repo
     remote: str = f"{owner}/regtest-runlogs"
-    try:
-        repo = porcelain.init(str(correlations_dir))
-    except FileExistsError:
-        repo = cast(Repo, porcelain.open_repo(correlations_dir))
+    repo = (
+        Repo(correlations_dir)
+        if os.path.exists(correlations_dir)
+        else Repo.init(str(correlations_dir))
+    )
     _orig_path: Path = Path(".").absolute()
     os.chdir(correlations_dir)
     plot_dirs: list[Path] = [
@@ -74,17 +74,14 @@ def init_branch(
         if corr_dir.name.startswith("correlations_")
     ]
     copy_plots(plot_dirs)
-    porcelain.add()
-    porcelain.commit(message=":memo: Document correlations")
-    porcelain.branch_create(repo, branch_name, force=True)
-    porcelain.checkout_branch(repo, branch_name, force=True)
-    try:
-        porcelain.remote_add(
-            repo,
-            "origin",
-            f"https://github.com/{remote}.git",
+    await_git_lock(repo.git.add, kwargs={"A": True})
+    await_git_lock(repo.index.commit, [":memo: Document correlations"])
+    if branch_name not in repo.heads:
+        await_git_lock(repo.create_head, [branch_name])
+    await_git_lock(repo.git.checkout, [branch_name])
+    if "origin" not in repo.remotes:
+        await_git_lock(
+            repo.create_remote, ["origin", f"https://github.com/{remote}.git"]
         )
-    except porcelain.RemoteExists:
-        pass
     os.chdir(_orig_path)
     return repo
