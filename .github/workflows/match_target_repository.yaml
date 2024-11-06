@@ -6,7 +6,6 @@ on:
 jobs:
   update-repo-url:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -15,6 +14,8 @@ jobs:
         env:
           GITHUB_BASE_LOGIN: ${{ github.event.pull_request.base.repo.owner.login }}
           GITHUB_BASE_REPO_NAME: ${{ github.event.pull_request.base.repo.name }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
         run: |
           TARGET_REPO_URL="https://github.com/${GITHUB_BASE_LOGIN}/${GITHUB_BASE_REPO_NAME}"
@@ -31,6 +32,7 @@ jobs:
           # Commit and push changes
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git remote set-url --push origin "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO}"
           git add pyproject.toml
           git commit -m ":twisted_rightwards_arrows: Update repository URL to PR target."
           git push origin HEAD:"${HEAD_REF}"
