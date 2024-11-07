@@ -1,0 +1,43 @@
+name: Check for 👤💰
+
+on:
+  pull_request:
+
+jobs:
+  check-for-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Initiate GitHub Check
+        uses: LouisBrunner/checks-action@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: "🚫👤💰"
+          status: in_progress
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            .github/workflows/match_target_repository.yaml
+            .github/workflows/🚫👤💰.yaml
+      - name: Check for workflow changes
+        id: workflow-changes
+        env:
+          CHANGED_FILES: ${{ steps.changed-files.outputs.any_changed }}
+        run: |
+          if [ "${CHANGED_FILES}" = "true" ]; then
+            echo "conclusion=failure" >> "$GITHUB_OUTPUT"
+          else
+            echo "conclusion=success" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Finalize GitHub Check
+        uses: LouisBrunner/checks-action@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: "🚫👤💰"
+          status: completed
+          conclusion: ${{ steps.workflow-changes.outputs.conclusion }}
