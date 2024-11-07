@@ -39,5 +39,5 @@ jobs:
           git config --local user.name "🐈 Theodore"
           git remote set-url --push origin "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO}"
           git add pyproject.toml
-          git commit -m ":twisted_rightwards_arrows: Update repository URL to PR target."
+          git commit -m ":twisted_rightwards_arrows: Update repository URL to PR target." || exit 0
           git push origin HEAD:"${HEAD_REF}"

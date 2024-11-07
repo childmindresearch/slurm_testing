@@ -1,13 +1,13 @@
 name: Check for 👤💰
 
 on:
-  pull_request:
+  pull_request_target:
 
 jobs:
   check-for-changes:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
+      pull-requests: write
     steps:
       - name: Initiate GitHub Check
         uses: LouisBrunner/checks-action@v2.0.0
