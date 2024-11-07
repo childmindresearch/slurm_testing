@@ -6,6 +6,8 @@ on:
 jobs:
   update-repo-url:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
