@@ -16,7 +16,7 @@ jobs:
         env:
           GITHUB_BASE_LOGIN: ${{ github.event.pull_request.base.repo.owner.login }}
           GITHUB_BASE_REPO_NAME: ${{ github.event.pull_request.base.repo.name }}
-          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_REPO: ${{ github.event.pull_request.head.repo.full_name }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEAD_REF: ${{ github.head_ref }}
         run: |
