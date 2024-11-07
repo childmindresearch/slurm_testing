@@ -1,7 +1,7 @@
 name: Check for 👤💰
 
 on:
-  pull_request_target:
+  pull_request:
 
 jobs:
   check-for-changes:
@@ -9,12 +9,6 @@ jobs:
     permissions:
       checks: write
     steps:
-      - name: Initiate GitHub Check
-        uses: LouisBrunner/checks-action@v2.0.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: "🚫👤💰"
-          status: in_progress
       - name: Checkout code
         uses: actions/checkout@v4.2.2
       - name: Get changed files
@@ -30,14 +24,5 @@ jobs:
           CHANGED_FILES: ${{ steps.changed-files.outputs.any_changed }}
         run: |
           if [ "${CHANGED_FILES}" = "true" ]; then
-            echo "conclusion=failure" >> "$GITHUB_OUTPUT"
-          else
-            echo "conclusion=success" >> "$GITHUB_OUTPUT"
+            exit 1
           fi
-      - name: Finalize GitHub Check
-        uses: LouisBrunner/checks-action@v2.0.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: "🚫👤💰"
-          status: completed
-          conclusion: ${{ steps.workflow-changes.outputs.conclusion }}
