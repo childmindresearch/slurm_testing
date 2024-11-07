@@ -30,8 +30,8 @@ jobs:
           fi
 
           # Commit and push changes
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "88335502+ChildMindInstituteCNL@users.noreply.github.com"
+          git config --local user.name "🐈 Theodore"
           git remote set-url --push origin "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO}"
           git add pyproject.toml
           git commit -m ":twisted_rightwards_arrows: Update repository URL to PR target."
