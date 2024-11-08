@@ -1,4 +1,6 @@
-# Regression Testing on SLURM Clusters (Bridges-2)
+# Regression Testing C-PAC on SLURM Clusters
+
+## *(Bridges-2)*
 
 This Github repo allows [C-PAC developers](https://github.com/orgs/FCP-INDI/teams/developers) to run full regression tests on [Bridges-2, a cluster under Pittsburgh Computing Center](https://www.psc.edu/resources/bridges-2/user-guide/).
 The scripts in this repo allow you to submit `sbatch` jobs on Bridges-2.
