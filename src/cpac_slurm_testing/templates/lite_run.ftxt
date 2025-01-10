@@ -1,0 +1,33 @@
+#!/usr/bin/bash
+#SBATCH -N 1
+#SBATCH -p RM-shared
+#SBATCH -t 10:00:00
+#SBATCH --ntasks=4
+#SBATCH -o {log_dir}/%x.out.log
+#SBATCH --error {log_dir}/%x.err.log
+#SBATCH -J {pdsd}-{image_name}-reglite
+
+set -x
+
+export APPTAINER_CACHEDIR={home_dir}/.apptainer/cache \
+       APPTAINER_LOCALCACHEDIR={home_dir}/.apptainer/tmp
+
+apptainer run \
+    --cleanenv \
+    -B {home_dir} \
+    -B {datapath}:/data \
+    -B {regdatapath}:/reg-data \
+    -B {output}:/outputs \
+    -B {pipeline_configs}:/pipeline_configs \
+    {image} /data /outputs participant \
+    --save_working_dir --skip_bids_validator \
+    --pipeline_file /pipeline_configs/{pipeline}-5mm.yaml \
+    --participant_label {subject} \
+    --n_cpus 3 --mem_gb 40
+
+if grep -q "CPAC run complete" {log_dir}/*.out.log
+then
+  exit 0  # Exit with success code
+else
+  exit 1  # Exit with failure code
+fi

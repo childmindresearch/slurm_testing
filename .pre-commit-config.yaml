@@ -1,0 +1,87 @@
+fail_fast: false
+
+repos:
+
+- repo: https://github.com/rhysd/actionlint
+  rev: v1.7.4
+  hooks:
+  - id: actionlint
+
+- repo: https://github.com/lovesegfault/beautysh
+  rev: v6.2.1
+  hooks:
+  - id: beautysh
+
+- repo: https://github.com/syntaqx/git-hooks
+  rev: v0.0.18
+  hooks:
+  - id: shellcheck
+
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.12.0
+  hooks:
+  # - id: pretty-format-yaml
+  #   args:
+  #   - --autofix
+  #   - --indent=2
+  - id: pretty-format-toml
+    exclude: ^poetry.lock$
+    args:
+    - --autofix
+    - --indent=2
+    - --no-sort
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.8.0
+  hooks:
+  - id: mypy
+    additional_dependencies:
+      - types-requests
+
+- repo: https://github.com/bwhmather/ssort
+  rev: 0.12.4
+  hooks:
+  - id: ssort
+    exclude: src/cpac_slurm_testing/status/status.py  # ssort detaches attribute docstrings
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+  - id: check-case-conflict
+  - id: end-of-file-fixer
+  - id: mixed-line-ending
+    args:
+    - --fix=lf
+  - id: trailing-whitespace
+  - id: pretty-format-json
+    args:
+    - --autofix
+    - --indent=4
+    - --no-sort-keys
+  - id: check-merge-conflict
+  - id: check-yaml
+  - id: check-json
+  - id: check-toml
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.1.9
+  hooks:
+  - id: ruff
+    args: [--fix]
+  - id: ruff-format
+
+- repo: local
+  hooks:
+  - id: yaml-file-extension
+    name: Prefer .yaml over .yml.
+    entry: YAML files must have .yaml extension.
+    language: fail
+    files: \.yml$
+    exclude: \.markdownlint\.yml
+  - id: local-fork-repo-url
+    name: Sync local fork repository URL
+    language: python
+    files: .*
+    entry: .github/scripts/local_fork_repo_url.py
+    additional_dependencies:
+      - gitpython
