@@ -63,7 +63,7 @@ def init_branch(
     remote: str = f"{owner}/regtest-runlogs"
     repo = (
         Repo(correlations_dir)
-        if os.path.exists(correlations_dir)
+        if os.path.exists(Path(correlations_dir) / ".git")
         else Repo.init(str(correlations_dir))
     )
     _orig_path: Path = Path(".").absolute()
