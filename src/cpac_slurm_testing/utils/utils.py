@@ -2,10 +2,10 @@
 from shutil import rmtree
 from typing import Literal
 
-from cpac_slurm_testing.utils._typing import coerce_to_Path, PATH_OR_STR
+from cpac_slurm_testing.utils._typing import coerce_to_Path, PathStr
 
 
-def unlink(path: PATH_OR_STR, error: Literal["ignore", "raise"] = "ignore") -> None:
+def unlink(path: PathStr, error: Literal["ignore", "raise"] = "ignore") -> None:
     """Remove a path."""
     path = coerce_to_Path(path)
     unlink_method: str

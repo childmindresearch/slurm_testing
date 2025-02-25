@@ -2,6 +2,7 @@
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from logging import Logger
 import os
+from types import SimpleNamespace
 
 from cpac_slurm_testing import __version__
 from cpac_slurm_testing.launch import launch, LaunchParameters
@@ -52,7 +53,7 @@ class SlurmTestingNamespace(Namespace):
                 raise LookupError(msg)
         return value
 
-    def __init__(self, original: Namespace) -> None:
+    def __init__(self, original: Namespace | SimpleNamespace) -> None:
         """Initialize Namespace."""
         super().__init__(
             **{
@@ -63,7 +64,7 @@ class SlurmTestingNamespace(Namespace):
         if not hasattr(self, "dry_run"):
             self.dry_run: bool = False
             """Skip actually running commands?"""
-        self.testing_paths = TestingPaths(self.wd)
+        self.testing_paths = TestingPaths(getattr(self, "wd", os.getcwd()))
 
 
 def _parser_arg_helpstring(arg: str) -> str:

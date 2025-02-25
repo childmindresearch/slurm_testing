@@ -1,11 +1,13 @@
 """Typing utilities."""
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional, TypeAlias
 
-PATH_OR_STR = Path | str
+PathStr: TypeAlias = Path | str
+Scope: TypeAlias = Literal["full", "lite"]
+SCOPES = ["full", "lite"]
 
 
-def coerce_to_Path(path: Optional[PATH_OR_STR]) -> Path:
+def coerce_to_Path(path: Optional[PathStr]) -> Path:
     """Return a Path from a given path or string."""
     if isinstance(path, str):
         path = Path(path.strip("\"'"))
@@ -15,4 +17,4 @@ def coerce_to_Path(path: Optional[PATH_OR_STR]) -> Path:
     return path
 
 
-__all__ = ["coerce_to_Path", "PATH_OR_STR"]
+__all__ = ["coerce_to_Path", "PathStr"]

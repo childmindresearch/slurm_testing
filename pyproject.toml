@@ -6,7 +6,7 @@ authors = ["Amy Gutierrez <58920810+amygutierrez@users.noreply.github.com>", "Jo
 license = "LGPL-2.1"
 readme = "README.md"
 packages = [{include = "cpac_slurm_testing", from = "src"}]
-repository = "https://github.com/childmindresearch/slurm_testing"
+repository = "https://github.com/shnizzedy/slurm_testing"
 
 [tool.poetry.build]
 generate-setup-file = false

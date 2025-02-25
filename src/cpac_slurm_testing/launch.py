@@ -9,7 +9,7 @@ import subprocess
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status import TestingPaths, TotalStatus
 from cpac_slurm_testing.status._global import get_logger, SBATCH_START
-from cpac_slurm_testing.utils import PATH_OR_STR
+from cpac_slurm_testing.utils import PathStr
 
 LOGGER: Logger = get_logger(name=__name__)
 
@@ -19,9 +19,9 @@ class LaunchParameters:
     """Parameters for launching a regression test."""
 
     testing_paths: TestingPaths
-    comparison_path: PATH_OR_STR = ""
+    comparison_path: PathStr = ""
     dashboard_repo: str = ""
-    home_dir: PATH_OR_STR = ""
+    home_dir: PathStr = ""
     image: str = ""
     owner: str = ""
     path_extra: str = ""
@@ -29,7 +29,7 @@ class LaunchParameters:
     sha: str = ""
     slurm_testing_branch: str = ""
     slurm_testing_repo: str = ""
-    token_file: PATH_OR_STR = ""
+    token_file: PathStr = ""
     _: KW_ONLY
     dry_run: bool = False
 

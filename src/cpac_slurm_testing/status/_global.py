@@ -3,11 +3,13 @@ from importlib.resources import files
 import logging
 import os
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal, Optional, TypeAlias
 
-_COMMAND_TYPES = Literal["lite_run"]
+from cpac_slurm_testing.utils._typing import PathStr, SCOPES
+
+CommandType: TypeAlias = Literal["full_run", "lite_run"]
 HOME_DIR = Path(os.environ.get("HOME_DIR", os.path.expanduser("~")))
-_JOB_STATE = Literal[
+JobState: TypeAlias = Literal[
     "COMPLETED",
     "COMPLETING",
     "FAILED",
@@ -18,8 +20,8 @@ _JOB_STATE = Literal[
     "SUSPENDED",
     "STOPPED",
 ]
-_STATE = Literal["error", "failure", "pending", "success"]
-JOB_STATES: dict[_JOB_STATE, _STATE] = {
+_State: TypeAlias = Literal["error", "failure", "pending", "success"]
+JOB_STATES: dict[JobState, _State] = {
     "COMPLETED": "success",
     "COMPLETING": "pending",
     "FAILED": "failure",
@@ -32,16 +34,15 @@ JOB_STATES: dict[_JOB_STATE, _STATE] = {
 LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s:\n\t%(message)s\n"
 TEMPLATES = {
     key: files("cpac_slurm_testing.templates").joinpath(f"{key}.ftxt").read_text()
-    for key in ["lite_run"]
+    for key in [f"{scope}_run" for scope in SCOPES]
 }
 SBATCH_START: list[str] = ["sbatch", "-p", "RM-shared", "--ntasks=4"]
-StrPath = str | Path
 
 
 def logger_set_handlers(  # noqa: PLR0913
     logger: logging.Logger,
     encoding: str = "utf8",
-    filename: Optional[StrPath] = None,
+    filename: Optional[PathStr] = None,
     force: bool = False,
     fmt: str = LOG_FORMAT,
     level: int | str = logging.INFO,
@@ -64,7 +65,7 @@ def logger_set_handlers(  # noqa: PLR0913
 def get_logger(  # noqa: PLR0913
     name: Optional[str],
     encoding: str = "utf8",
-    filename: Optional[StrPath] = None,
+    filename: Optional[PathStr] = None,
     force: bool = False,
     fmt: str = LOG_FORMAT,
     level: int | str = logging.INFO,

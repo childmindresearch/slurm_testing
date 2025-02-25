@@ -35,15 +35,17 @@ from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 from cpac_slurm_testing.correlation.correlation import correlate, init_branch
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status._global import (
-    _COMMAND_TYPES,
-    _JOB_STATE,
-    _STATE,
+    _State,
+    CommandType,
     get_logger,
     JOB_STATES,
+    JobState,
     SBATCH_START,
     TEMPLATES,
 )
 from cpac_slurm_testing.utils import coerce_to_Path, unlink
+from cpac_slurm_testing.utils._typing import Scope
+from cpac_slurm_testing.utils.datapaths import datapaths
 
 LOGGER: Logger = get_logger(name=__name__)
 
@@ -187,9 +189,7 @@ class SlurmJobStatus:
         self.dry_run: bool = dry_run
 
     @overload
-    def get(
-        self, key: Literal["JobState"], default: _JOB_STATE = "PENDING"
-    ) -> _JOB_STATE:
+    def get(self, key: Literal["JobState"], default: JobState = "PENDING") -> JobState:
         ...
 
     @overload
@@ -204,14 +204,14 @@ class SlurmJobStatus:
             return default
 
     @property
-    def job_state(self) -> _JOB_STATE:
+    def job_state(self) -> JobState:
         """Return JobState from SLURM."""
         if self.dry_run:
             return choice(list(JOB_STATES.keys()))
         return self["JobState"]
 
     @overload
-    def __getitem__(self, item: Literal["JobState"]) -> _JOB_STATE:
+    def __getitem__(self, item: Literal["JobState"]) -> JobState:
         ...
 
     @overload
@@ -257,7 +257,7 @@ class RunStatus:
     """Subject ID."""
     _total: "TotalStatus"
     """TotalStatus that includes this RunStatus."""
-    status: _STATE = "pending"
+    status: _State = "pending"
     """Success/failure/pending status of this run."""
     job_id: Optional[int] = None
     """Scheduler job ID."""
@@ -302,19 +302,21 @@ class RunStatus:
         """log directory"""
         self._total += self
 
-    def command(self, command_type: str) -> str:
+    def command(self, command_type: str, scope: Scope = "lite") -> str:
         """Return a command string for a given command_type."""
         assert self._total is not None
         if not self.log_dir.exists():
             self.log_dir.mkdir(mode=0o777, exist_ok=True)
         return TEMPLATES[command_type].format(
-            datapath=self.total.home_dir / f"DATA/reg_5mm_pack/data/{self.data_source}",
+            datapath=getattr(
+                datapaths[scope](self.total.home_dir), self.data_source.lower()
+            ),
             regdatapath=self.total.home_dir / "DATA/reg_5mm_pack",
             home_dir=self.total.home_dir,
             log_dir=self.log_dir,
             image=self.total.image("path"),
             image_name=self.total.image("name"),
-            output=self.out("lite") / self.preconfig / self.data_source,
+            output=self.out(scope) / self.preconfig / self.data_source,
             pdsd=self.pdsd,
             pipeline=self.preconfig,
             pipeline_configs=str(
@@ -338,12 +340,12 @@ class RunStatus:
         """Return a unique key for each preconfig × data_source × subject."""  # noqa: RUF002
         return self.data_source, self.preconfig, self.subject
 
-    def launch(self, command_type: _COMMAND_TYPES) -> None:
+    def launch(self, command_type: CommandType) -> None:
         """Launch a SLURM job and set its job ID."""
         _command_types: list[str] = eval(
-            str(_COMMAND_TYPES).replace(
+            str(CommandType).replace(
                 str(
-                    _COMMAND_TYPES.__origin__  # type: ignore[attr-defined]
+                    CommandType.__origin__  # type: ignore[attr-defined]
                 ),
                 "",
             )
@@ -485,7 +487,7 @@ class TotalStatus:
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary like `{(datasource, preconfig, subject): run}` of runs with individual statuses."""
         self.load()
-        initial_state: _STATE | Literal["idle"] = self.status
+        initial_state: _State | Literal["idle"] = self.status
         if runs:
             self.check_all()
             self.runs.update({run.key: run for run in runs})
@@ -684,7 +686,7 @@ class TotalStatus:
             f"{fractions[0]} successful, {fractions[1]} failed, {fractions[2]} pending"
         )
 
-    def fraction(self, status: _STATE) -> Fraction:
+    def fraction(self, status: _State) -> Fraction:
         """Return the fraction of runs that are successful."""
         try:
             return Fraction(
@@ -761,7 +763,7 @@ class TotalStatus:
         )
 
     @property
-    def status(self) -> Union[_STATE, Literal["idle"]]:
+    def status(self) -> Union[_State, Literal["idle"]]:
         """Return the status."""
         if len(self) == 0:
             return "idle"
