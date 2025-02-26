@@ -16,7 +16,7 @@ def add(ns: SlurmTestingNamespace) -> None:
     """Add a full run to the SLURM queue."""
     for site in SITES:
         for subject in list_site_subjects(
-            getattr(datapaths[ns.scope], site.lower())(ns.home_dir)
+            getattr(datapaths[ns.scope](ns.home_dir), site.lower())
         ):
             for preconfig in ns.preconfigs:
                 _ns = copy(ns)
