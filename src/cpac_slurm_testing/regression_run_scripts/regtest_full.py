@@ -15,17 +15,22 @@ from cpac_slurm_testing.utils.datapaths import datapaths, list_site_subjects, SI
 def add(ns: SlurmTestingNamespace) -> None:
     """Add a full run to the SLURM queue."""
     for site in SITES:
-        for subject in list_site_subjects(
-            getattr(datapaths[ns.scope](ns.home_dir), site.lower())
-        ):
-            for preconfig in ns.preconfigs:
-                _ns = copy(ns)
-                _ns.data_source = site
-                _ns.preconfig = preconfig
-                _ns.subject = subject
-                status = TotalStatus(testing_paths=ns.testing_paths, dry_run=ns.dry_run)
-                status.update(_ns)
-                del _ns
+        try:
+            for subject in list_site_subjects(
+                getattr(datapaths[ns.scope](ns.home_dir), site.lower())
+            ):
+                for preconfig in ns.preconfigs:
+                    _ns = copy(ns)
+                    _ns.data_source = site
+                    _ns.preconfig = preconfig
+                    _ns.subject = subject
+                    status = TotalStatus(
+                        testing_paths=ns.testing_paths, dry_run=ns.dry_run
+                    )
+                    status.update(_ns)
+                    del _ns
+        except AttributeError:
+            continue
 
 
 def main() -> None:
