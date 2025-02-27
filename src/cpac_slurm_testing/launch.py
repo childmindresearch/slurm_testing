@@ -9,7 +9,7 @@ import subprocess
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status import TestingPaths, TotalStatus
 from cpac_slurm_testing.status._global import get_logger, SBATCH_START
-from cpac_slurm_testing.utils import PathStr
+from cpac_slurm_testing.utils import PathStr, Scope
 
 LOGGER: Logger = get_logger(name=__name__)
 
@@ -26,6 +26,7 @@ class LaunchParameters:
     owner: str = ""
     path_extra: str = ""
     repo: str = ""
+    scope: Scope = "lite"
     sha: str = ""
     slurm_testing_branch: str = ""
     slurm_testing_repo: str = ""
@@ -95,7 +96,7 @@ def launch(parameters: LaunchParameters) -> None:
             "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
             "--working_dir",
-            f"{parameters.home_dir / 'lite' / parameters.sha}",
+            f"{parameters.home_dir / parameters.scope / parameters.sha}",
             "--image",
             f"{parameters.image}",
         ]
@@ -122,6 +123,7 @@ def launch(parameters: LaunchParameters) -> None:
     )
     status = TotalStatus(
         testing_paths=parameters.testing_paths,
+        scope=parameters.scope,
         home_dir=parameters.home_dir,
         image=parameters.sha,
         dry_run=parameters.dry_run,

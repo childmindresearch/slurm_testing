@@ -17,4 +17,4 @@ def coerce_to_Path(path: Optional[PathStr]) -> Path:
     return path
 
 
-__all__ = ["coerce_to_Path", "PathStr"]
+__all__ = ["coerce_to_Path", "PathStr", "Scope", "SCOPES"]

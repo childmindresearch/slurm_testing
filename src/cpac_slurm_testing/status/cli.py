@@ -8,6 +8,7 @@ from cpac_slurm_testing import __version__
 from cpac_slurm_testing.launch import launch, LaunchParameters
 from cpac_slurm_testing.status._global import get_logger
 from cpac_slurm_testing.status.status import TestingPaths, TotalStatus
+from cpac_slurm_testing.utils import SCOPES
 
 LOGGER: Logger = get_logger(name=__name__)
 
@@ -64,7 +65,9 @@ class SlurmTestingNamespace(Namespace):
         if not hasattr(self, "dry_run"):
             self.dry_run: bool = False
             """Skip actually running commands?"""
-        self.testing_paths = TestingPaths(getattr(self, "wd", os.getcwd()))
+        self.testing_paths = TestingPaths(
+            scope=original.scope, wd=getattr(self, "wd", os.getcwd())
+        )
 
 
 def _parser_arg_helpstring(arg: str) -> str:
@@ -75,6 +78,12 @@ def _parser_arg_helpstring(arg: str) -> str:
 def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     """Create a parser to parse commandline args."""
     base_parser = ArgumentParser(add_help=False)
+    base_parser.add_argument(
+        dest="scope",
+        choices=SCOPES,
+        default="lite",
+        help="lite (downsampled) or full (raw)?",
+    )
     base_parser.add_argument(
         "--working_directory",
         "--workdir",
@@ -148,7 +157,9 @@ def main() -> None:
             )
         )
     else:
-        status = TotalStatus(testing_paths=args.testing_paths, dry_run=args.dry_run)
+        status = TotalStatus(
+            testing_paths=args.testing_paths, scope=args.scope, dry_run=args.dry_run
+        )
         if args.command in ["add", "finalize"]:
             status.update(args)
         elif args.command == "check":

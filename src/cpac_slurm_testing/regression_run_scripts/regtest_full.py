@@ -25,7 +25,9 @@ def add(ns: SlurmTestingNamespace) -> None:
                     _ns.preconfig = preconfig
                     _ns.subject = subject
                     status = TotalStatus(
-                        testing_paths=ns.testing_paths, dry_run=ns.dry_run
+                        testing_paths=ns.testing_paths,
+                        scope=ns.scope,
+                        dry_run=ns.dry_run,
                     )
                     status.update(_ns)
                     del _ns

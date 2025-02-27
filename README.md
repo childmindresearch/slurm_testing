@@ -36,7 +36,7 @@ graph TD;
 
 ### Launch a 'lite' regression test run
 
-Set up a GitHub Actions workflow configuration file to call [`cpac-slurm-status launch`](./src/cpac_slurm_testing/status/cli.py#L209-L222). Use contexts, secrets and environment variables to pass the required variables to the script from GitHub Actions.
+Set up a GitHub Actions workflow configuration file to call [`cpac-slurm-status lite launch`](./src/cpac_slurm_testing/status/cli.py#L146-L150). Use contexts, secrets and environment variables to pass the required variables to the script from GitHub Actions.
 
 #### Required commandline parameters or environment variables
 
@@ -95,7 +95,7 @@ Note: All jobs run through SLURM; this graph only shows which jobs retrieve info
 graph TD
 SLURM([SLURM]) --> updateRunStatuses;
 
-launch[[<code>sbatch cpac-slurm-status launch</code>]] --> launch_subgraph;
+launch[[<code>sbatch cpac-slurm-status lite launch</code>]] --> launch_subgraph;
 
 subgraph TotalStatus
    direction LR
@@ -117,7 +117,7 @@ subgraph launch_subgraph[launch.launch]
   build_image --success--> regtest_lite.sh
 
   regtest_lite.sh[<code>sbatch regression_run_scripts/regtest_lite.sh</code>]
---<code>for PIPELINE in ${PRECONFIGS}; do for DATA in ${DATA_SOURCE}; do for SUBJECT_PATH in ''${DATAPATH}''/sub-*; do</code>--> add["<code>cpac-slurm-status add --wd=${OUT} --data_source=${DATA} --preconfig=${PIPELINE} --subject=${SUBJECT}</code>"]
+--<code>for PIPELINE in ${PRECONFIGS}; do for DATA in ${DATA_SOURCE}; do for SUBJECT_PATH in ''${DATAPATH}''/sub-*; do</code>--> add["<code>cpac-slurm-status lite add --wd=${OUT} --data_source=${DATA} --preconfig=${PIPELINE} --subject=${SUBJECT}</code>"]
 
   add --> NamedTemporaryFile[write and run <code>NamedTemporaryFile</code> based on template in <code>templates</code>]
 end

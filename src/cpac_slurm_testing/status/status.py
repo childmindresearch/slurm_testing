@@ -43,7 +43,7 @@ from cpac_slurm_testing.status._global import (
     SBATCH_START,
     TEMPLATES,
 )
-from cpac_slurm_testing.utils import coerce_to_Path, unlink
+from cpac_slurm_testing.utils import coerce_to_Path, ExistingPath, unlink
 from cpac_slurm_testing.utils._typing import Scope
 from cpac_slurm_testing.utils.datapaths import datapaths
 
@@ -51,7 +51,7 @@ LOGGER: Logger = get_logger(name=__name__)
 
 
 def _set_intermediate_directory(
-    directory: Path | str, intermediate: str, mkdir: bool = True
+    directory: Path | str, intermediate: Scope, mkdir: bool = True
 ) -> Path:
     """Set directory between user and image.
 
@@ -64,12 +64,14 @@ def _set_intermediate_directory(
     """
     _parts: list[str] = str(directory).split("/")
     path = Path("/".join([*_parts[:-2], intermediate, _parts[-1]]))
-    if mkdir and not path.exists():
-        os.makedirs(str(path), exist_ok=True)
+    if mkdir:
+        path = ExistingPath(path)
     return path
 
 
-def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]:
+def _set_working_directory(
+    scope: Scope, wd: Optional[Path | str] = None
+) -> tuple[Path, Path]:
     """Set working directory.
 
     Priority order:
@@ -95,14 +97,14 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
         _logger = LOGGER.warning
         _log_msg = ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."]
     if wd:
-        wd = _set_intermediate_directory(coerce_to_Path(wd).absolute(), "lite")
+        wd = _set_intermediate_directory(coerce_to_Path(wd).absolute(), scope)
     else:
         from datetime import datetime
         from time import localtime, strftime
 
-        wd = (
+        wd = ExistingPath(
             Path.cwd().absolute()
-            / "lite"
+            / scope
             / "".join(
                 [
                     datetime.now().strftime("%Y%m%d%H%M%S.%f%Z"),
@@ -110,26 +112,23 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
                 ]
             )
         )
-        for parent in reversed(wd.parents):
-            parent.mkdir(mode=0o777, exist_ok=True)
-        wd.mkdir(mode=0o777, exist_ok=True)
     os.chdir(str(wd))
     _log_msg = ["Set working directory to %s", str(wd)]
-    _logpath: Path = _set_intermediate_directory(wd, "logs")
+    _logpath = ExistingPath(wd / "logs")
     LOGGER = get_logger(name=__name__, filename=f"{_logpath}/{filename}", force=True)
     _logger = LOGGER.info
     _logger(*_log_msg)  # log info or warning as appropriate
-    return Path(wd), Path(_logpath)
+    return wd, _logpath
 
 
 class TestingPaths:
     """Working and logging path management."""
 
-    def __init__(self, wd: Optional[Path | str] = None) -> None:
+    def __init__(self, scope: Scope = "lite", wd: Optional[Path | str] = None) -> None:
         """Initialize TestingPaths."""
         self._log_dir: Path
         self._wd: Path
-        self._wd, self._log_dir = _set_working_directory(wd)
+        self._wd, self._log_dir = _set_working_directory(scope, wd)
 
     @property
     def log_dir(self) -> Path:
@@ -316,7 +315,7 @@ class RunStatus:
             log_dir=self.log_dir,
             image=self.total.image("path"),
             image_name=self.total.image("name"),
-            output=self.out(scope) / self.preconfig / self.data_source,
+            output=self.out() / self.preconfig / self.data_source,
             pdsd=self.pdsd,
             pipeline=self.preconfig,
             pipeline_configs=str(
@@ -381,9 +380,9 @@ class RunStatus:
                 )
             LOGGER.info("%s = %s", self.job_id, " ".join(command))
 
-    def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
+    def out(self) -> Path:
         """Return the path to the output directory."""
-        return self.total.out(lite_or_full)
+        return self.total.out()
 
     @property
     def job_status(self) -> str:
@@ -445,9 +444,10 @@ class TotalStatus:
 
     successes.__doc__ = success.__doc__
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913,PLR0915
         self,
         testing_paths: Path | str | TestingPaths,
+        scope: Scope = "lite",
         runs: Optional[list[RunStatus]] = None,
         home_dir: Optional[Path | str] = None,
         image: Optional[str] = None,
@@ -457,10 +457,11 @@ class TotalStatus:
         if isinstance(testing_paths, str):
             testing_paths = Path(testing_paths)
         if isinstance(testing_paths, Path):
-            testing_paths = TestingPaths(testing_paths)
+            testing_paths = TestingPaths(scope=scope, wd=testing_paths)
         if not isinstance(testing_paths, TestingPaths):
             msg: str = f"{testing_paths} is not an instance of {TestingPaths}"
             raise TypeError(msg)
+        self.scope: Scope = scope
         self.testing_paths: TestingPaths = testing_paths
         self.dry_run: bool = dry_run
         """Skip actually running commands?"""
@@ -548,9 +549,9 @@ class TotalStatus:
             return self._image
         return Path.cwd() / f"{self._image}.sif"
 
-    def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
+    def out(self) -> Path:
         """Return the path to the output directory."""
-        return self.home_dir / lite_or_full / self.image("name")
+        return ExistingPath(self.home_dir / self.scope / self.image("name"))
 
     def check(self: "TotalStatus", args: Namespace) -> None:
         """Check a run's status."""
@@ -580,6 +581,7 @@ class TotalStatus:
             f"--error={self.testing_paths.log_dir}/check_{timestamp}.err.log",
             f"--begin={time}",
             "cpac-slurm-status",
+            self.scope,
             "check-all",
             f'--wd="{Path.cwd()}"',
         ]
@@ -596,7 +598,7 @@ class TotalStatus:
 
     def correlate(self, n_cpus: int = 4) -> None:
         """Launch correlation process."""
-        this_pipeline: Path = self.out("lite")
+        this_pipeline: Path = self.out()
         latest_ref: Path = this_pipeline.parent / self.latest
         correlations_dir: Path | str = this_pipeline / "correlations"
         assert isinstance(correlations_dir, Path)
@@ -759,7 +761,7 @@ class TotalStatus:
             state=self.status,
             target_url=target_url,
             description=self.description,
-            context="lite regression test",
+            context=f"{self.scope} regression test",
         )
 
     @property
@@ -809,6 +811,7 @@ class TotalStatus:
         runs.update({other.key: other})
         return TotalStatus(
             testing_paths=self.testing_paths,
+            scope=self.scope,
             runs=list(runs.values()),
             image=self._image,
             dry_run=self.dry_run,
@@ -824,7 +827,7 @@ class TotalStatus:
         """Return reproducible string for TotalStatus."""
         image_info = (f", image='{self.image('name')}'") if self._image else ""
         return (
-            f"TotalStatus(testing_paths={self.testing_paths!r}, runs={self.runs}"
+            f"TotalStatus(testing_paths={self.testing_paths!r}, scope={self.scope}, runs={self.runs}"
             f"{image_info}, dry_run={self.dry_run})"
         )
 

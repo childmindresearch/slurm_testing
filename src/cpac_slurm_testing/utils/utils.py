@@ -1,8 +1,22 @@
 """General utilities."""
+from pathlib import Path
 from shutil import rmtree
 from typing import Literal
 
 from cpac_slurm_testing.utils._typing import coerce_to_Path, PathStr
+
+
+class ExistingPath(Path):
+    """A Path that definitely exists."""
+
+    def __init__(self, /, *args, **kwargs) -> None:
+        """Initialize an ExistingPath."""
+        super().__init__(*args, **kwargs)
+        if not self.exists():
+            for parent in reversed(self.parents):
+                parent.mkdir(mode=0o777, exist_ok=True)
+            self.mkdir(mode=0o777, exist_ok=True)
+        assert self.exists()
 
 
 def unlink(path: PathStr, error: Literal["ignore", "raise"] = "ignore") -> None:
