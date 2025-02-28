@@ -5,6 +5,7 @@ Run a full regression test.
 Currently this script relies on a C-PAC image being available from a lite run.
 """
 from copy import copy
+from trace import Trace
 from types import SimpleNamespace
 
 from cpac_slurm_testing.status.cli import SlurmTestingNamespace
@@ -59,4 +60,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    tracer = Trace(trace=True)
+    tracer.run("main()")
