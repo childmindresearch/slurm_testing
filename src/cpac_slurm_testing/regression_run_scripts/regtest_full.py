@@ -20,7 +20,7 @@ def add(ns: SlurmTestingNamespace) -> None:
             for subject in list_site_subjects(
                 getattr(datapaths[ns.scope](ns.home_dir), site.lower())
             ):
-                for preconfig in ns.preconfigs:
+                for preconfig in ns.preconfigs.split(" "):
                     _ns = copy(ns)
                     _ns.data_source = site
                     _ns.preconfig = preconfig
