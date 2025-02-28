@@ -96,7 +96,7 @@ def launch(parameters: LaunchParameters) -> None:
             "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
             "--working_dir",
-            f"{parameters.home_dir / parameters.scope / parameters.sha}",
+            f"{parameters.home_dir / parameters.sha / parameters.scope}",
             "--image",
             f"{parameters.image}",
         ]

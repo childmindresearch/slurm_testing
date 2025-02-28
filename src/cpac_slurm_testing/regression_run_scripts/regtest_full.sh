@@ -4,13 +4,14 @@
 
 set -x
 
-export _CPAC_STATUS_HOME_DIR="${HOME_DIR}"
+export _CPAC_STATUS_HOME_DIR="${HOME_DIR}/automatic_tests"
 export _CPAC_STATUS_IMAGE_NAME="${SHA#*:}"
-export _CPAC_STATUS_OUT="${HOME_DIR}/full/${_CPAC_STATUS_IMAGE_NAME}"
+export _CPAC_STATUS_OUT="${HOME_DIR}/${_CPAC_STATUS_IMAGE_NAME}/full"
 export _CPAC_STATUS_PRECONFIGS="default"
 export _CPAC_STATUS_SHA="${SHA}"
 export _CPAC_STATUS_DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 export _CPAC_STATUS_WD="${WD}"
+export _CPAC_STATUS_TOKEN_FILE="${TOKEN_FILE}"
 SCRIPT_DIR="$(dirname "$0")"
 # shellcheck disable=SC1090
-source "${TOKEN_FILE}" && "${SCRIPT_DIR}/regtest_full.py"
+"${SCRIPT_DIR}/regtest_full.py"

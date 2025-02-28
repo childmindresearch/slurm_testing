@@ -1,9 +1,15 @@
 """Datapaths."""
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional, overload
+
+from cpac_slurm_testing.utils._typing import Scope
 
 SITES = ["CBIC", "HNU_1", "KKI", "oxford", "RBC", "SI"]
+
+
+class RawDataNotFound(FileNotFoundError):
+    """Raw data path not defined for this scope."""
 
 
 @dataclass
@@ -18,6 +24,29 @@ class RawData:
     rbc: Path
     rodent: Path
     si: Path
+
+    @property
+    def scope(self):
+        """Get the testing scope of the RawData."""
+        return self.__class__.__name__.split("Data", 1)[0].lower()
+
+    @overload
+    def __getattr__(self, name: Literal["scope"]) -> Scope | Literal["raw"]:  # type: ignore  # pyright: ignore[reportOverlappingOverload]
+        ...
+
+    @overload
+    def __getattr__(self, name: str) -> Path:
+        ...
+
+    def __getattr__(self, name: str) -> Path | Scope | Literal["raw"]:
+        """Get a Path or raise an exception."""
+        if name in ["root", "scope"] or name.startswith("__"):
+            return object.__getattribute__(self, name)
+        name = name.lower()
+        if name in self.__dict__:
+            return object.__getattribute__(self, name)
+        msg = f"{name} not defined for {self.scope} data."
+        raise RawDataNotFound(msg)
 
 
 class FullData(RawData):

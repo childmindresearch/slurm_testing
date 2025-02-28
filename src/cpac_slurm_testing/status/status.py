@@ -307,9 +307,7 @@ class RunStatus:
         if not self.log_dir.exists():
             self.log_dir.mkdir(mode=0o777, exist_ok=True)
         return TEMPLATES[command_type].format(
-            datapath=getattr(
-                datapaths[scope](self.total.home_dir), self.data_source.lower()
-            ),
+            datapath=getattr(datapaths[scope](self.total.home_dir), self.data_source),
             regdatapath=self.total.home_dir / "DATA/reg_5mm_pack",
             home_dir=self.total.home_dir,
             log_dir=self.log_dir,
@@ -547,11 +545,12 @@ class TotalStatus:
         """Return the image name or path."""
         if name_or_path == "name":
             return self._image
-        return Path.cwd() / f"{self._image}.sif"
+        image_dir = ExistingPath(self.home_dir / self.image("name"))
+        return image_dir / f"{self._image}.sif"
 
     def out(self) -> Path:
         """Return the path to the output directory."""
-        return ExistingPath(self.home_dir / self.scope / self.image("name"))
+        return ExistingPath(self.home_dir / self.image("name") / self.scope)
 
     def check(self: "TotalStatus", args: Namespace) -> None:
         """Check a run's status."""
