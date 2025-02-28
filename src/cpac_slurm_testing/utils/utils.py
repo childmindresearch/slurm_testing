@@ -9,6 +9,10 @@ from cpac_slurm_testing.utils._typing import coerce_to_Path, PathStr
 class ExistingPath(Path):
     """A Path that definitely exists."""
 
+    def __new__(cls, *args, **kwargs) -> "ExistingPath":
+        """Construct a Path."""
+        return super().__new__(cls, *args, **kwargs)
+
     def __init__(self, /, *args, **kwargs) -> None:
         """Initialize an ExistingPath."""
         super().__init__(*args, **kwargs)
