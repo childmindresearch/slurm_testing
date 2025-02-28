@@ -1,6 +1,5 @@
 """General utilities."""
-import os
-from pathlib import Path, PosixPath, WindowsPath
+from pathlib import Path
 from shutil import rmtree
 from typing import cast, Literal
 
@@ -12,11 +11,7 @@ class ExistingPath(Path):
 
     def __new__(cls, *args, **kwargs) -> "ExistingPath":
         """Construct an ExistingPath."""
-        if cls is Path:
-            cls = cast(
-                type[ExistingPath], WindowsPath if os.name == "nt" else PosixPath
-            )
-        instance = cast(ExistingPath, object.__new__(cls))
+        instance = cast(ExistingPath, Path(*args, **kwargs))
         if not instance.exists():
             for parent in reversed(instance.parents):
                 parent.mkdir(mode=0o777, exist_ok=True)
