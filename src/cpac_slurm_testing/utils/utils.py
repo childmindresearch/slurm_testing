@@ -14,10 +14,21 @@ class ExistingPath(Path):
         instance = cast(ExistingPath, Path(*args, **kwargs))
         if not instance.exists():
             for parent in reversed(instance.parents):
-                parent.mkdir(mode=0o777, exist_ok=True)
-            instance.mkdir(mode=0o777, exist_ok=True)
+                ExistingPath._try_to_mk(parent)
+            ExistingPath._try_to_mk(instance)
         assert instance.exists()
         return instance
+
+    @staticmethod
+    def _try_to_mk(path: Path) -> None:
+        """Try to make paths, but don't fail unless path doeesn't exist in the end."""
+        if path.exists():
+            return
+        try:
+            path.mkdir(mode=0o777, exist_ok=True)
+        except Exception as e:
+            if not path.exists():
+                raise e
 
 
 def unlink(path: PathStr, error: Literal["ignore", "raise"] = "ignore") -> None:
