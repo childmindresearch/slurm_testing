@@ -1,7 +1,7 @@
 """Datapaths."""
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Optional, overload
+from typing import Literal, Optional, overload, TypedDict
 
 from cpac_slurm_testing.utils._typing import Scope
 
@@ -24,6 +24,11 @@ class RawData:
     rbc: Path
     rodent: Path
     si: Path
+
+    @property
+    def regdatapath(self) -> Path:
+        """Return path for binding regdata."""
+        return getattr(self, "_regdatapath", self.root)
 
     @property
     def scope(self):
@@ -74,7 +79,8 @@ class LiteData(RawData):
 
     def __init__(self, home_dir: Path) -> None:
         """Initialize lite raw data."""
-        self.root = home_dir / "DATA/reg_5mm_pack/data"
+        self._regdatapath = home_dir / "DATA/reg_5mm_pack"
+        self.root = self.regdatapath / "data"
         for site in SITES:
             setattr(
                 self,
@@ -83,7 +89,14 @@ class LiteData(RawData):
             )
 
 
-datapaths = {"full": FullData, "lite": LiteData}
+class DataPaths(TypedDict):
+    """Typed dict to hold datapaths."""
+
+    full: type[FullData]
+    lite: type[LiteData]
+
+
+datapaths: DataPaths = {"full": FullData, "lite": LiteData}
 
 
 def list_site_subjects(site_dir: Path) -> list[str]:

@@ -308,7 +308,7 @@ class RunStatus:
             self.log_dir.mkdir(mode=0o777, exist_ok=True)
         return TEMPLATES[command_type].format(
             datapath=getattr(datapaths[scope](self.total.home_dir), self.data_source),
-            regdatapath=self.total.home_dir / "DATA/reg_5mm_pack",
+            regdatapath=datapaths[scope](self.total.home_dir).regdatapath,
             home_dir=self.total.home_dir,
             log_dir=self.log_dir,
             image=self.total.image("path"),
