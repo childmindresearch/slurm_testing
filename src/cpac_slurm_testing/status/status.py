@@ -784,7 +784,8 @@ class TotalStatus:
             status=getattr(args, "status", "pending"),
             _total=self,
         )
-        run.launch("lite_run")
+        command_type = cast(CommandType, f"{args.scope}_run")
+        run.launch(command_type)
         self += run
 
     def write(self) -> None:
