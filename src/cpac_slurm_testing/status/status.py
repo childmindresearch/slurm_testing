@@ -101,7 +101,7 @@ def _set_working_directory(
         from datetime import datetime
         from time import localtime, strftime
 
-        wd = ExistingPath(
+        wd = (
             Path.cwd().absolute()
             / scope
             / "".join(
@@ -111,6 +111,7 @@ def _set_working_directory(
                 ]
             )
         )
+    wd = ExistingPath(wd)
     os.chdir(str(wd))
     _log_msg = ["Set working directory to %s", str(wd)]
     _logpath = ExistingPath(wd / "logs")
