@@ -96,7 +96,7 @@ def _set_working_directory(
         _logger = LOGGER.warning
         _log_msg = ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."]
     if wd:
-        wd = _set_intermediate_directory(coerce_to_Path(wd).absolute(), scope)
+        wd = coerce_to_Path(wd).absolute()
     else:
         from datetime import datetime
         from time import localtime, strftime
