@@ -36,7 +36,6 @@ from cpac_slurm_testing.correlation.correlation import correlate, init_branch
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status._global import (
     _State,
-    CommandType,
     get_logger,
     JOB_STATES,
     JobState,
@@ -301,12 +300,12 @@ class RunStatus:
         """log directory"""
         self._total += self
 
-    def command(self, command_type: str, scope: Scope = "lite") -> str:
-        """Return a command string for a given command_type."""
+    def command(self, scope: Scope = "lite") -> str:
+        """Return a command string for a given scope."""
         assert self._total is not None
         if not self.log_dir.exists():
             self.log_dir.mkdir(mode=0o777, exist_ok=True)
-        return TEMPLATES[command_type].format(
+        return TEMPLATES[scope].format(
             datapath=getattr(datapaths[scope](self.total.home_dir), self.data_source),
             regdatapath=datapaths[scope](self.total.home_dir).regdatapath,
             home_dir=self.total.home_dir,
@@ -337,22 +336,11 @@ class RunStatus:
         """Return a unique key for each preconfig × data_source × subject."""  # noqa: RUF002
         return self.data_source, self.preconfig, self.subject
 
-    def launch(self, command_type: CommandType) -> None:
+    def launch(self, scope: Scope) -> None:
         """Launch a SLURM job and set its job ID."""
-        _command_types: list[str] = eval(
-            str(CommandType).replace(
-                str(
-                    CommandType.__origin__  # type: ignore[attr-defined]
-                ),
-                "",
-            )
-        )
-        if command_type not in _command_types:
-            msg: str = f"{command_type} not in {_command_types}"
-            raise KeyError(msg)
         with NamedTemporaryFile(mode="w", encoding="utf8", delete=False) as _f:
             self._command_file = Path(_f.name)
-            _f.write(self.command(command_type))
+            _f.write(self.command(scope))
             _f.close()
             with open(_f.name, "r", encoding="utf8") as _command_file:
                 LOGGER.info(
@@ -784,8 +772,7 @@ class TotalStatus:
             status=getattr(args, "status", "pending"),
             _total=self,
         )
-        command_type = cast(CommandType, f"{args.scope}_run")
-        run.launch(command_type)
+        run.launch(args.scope)
         self += run
 
     def write(self) -> None:

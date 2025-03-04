@@ -4,7 +4,7 @@ from typing import Literal, Optional, TypeAlias
 
 PathStr: TypeAlias = Path | str
 Scope: TypeAlias = Literal["full", "lite"]
-SCOPES = ["full", "lite"]
+SCOPES: list[Scope] = ["full", "lite"]
 
 
 def coerce_to_Path(path: Optional[PathStr]) -> Path:

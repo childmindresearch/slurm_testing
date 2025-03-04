@@ -5,9 +5,8 @@ import os
 from pathlib import Path
 from typing import Literal, Optional, TypeAlias
 
-from cpac_slurm_testing.utils._typing import PathStr, SCOPES
+from cpac_slurm_testing.utils._typing import PathStr, Scope, SCOPES
 
-CommandType: TypeAlias = Literal["full_run", "lite_run"]
 HOME_DIR = Path(os.environ.get("HOME_DIR", os.path.expanduser("~")))
 JobState: TypeAlias = Literal[
     "COMPLETED",
@@ -32,9 +31,11 @@ JOB_STATES: dict[JobState, _State] = {
     "SUSPENDED": "pending",
 }
 LOG_FORMAT = "%(asctime)s: %(levelname)s: %(pathname)s: %(funcName)s:\n\t%(message)s\n"
-TEMPLATES = {
-    key: files("cpac_slurm_testing.templates").joinpath(f"{key}.ftxt").read_text()
-    for key in [f"{scope}_run" for scope in SCOPES]
+TEMPLATES: dict[Scope, str] = {
+    scope: files("cpac_slurm_testing.templates")
+    .joinpath(f"{scope}_run.ftxt")
+    .read_text()
+    for scope in SCOPES
 }
 SBATCH_START: list[str] = ["sbatch", "-p", "RM-shared", "--ntasks=4"]
 
