@@ -550,7 +550,7 @@ class TotalStatus:
 
     def out(self) -> Path:
         """Return the path to the output directory."""
-        return ExistingPath(self.home_dir / self.image("name") / self.scope)
+        return ExistingPath(self.home_dir / self.scope / self.image("name"))
 
     def check(self: "TotalStatus", args: Namespace) -> None:
         """Check a run's status."""
