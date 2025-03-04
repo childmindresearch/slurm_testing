@@ -1,11 +1,12 @@
 """Datapaths."""
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Optional, overload, TypedDict
+from typing import Literal, Optional, overload, TypeAlias, TypedDict
 
 from cpac_slurm_testing.utils._typing import Scope
 
 SITES = ["CBIC", "HNU_1", "KKI", "oxford", "RBC", "SI"]
+GetRawData: TypeAlias = Path | Scope | Literal["raw"]
 
 
 class RawDataNotFound(FileNotFoundError):
@@ -36,20 +37,26 @@ class RawData:
         return self.__class__.__name__.split("Data", 1)[0].lower()
 
     @overload
-    def __getattr__(self, name: Literal["scope"]) -> Scope | Literal["raw"]:  # type: ignore  # pyright: ignore[reportOverlappingOverload]
+    def __getattr__(  # type: ignore  # pyright: ignore[reportOverlappingOverload]
+        self, name: Literal["scope"], default: Optional[GetRawData] = None
+    ) -> Scope | Literal["raw"]:
         ...
 
     @overload
-    def __getattr__(self, name: str) -> Path:
+    def __getattr__(self, name: str, default: Optional[GetRawData] = None) -> Path:
         ...
 
-    def __getattr__(self, name: str) -> Path | Scope | Literal["raw"]:
+    def __getattr__(
+        self, name: str, default: Optional[GetRawData] = None
+    ) -> GetRawData:
         """Get a Path or raise an exception."""
         if name in ["root", "scope"] or name.startswith("__"):
             return object.__getattribute__(self, name)
         name = name.lower()
         if name in self.__dict__:
             return object.__getattribute__(self, name)
+        if default:
+            return default
         msg = f"{name} not defined for {self.scope} data."
         raise RawDataNotFound(msg)
 
