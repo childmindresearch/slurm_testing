@@ -50,7 +50,7 @@ class RawData:
         self, name: str, default: Optional[GetRawData] = None
     ) -> GetRawData:
         """Get a Path or raise an exception."""
-        if name in ["root", "scope"] or name.startswith("__"):
+        if name in ["root", "scope"] or name.startswith("_"):
             return object.__getattribute__(self, name)
         name = name.lower()
         if name in self.__dict__:
