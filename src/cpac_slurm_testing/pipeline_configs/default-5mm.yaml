@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 # CPAC Pipeline Configuration YAML file
-# Version 1.8.6.dev1
+# Version 1.8.8.dev1
 #
 # http://fcp-indi.github.io for more info.
 FROM: default
@@ -31,8 +31,6 @@ registration_workflows:
   anatomical_registration:
     registration:
       FSL-FNIRT:
-        ref_mask_res-2: /reg-data/tissuepriors/MNI152_T1_2mm_brain_mask_dil.nii.gz
-        T1w_template_res-2: /reg-data/tissuepriors/MNI152_T1_2mm.nii.gz
         ref_mask: /reg-data/tissuepriors/MNI152_T1_${resolution_for_anat}_brain_mask_dil.nii.gz
     resolution_for_anat: 5mm
     T1w_brain_template: /reg-data/templates/MNI152_T1_${resolution_for_anat}_brain.nii.gz
@@ -69,3 +67,7 @@ voxel_mirrored_homotopic_connectivity:
     T1w_template_symmetric_for_resample: /reg-data/templates/MNI152_T1_5mm_symmetric.nii.gz
     dilated_symmetric_brain_mask: /reg-data/templates/MNI152_T1_${resolution_for_anat}_brain_mask_symmetric_dil.nii.gz
     dilated_symmetric_brain_mask_for_resample: /reg-data/templates/MNI152_T1_5mm_brain_mask_symmetric_dil.nii.gz
+surface_analysis:
+  abcd_prefreesurfer_prep:
+    ref_mask_res-2: /reg-data/tissuepriors/MNI152_T1_2mm_brain_mask_dil.nii.gz
+    T1w_template_res-2: /reg-data/tissuepriors/MNI152_T1_2mm.nii.gz
