@@ -68,7 +68,7 @@ Set up a GitHub Actions workflow configuration file to call [`cpac-slurm-status 
 
 ```BASH
 sbatch \
-  cpac_slurm_status launch \
+  cpac_slurm_status lite launch \
   --wd="${{ env.SSH_WORK_DIR }}/logs/${{ github.sha }}" \
   --comparison-path="${{ env.COMPARISON_PATH }}" \
   --dashboard-repo="${{ env.DASHBOARD_REPO}}" \

@@ -66,7 +66,7 @@ class SlurmTestingNamespace(Namespace):
             self.dry_run: bool = False
             """Skip actually running commands?"""
         self.testing_paths = TestingPaths(
-            scope=original.scope, wd=getattr(self, "wd", os.getcwd())
+            scope=original.data_scope, wd=getattr(self, "wd", os.getcwd())
         )
 
 
@@ -78,12 +78,6 @@ def _parser_arg_helpstring(arg: str) -> str:
 def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
     """Create a parser to parse commandline args."""
     base_parser = ArgumentParser(add_help=False)
-    base_parser.add_argument(
-        dest="scope",
-        choices=SCOPES,
-        default="lite",
-        help="lite (downsampled) or full (raw)?",
-    )
     base_parser.add_argument(
         "--working_directory",
         "--workdir",
@@ -101,6 +95,11 @@ def _parser() -> tuple[ArgumentParser, dict[str, ArgumentParser]]:
         description=__doc__,
         formatter_class=RawDescriptionHelpFormatter,
         parents=[base_parser],
+    )
+    parser.add_argument(
+        "data_scope",
+        choices=SCOPES,
+        help="lite (downsampled) or full (raw)?",
     )
     update_parser = ArgumentParser(add_help=False)
     for arg in ["data-source", "preconfig", "subject"]:
@@ -148,7 +147,9 @@ def main() -> None:
     """Run the script from the commandline."""
     # Parse the arguments
     parser, _subparsers = _parser()
-    args = SlurmTestingNamespace(parser.parse_args())
+    _args = parser.parse_args()
+    _args.scope = _args.data_scope
+    args = SlurmTestingNamespace(_args)
     # Update the status
     if args.command == "launch":
         launch(
