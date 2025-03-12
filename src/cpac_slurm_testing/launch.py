@@ -85,18 +85,19 @@ class LaunchParameters:
 
 def launch(parameters: LaunchParameters) -> None:
     """Launch a regression test."""
+    build_dir = Path(parameters.home_dir) / "automatic_tests/build" / parameters.sha
     with as_file(files("cpac_slurm_testing")) as repo:
         assert isinstance(parameters.home_dir, Path)
         slurm_env = parameters.as_slurm_export
         build: list[str] = [
             *SBATCH_START[:-1],
             slurm_env,
-            f"--output={parameters.testing_paths.log_dir}/build.out.log",
-            f"--error={parameters.testing_paths.log_dir}/build.err.log",
+            f"--output={build_dir}/build.out.log",
+            f"--error={build_dir}/build.err.log",
             "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
             "--working_dir",
-            f"{parameters.home_dir / 'automatic_tests' / parameters.sha}",
+            f"{build_dir}",
             "--image",
             f"{parameters.image}",
         ]
