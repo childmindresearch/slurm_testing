@@ -14,6 +14,7 @@ do
     mkdir -p "${working_dir}/.apptainer/${_DIR}"
 done
 mkdir -p "${HOME_DIR}/automatic_tests/build/${SHA}"
+IMAGE_PATH="${working_dir}/${IMAGE_NAME}.sif"
 cat << TMP > "build_${IMAGE_NAME}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
@@ -28,7 +29,14 @@ set -x
 export APPTAINER_CACHEDIR="${HOME_DIR}/.apptainer/cache" \
        APPTAINER_LOCALCACHEDIR="${HOME_DIR}/.apptainer/tmp"
 yes | apptainer cache clean
-yes | apptainer build --force "${working_dir}/${IMAGE_NAME}.sif" "docker://${image}"
+yes | apptainer build --force "${IMAGE_PATH} "docker://${image}"
+
+if [ -e "${IMAGE_PATH}" ]
+then
+  exit 0
+else
+  exit 2
+fi
 
 TMP
 
