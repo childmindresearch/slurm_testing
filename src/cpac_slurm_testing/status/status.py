@@ -417,7 +417,9 @@ class TotalStatus:
 
     def _cpac_image(self, name: str) -> CpacImage:
         """Create a C-PAC Image."""
-        return CpacImage(name, self.home_dir)
+        if name:
+            return CpacImage(name, self.home_dir)
+        return CpacImage(name, Path())
 
     @property
     def failure(self) -> Fraction:
