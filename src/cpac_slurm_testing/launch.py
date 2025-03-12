@@ -9,7 +9,7 @@ import subprocess
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status import TestingPaths, TotalStatus
 from cpac_slurm_testing.status._global import get_logger, SBATCH_START
-from cpac_slurm_testing.utils import PathStr, Scope
+from cpac_slurm_testing.utils import ExistingPath, PathStr, Scope
 
 LOGGER: Logger = get_logger(name=__name__)
 
@@ -85,7 +85,9 @@ class LaunchParameters:
 
 def launch(parameters: LaunchParameters) -> None:
     """Launch a regression test."""
-    build_dir = Path(parameters.home_dir) / "automatic_tests/build" / parameters.sha
+    build_dir = ExistingPath(
+        Path(parameters.home_dir) / "automatic_tests/build" / parameters.sha
+    )
     with as_file(files("cpac_slurm_testing")) as repo:
         assert isinstance(parameters.home_dir, Path)
         slurm_env = parameters.as_slurm_export
