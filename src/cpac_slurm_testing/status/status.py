@@ -49,23 +49,29 @@ from cpac_slurm_testing.utils.datapaths import datapaths
 LOGGER: Logger = get_logger(name=__name__)
 
 
-def _set_intermediate_directory(
-    directory: Path | str, intermediate: Scope, mkdir: bool = True
-) -> Path:
-    """Set directory between user and image.
+@dataclass
+class CpacImage:
+    """Consistently access C-PAC image name and path."""
 
-    Examples
-    --------
-    >>> str(_set_intermediate_directory('/home/user/full/image', 'lite', False))
-    '/home/user/lite/image'
-    >>> str(_set_intermediate_directory('/home/user/full/image', 'logs', False))
-    '/home/user/logs/image'
-    """
-    _parts: list[str] = str(directory).split("/")
-    path = Path("/".join([*_parts[:-2], intermediate, _parts[-1]]))
-    if mkdir:
-        path = ExistingPath(path)
-    return path
+    name: str
+    home_dir: Path
+
+    def __bool__(self) -> bool:
+        """Is the C-PAC image defined?"""  # noqa: D400
+        return bool(self.name)
+
+    def __str__(self) -> str:
+        """Return string representation of C-PAC image."""
+        return self.name
+
+    @property
+    def path(self) -> Path:
+        """Path to image."""
+        if self:
+            image_dir = ExistingPath(self.home_dir / self.name)
+            return image_dir / f"{self.name}.sif"
+        msg = "C-PAC image not defined."
+        raise FileNotFoundError(msg)
 
 
 def _set_working_directory(
@@ -311,8 +317,8 @@ class RunStatus:
             regdatapath=datapaths[scope](self.total.home_dir).regdatapath,
             home_dir=self.total.home_dir,
             log_dir=self.log_dir,
-            image=self.total.image("path"),
-            image_name=self.total.image("name"),
+            image=self.total.image.path,
+            image_name=self.total.image.name,
             output=ExistingPath(self.out() / self.preconfig / self.data_source),
             pdsd=self.pdsd,
             pipeline=self.preconfig,
@@ -409,6 +415,10 @@ class RunStatus:
 class TotalStatus:
     """Store the total status of all runs for the GitHub Check."""
 
+    def _cpac_image(self, name: str) -> CpacImage:
+        """Create a C-PAC Image."""
+        return CpacImage(name, self.home_dir)
+
     @property
     def failure(self) -> Fraction:
         """Return the fraction of runs that are failures."""
@@ -457,11 +467,13 @@ class TotalStatus:
             path = Path(f"{path.name}.dry")
         self.path: Path = path
         """Path to status data on disk."""
-        self._image: str = ""
-        """Name of image."""
+        self.image: CpacImage = self._cpac_image("")
+        """C-PAC image."""
 
         if git_remote:  # We're initializing a new TotalStatus, not loading existing one
-            self._image = image if image is not None else ""
+            self.image = (
+                self._cpac_image(image) if image is not None else self._cpac_image("")
+            )
             self.owner: str = git_remote.owner
             """Owner of repository on GitHub."""
             self.repo: str = git_remote.repo
@@ -482,7 +494,7 @@ class TotalStatus:
         for run in self.runs.values():
             run.total = self
         self.log()
-        if self.image():
+        if self.image:
             self.write()
         if initial_state == "idle":
             if self.status != "idle" and not self.dry_run:
@@ -504,7 +516,7 @@ class TotalStatus:
         for run in self.runs.values():
             if run._command_file:
                 unlink(run._command_file)  # remove launch script
-        unlink(self.image("path"))  # remove Apptainer image
+        unlink(self.image.path)  # remove Apptainer image
         # unlink(self.path)  # remove launch pickle
 
     @property
@@ -522,24 +534,9 @@ class TotalStatus:
         """Return a list of all unique subjects in a TotalStatus."""
         return list({subject for _, _, subject in self.runs.keys()})
 
-    @overload
-    def image(self, name_or_path: Literal["name"] = "name") -> str:
-        ...
-
-    @overload
-    def image(self, name_or_path: Literal["path"]) -> Path:
-        ...
-
-    def image(self, name_or_path: Literal["name", "path"] = "name") -> Path | str:
-        """Return the image name or path."""
-        if name_or_path == "name":
-            return self._image
-        image_dir = ExistingPath(self.home_dir / self.image("name"))
-        return image_dir / f"{self._image}.sif"
-
     def out(self) -> Path:
         """Return the path to the output directory."""
-        return ExistingPath(self.home_dir / self.scope / self.image("name"))
+        return ExistingPath(self.home_dir / self.scope / self.image.name)
 
     def check(self: "TotalStatus", args: Namespace) -> None:
         """Check a run's status."""
@@ -593,7 +590,7 @@ class TotalStatus:
         if not correlations_dir.exists():
             correlations_dir.mkdir(mode=0o777, exist_ok=True)
         correlations_dir = str(correlations_dir)
-        branch: str = cast(str, self.image("name"))
+        branch: str = self.image.name
         correlation_slurm_jobs: list[int] = []
         for data_source in self.datasources:
             for preconfig in self.preconfigs:
@@ -714,14 +711,17 @@ class TotalStatus:
                     "dry_run",
                     "github_token",
                     "home_dir",
-                    "_image",
+                    "image",
                     "owner",
                     "path",
                     "repo",
                     "sha",
                     "testing_paths",
                 ]:
-                    setattr(self, attr, getattr(status, attr))
+                    if hasattr(status, attr):
+                        setattr(self, attr, getattr(status, attr))
+                    # elif attr == "github_token":
+                    #     breakpoint()
                 if self.runs:
                     for run in self.runs.values():
                         status += run
@@ -801,19 +801,21 @@ class TotalStatus:
             testing_paths=self.testing_paths,
             scope=self.scope,
             runs=list(runs.values()),
-            image=self._image,
+            image=self.image.name,
             dry_run=self.dry_run,
         )
 
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
+        return self + other
+        breakpoint()
         self.runs.update({other.key: other})
         self.write()
         return self
 
     def __repr__(self) -> str:
         """Return reproducible string for TotalStatus."""
-        image_info = (f", image='{self.image('name')}'") if self._image else ""
+        image_info = (f", image='{self.image.name}'") if self.image else ""
         return (
             f"TotalStatus(testing_paths={self.testing_paths!r}, scope={self.scope}, runs={self.runs}"
             f"{image_info}, dry_run={self.dry_run})"
@@ -821,7 +823,7 @@ class TotalStatus:
 
     def __str__(self) -> str:
         """Return string representation of TotalStatus."""
-        image_info: list[str] = [f"{self.image('name')}"] if self._image else []
+        image_info: list[str] = [f"{self.image.name}"] if self.image else []
         return "\n".join(
             [
                 *image_info,
