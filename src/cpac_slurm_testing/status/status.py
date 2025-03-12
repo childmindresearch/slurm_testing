@@ -473,9 +473,6 @@ class TotalStatus:
         """C-PAC image."""
 
         if git_remote:  # We're initializing a new TotalStatus, not loading existing one
-            self.image = (
-                self._cpac_image(image) if image is not None else self._cpac_image("")
-            )
             self.owner: str = git_remote.owner
             """Owner of repository on GitHub."""
             self.repo: str = git_remote.repo
@@ -486,6 +483,10 @@ class TotalStatus:
             """GitHub PAT."""
             self.home_dir: Path = coerce_to_Path(home_dir)
             """Home directory."""
+            self.image = (
+                self._cpac_image(image) if image is not None else self._cpac_image("")
+            )
+            """C-PAC image."""
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary like `{(datasource, preconfig, subject): run}` of runs with individual statuses."""
         self.load()
