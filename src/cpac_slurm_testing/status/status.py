@@ -721,10 +721,7 @@ class TotalStatus:
                     "sha",
                     "testing_paths",
                 ]:
-                    if hasattr(status, attr):
-                        setattr(self, attr, getattr(status, attr))
-                    # elif attr == "github_token":
-                    #     breakpoint()
+                    setattr(self, attr, getattr(status, attr))
                 if self.runs:
                     for run in self.runs.values():
                         status += run
@@ -810,8 +807,6 @@ class TotalStatus:
 
     def __iadd__(self, other: RunStatus) -> "TotalStatus":
         """Add a run to the total status."""
-        return self + other
-        breakpoint()
         self.runs.update({other.key: other})
         self.write()
         return self
