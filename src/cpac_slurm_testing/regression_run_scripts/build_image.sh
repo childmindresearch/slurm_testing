@@ -24,8 +24,8 @@ cat << TMP > "build_${IMAGE_NAME}.sh"
 
 set -x
 
-export APPTAINER_CACHEDIR="${working_dir}/.apptainer/cache" \
-       APPTAINER_LOCALCACHEDIR="${working_dir}/.apptainer/tmp"
+export APPTAINER_CACHEDIR="${HOME_DIR}/.apptainer/cache" \
+       APPTAINER_LOCALCACHEDIR="${HOME_DIR}/.apptainer/tmp"
 yes | apptainer cache clean
 yes | apptainer build --force "${working_dir}/${IMAGE_NAME}.sif" "docker://${image}"
 
