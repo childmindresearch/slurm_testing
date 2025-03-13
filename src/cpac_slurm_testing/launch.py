@@ -86,7 +86,7 @@ class LaunchParameters:
 def launch(parameters: LaunchParameters) -> None:
     """Launch a regression test."""
     build_dir = ExistingPath(
-        Path(parameters.home_dir) / "automatic_tests/build" / parameters.sha
+        Path(parameters.home_dir) / "automatic_tests/images" / parameters.sha
     )
     with as_file(files("cpac_slurm_testing")) as repo:
         assert isinstance(parameters.home_dir, Path)

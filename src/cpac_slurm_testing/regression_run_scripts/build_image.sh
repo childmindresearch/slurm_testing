@@ -13,7 +13,7 @@ for _DIR in cache tmp
 do
     mkdir -p "${working_dir}/.apptainer/${_DIR}"
 done
-mkdir -p "${HOME_DIR}/automatic_tests/build/${SHA}"
+mkdir -p "${HOME_DIR}/automatic_tests/images/${SHA}"
 IMAGE_PATH="${working_dir}/${IMAGE_NAME}.sif"
 cat << TMP > "build_${IMAGE_NAME}.sh"
 #!/usr/bin/bash
@@ -21,8 +21,8 @@ cat << TMP > "build_${IMAGE_NAME}.sh"
 #SBATCH -p RM-shared
 #SBATCH -t 1:00:00
 #SBATCH --ntasks=4
-#SBATCH -o "${HOME_DIR}/automatic_tests/build/${SHA}/build.out.log"
-#SBATCH --error "${HOME_DIR}/automatic_tests/build/${SHA}/build.err.log"
+#SBATCH -o "${HOME_DIR}/automatic_tests/images/${SHA}/build.out.log"
+#SBATCH --error "${HOME_DIR}/automatic_tests/images/${SHA}/build.err.log"
 
 set -x
 

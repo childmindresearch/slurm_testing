@@ -68,7 +68,9 @@ class CpacImage:
     def path(self) -> Path:
         """Path to image."""
         if self:
-            image_dir = ExistingPath(self.home_dir / self.name)
+            image_dir = ExistingPath(
+                self.home_dir / "automatic_tests" / "images" / self.name
+            )
             return image_dir / f"{self.name}.sif"
         msg = "C-PAC image not defined."
         raise FileNotFoundError(msg)
