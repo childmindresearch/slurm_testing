@@ -9,7 +9,7 @@ source "${TOKEN_FILE}"
 
 IMAGE_NAME="${SHA#*:}"
 DATA_DIR="${HOME_DIR}/DATA/reg_5mm_pack"
-OUT="${HOME_DIR}/automatic_tests/${IMAGE_NAME}/lite"
+OUT="${HOME_DIR}/automatic_tests/lite/${IMAGE_NAME}"
 # IMAGE="${IMAGE_NAME}.sif"
 PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"

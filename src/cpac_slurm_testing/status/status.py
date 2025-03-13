@@ -135,6 +135,7 @@ class TestingPaths:
         self._log_dir: Path
         self._wd: Path
         self._wd, self._log_dir = _set_working_directory(scope, wd)
+        self.scope = scope
 
     @property
     def log_dir(self) -> Path:
@@ -161,7 +162,7 @@ class TestingPaths:
 
     def __repr__(self) -> str:
         """Return reproducible TestingPaths."""
-        return f"TestingPaths(Path('{self.wd}'))"
+        return f"TestingPaths('{self.scope}', Path('{self.wd}'))"
 
     def __str__(self) -> str:
         """Return a string representation of TestingPaths."""
