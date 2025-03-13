@@ -31,13 +31,6 @@ export APPTAINER_CACHEDIR="${HOME_DIR}/.apptainer/cache" \
 yes | apptainer cache clean
 yes | apptainer build --force "${IMAGE_PATH}" "docker://${image}"
 
-if [ -e "${IMAGE_PATH}" ]
-then
-  exit 0
-else
-  exit 2
-fi
-
 TMP
 
 chmod +x "build_${IMAGE_NAME}.sh"
