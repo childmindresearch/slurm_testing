@@ -6,6 +6,7 @@ from typing import Literal, Optional, overload, TypeAlias, TypedDict
 from cpac_slurm_testing.utils._typing import Scope
 
 SITES = ["CBIC", "HNU_1", "KKI", "oxford", "RBC", "SI"]
+_NON_SITE_PROPERTIES = ["regdatapath", "root", "scope"]
 GetRawData: TypeAlias = Path | Scope | Literal["raw"]
 
 
@@ -50,7 +51,7 @@ class RawData:
         self, name: str, default: Optional[GetRawData] = None
     ) -> GetRawData:
         """Get a Path or raise an exception."""
-        if name in ["root", "scope"] or name.startswith("_"):
+        if name in _NON_SITE_PROPERTIES or name.startswith("_"):
             return object.__getattribute__(self, name)
         name = name.lower()
         if name in self.__dict__:
