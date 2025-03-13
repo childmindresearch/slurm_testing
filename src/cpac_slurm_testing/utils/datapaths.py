@@ -56,9 +56,10 @@ class RawData:
     ) -> GetRawData:
         """Get a Path or raise an exception."""
         if name in _NON_SITE_PROPERTIES or name.startswith("_"):
-            # breakpoint()
             return object.__getattribute__(self, name)
         name = name.lower()
+        if name.startswith("site-"):
+            name = name[5:]
         if name in self.__dict__:
             return object.__getattribute__(self, name)
         if default:
