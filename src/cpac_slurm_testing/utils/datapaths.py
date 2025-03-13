@@ -30,7 +30,11 @@ class RawData:
     @property
     def regdatapath(self) -> Path:
         """Return path for binding regdata."""
-        return getattr(self, "_regdatapath", self.root)
+        if hasattr(self, "_regdatapath") and isinstance(self._regdatapath, Path):
+            return self._regdatapath
+        if isinstance(self.root, Path):
+            return self.root
+        raise RawDataNotFound
 
     @property
     def scope(self):
@@ -52,6 +56,7 @@ class RawData:
     ) -> GetRawData:
         """Get a Path or raise an exception."""
         if name in _NON_SITE_PROPERTIES or name.startswith("_"):
+            # breakpoint()
             return object.__getattribute__(self, name)
         name = name.lower()
         if name in self.__dict__:
@@ -60,6 +65,20 @@ class RawData:
             return default
         msg = f"{name} not defined for {self.scope} data."
         raise RawDataNotFound(msg)
+
+    def __str__(self) -> str:
+        """Return string representation of RawData."""
+        string = ""
+        for site in [
+            key
+            for key in dir(self)
+            if not key.startswith("_") and key not in _NON_SITE_PROPERTIES
+        ]:
+            try:
+                string += f"{site}: {getattr(self, site)}\n"
+            except RawDataNotFound:
+                string += f"{site}: Undefined\n"
+        return string
 
 
 class FullData(RawData):
