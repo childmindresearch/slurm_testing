@@ -29,7 +29,7 @@ set -x
 export APPTAINER_CACHEDIR="${HOME_DIR}/.apptainer/cache" \
        APPTAINER_LOCALCACHEDIR="${HOME_DIR}/.apptainer/tmp"
 yes | apptainer cache clean
-yes | apptainer build --force "${IMAGE_PATH} "docker://${image}"
+yes | apptainer build --force "${IMAGE_PATH}" "docker://${image}"
 
 if [ -e "${IMAGE_PATH}" ]
 then
