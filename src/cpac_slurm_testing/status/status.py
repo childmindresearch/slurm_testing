@@ -522,7 +522,7 @@ class TotalStatus:
         for run in self.runs.values():
             if run._command_file:
                 unlink(run._command_file)  # remove launch script
-        unlink(self.image.path)  # remove Apptainer image
+        # unlink(self.image.path)  # remove Apptainer image
         # unlink(self.path)  # remove launch pickle
 
     @property
