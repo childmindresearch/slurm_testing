@@ -1,7 +1,7 @@
 name: Check for 👤💰
 
 on:
-  pull_request:
+  pull_request_target:
 
 jobs:
   check-for-changes:
@@ -11,18 +11,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v45
+      - name: Prevent file change
+        uses: xalvarez/prevent-file-change-action@v2
         with:
-          files: |
-            .github/workflows/match_target_repository.yaml
-            .github/workflows/🚫👤💰.yaml
-      - name: Check for workflow changes
-        id: workflow-changes
-        env:
-          CHANGED_FILES: ${{ steps.changed-files.outputs.any_changed }}
-        run: |
-          if [ "${CHANGED_FILES}" = "true" ]; then
-            exit 1
-          fi
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          pattern: \.github\/workflows\/(?:🚫👤💰|match_target_repository)\.yaml
