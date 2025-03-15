@@ -1,0 +1,18 @@
+name: Check for 👤💰
+
+on:
+  pull_request_target:
+
+jobs:
+  check-for-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+      - name: Prevent file change
+        uses: xalvarez/prevent-file-change-action@v2
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          pattern: \.github\/workflows\/(?:🚫👤💰|match_target_repository)\.yaml
