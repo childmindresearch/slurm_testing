@@ -110,7 +110,7 @@ def launch(parameters: LaunchParameters) -> None:
             slurm_env,
             f"--output={parameters.testing_paths.log_dir}/launch.out.log",
             f"--error={parameters.testing_paths.log_dir}/launch.err.log",
-            str(repo / "regression_run_scripts/regtest_lite.sh"),
+            str(repo / f"regression_run_scripts/regtest_{parameters.scope}.sh"),
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
