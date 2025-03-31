@@ -72,9 +72,16 @@ class LaunchParameters:
     def as_environment_variables(self) -> dict[str, str]:
         """Return a dictionary of environment variable keys and values."""
         return {
-            key.upper(): str(value.wd) if key == "testing_paths" else str(value)
-            for key, value in asdict(self).items()
-            if key != "dry_run"
+            **{
+                key.upper(): str(value.wd) if key == "testing_paths" else str(value)
+                for key, value in asdict(self).items()
+                if key != "dry_run"
+            },
+            **{
+                key.upper(): getattr(self, key)
+                for key in ["cpac_regtest_script"]
+                if hasattr(self, key)
+            },
         }
 
     @property
@@ -90,6 +97,14 @@ def launch(parameters: LaunchParameters) -> None:
     )
     with as_file(files("cpac_slurm_testing")) as repo:
         assert isinstance(parameters.home_dir, Path)
+        regtest_dir = repo / "regression_run_scripts"
+        if parameters.scope == "full":
+            setattr(
+                parameters,
+                "cpac_regtest_script",
+                str(repo / "regression_run_scripts/regtest_full.py"),
+            )
+
         slurm_env = parameters.as_slurm_export
         build: list[str] = [
             *SBATCH_START[:-1],
@@ -110,7 +125,7 @@ def launch(parameters: LaunchParameters) -> None:
             slurm_env,
             f"--output={parameters.testing_paths.log_dir}/launch.out.log",
             f"--error={parameters.testing_paths.log_dir}/launch.err.log",
-            str(repo / f"regression_run_scripts/regtest_{parameters.scope}.sh"),
+            str(regtest_dir / f"regtest_{parameters.scope}.sh"),
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]

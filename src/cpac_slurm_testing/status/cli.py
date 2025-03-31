@@ -8,7 +8,7 @@ from cpac_slurm_testing import __version__
 from cpac_slurm_testing.launch import launch, LaunchParameters
 from cpac_slurm_testing.status._global import get_logger
 from cpac_slurm_testing.status.status import TestingPaths, TotalStatus
-from cpac_slurm_testing.utils import SCOPES
+from cpac_slurm_testing.utils import Scope, SCOPES
 
 LOGGER: Logger = get_logger(name=__name__)
 
@@ -56,6 +56,7 @@ class SlurmTestingNamespace(Namespace):
 
     def __init__(self, original: Namespace | SimpleNamespace) -> None:
         """Initialize Namespace."""
+        self.scope: Scope
         super().__init__(
             **{
                 key: value if value else self._env_fallback(key)

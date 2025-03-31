@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""
-Run a full regression test.
-
-Currently this script relies on a C-PAC image being available from a lite run.
-"""
+"""Run a full regression test."""
 from copy import copy
 from trace import Trace
 from types import SimpleNamespace

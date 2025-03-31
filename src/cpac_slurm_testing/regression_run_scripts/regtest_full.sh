@@ -12,6 +12,4 @@ export _CPAC_STATUS_SHA="${SHA}"
 export _CPAC_STATUS_DATA_SOURCE="Site-CBIC Site-SI HNU_1"
 export _CPAC_STATUS_WD="${WD}"
 export _CPAC_STATUS_TOKEN_FILE="${TOKEN_FILE}"
-SCRIPT_DIR="$(dirname "$0")"
-# shellcheck disable=SC1090
-"${SCRIPT_DIR}/regtest_full.py"
+"${CPAC_REGTEST_SCRIPT}"
