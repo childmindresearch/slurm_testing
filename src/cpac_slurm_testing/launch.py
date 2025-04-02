@@ -60,7 +60,8 @@ class LaunchParameters:
 
         Parameters
         ----------
-        List of keys to exclude
+        except_for
+            list of keys to exclude
         """
         return [
             key

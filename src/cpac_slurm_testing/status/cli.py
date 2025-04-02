@@ -67,7 +67,7 @@ class SlurmTestingNamespace(Namespace):
             self.dry_run: bool = False
             """Skip actually running commands?"""
         self.testing_paths = TestingPaths(
-            scope=original.scope, wd=getattr(self, "wd", os.getcwd())
+            scope=self.scope, wd=getattr(self, "wd", os.getcwd())
         )
 
 
