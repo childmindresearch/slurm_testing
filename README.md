@@ -36,7 +36,7 @@ graph TD;
 
 ### Launch a 'lite' regression test run
 
-Set up a GitHub Actions workflow configuration file to call [`cpac-slurm-status lite launch`](./src/cpac_slurm_testing/status/cli.py#L146-L150). Use contexts, secrets and environment variables to pass the required variables to the script from GitHub Actions.
+Set up a GitHub Actions workflow configuration file to call [`cpac-slurm-status lite launch`](./src/cpac_slurm_testing/status/cli.py#L155-L160). Use contexts, secrets and environment variables to pass the required variables to the script from GitHub Actions.
 
 #### Required commandline parameters or environment variables
 
