@@ -9,7 +9,7 @@ source "${TOKEN_FILE}"
 
 IMAGE_NAME="${SHA#*:}"
 DATA_DIR="${HOME_DIR}/DATA/reg_5mm_pack"
-OUT="${HOME_DIR}/lite/${IMAGE_NAME}"
+OUT="${HOME_DIR}/automatic_tests/lite/${IMAGE_NAME}"
 # IMAGE="${IMAGE_NAME}.sif"
 PRECONFIGS="default"
 DATA_SOURCE="Site-CBIC Site-SI HNU_1"
@@ -24,7 +24,7 @@ for PIPELINE in ${PRECONFIGS}; do
 
         for SUBJECT_PATH in "${DATAPATH}"/sub-*; do
             SUBJECT=$(basename "${SUBJECT_PATH}")
-            cpac-slurm-status add --wd="${OUT}" --data_source="${DATA}" --preconfig="${PIPELINE}" --subject="${SUBJECT}"
+            cpac-slurm-status lite add --wd="${OUT}" --data_source="${DATA}" --preconfig="${PIPELINE}" --subject="${SUBJECT}"
 
         done
     done

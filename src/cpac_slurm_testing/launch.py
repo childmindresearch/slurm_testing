@@ -9,7 +9,7 @@ import subprocess
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status import TestingPaths, TotalStatus
 from cpac_slurm_testing.status._global import get_logger, SBATCH_START
-from cpac_slurm_testing.utils import PATH_OR_STR
+from cpac_slurm_testing.utils import ExistingPath, PathStr, Scope
 
 LOGGER: Logger = get_logger(name=__name__)
 
@@ -19,17 +19,18 @@ class LaunchParameters:
     """Parameters for launching a regression test."""
 
     testing_paths: TestingPaths
-    comparison_path: PATH_OR_STR = ""
+    comparison_path: PathStr = ""
     dashboard_repo: str = ""
-    home_dir: PATH_OR_STR = ""
+    home_dir: PathStr = ""
     image: str = ""
     owner: str = ""
     path_extra: str = ""
     repo: str = ""
+    scope: Scope = "lite"
     sha: str = ""
     slurm_testing_branch: str = ""
     slurm_testing_repo: str = ""
-    token_file: PATH_OR_STR = ""
+    token_file: PathStr = ""
     _: KW_ONLY
     dry_run: bool = False
 
@@ -59,7 +60,8 @@ class LaunchParameters:
 
         Parameters
         ----------
-        List of keys to exclude
+        except_for
+            list of keys to exclude
         """
         return [
             key
@@ -71,9 +73,16 @@ class LaunchParameters:
     def as_environment_variables(self) -> dict[str, str]:
         """Return a dictionary of environment variable keys and values."""
         return {
-            key.upper(): str(value.wd) if key == "testing_paths" else str(value)
-            for key, value in asdict(self).items()
-            if key != "dry_run"
+            **{
+                key.upper(): str(value.wd) if key == "testing_paths" else str(value)
+                for key, value in asdict(self).items()
+                if key != "dry_run"
+            },
+            **{
+                key.upper(): getattr(self, key)
+                for key in ["cpac_regtest_script"]
+                if hasattr(self, key)
+            },
         }
 
     @property
@@ -84,18 +93,29 @@ class LaunchParameters:
 
 def launch(parameters: LaunchParameters) -> None:
     """Launch a regression test."""
+    build_dir = ExistingPath(
+        Path(parameters.home_dir) / "automatic_tests/images" / parameters.sha
+    )
     with as_file(files("cpac_slurm_testing")) as repo:
         assert isinstance(parameters.home_dir, Path)
+        regtest_dir = repo / "regression_run_scripts"
+        if parameters.scope == "full":
+            setattr(
+                parameters,
+                "cpac_regtest_script",
+                str(repo / "regression_run_scripts/regtest_full.py"),
+            )
+
         slurm_env = parameters.as_slurm_export
         build: list[str] = [
             *SBATCH_START[:-1],
             slurm_env,
-            f"--output={parameters.testing_paths.log_dir}/build.out.log",
-            f"--error={parameters.testing_paths.log_dir}/build.err.log",
+            f"--output={build_dir}/build.out.log",
+            f"--error={build_dir}/build.err.log",
             "--parsable",
             str(repo / "regression_run_scripts/build_image.sh"),
             "--working_dir",
-            f"{parameters.home_dir / 'lite' / parameters.sha}",
+            f"{build_dir}",
             "--image",
             f"{parameters.image}",
         ]
@@ -106,7 +126,7 @@ def launch(parameters: LaunchParameters) -> None:
             slurm_env,
             f"--output={parameters.testing_paths.log_dir}/launch.out.log",
             f"--error={parameters.testing_paths.log_dir}/launch.err.log",
-            str(repo / "regression_run_scripts/regtest_lite.sh"),
+            str(regtest_dir / f"regtest_{parameters.scope}.sh"),
         ]
     if parameters.dry_run:
         cmd = [*cmd, "--dry-run"]
@@ -122,6 +142,7 @@ def launch(parameters: LaunchParameters) -> None:
     )
     status = TotalStatus(
         testing_paths=parameters.testing_paths,
+        scope=parameters.scope,
         home_dir=parameters.home_dir,
         image=parameters.sha,
         dry_run=parameters.dry_run,

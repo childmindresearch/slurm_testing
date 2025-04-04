@@ -1,11 +1,37 @@
 """General utilities."""
+from pathlib import Path
 from shutil import rmtree
-from typing import Literal
+from typing import cast, Literal
 
-from cpac_slurm_testing.utils._typing import coerce_to_Path, PATH_OR_STR
+from cpac_slurm_testing.utils._typing import coerce_to_Path, PathStr
 
 
-def unlink(path: PATH_OR_STR, error: Literal["ignore", "raise"] = "ignore") -> None:
+class ExistingPath(Path):
+    """A Path that definitely exists."""
+
+    def __new__(cls, *args, **kwargs) -> "ExistingPath":
+        """Construct an ExistingPath."""
+        instance = cast(ExistingPath, Path(*args, **kwargs))
+        if not instance.exists():
+            for parent in reversed(instance.parents):
+                ExistingPath._try_to_mk(parent)
+            ExistingPath._try_to_mk(instance)
+        assert instance.exists()
+        return instance
+
+    @staticmethod
+    def _try_to_mk(path: Path) -> None:
+        """Try to make paths, but don't fail unless path doesn't exist in the end."""
+        if path.exists():
+            return
+        try:
+            path.mkdir(mode=0o777, exist_ok=True)
+        except Exception as e:
+            if not path.exists():
+                raise e
+
+
+def unlink(path: PathStr, error: Literal["ignore", "raise"] = "ignore") -> None:
     """Remove a path."""
     path = coerce_to_Path(path)
     unlink_method: str

@@ -35,39 +35,50 @@ from cpac_regression_dashboard.utils.parse_yaml import cpac_yaml
 from cpac_slurm_testing.correlation.correlation import correlate, init_branch
 from cpac_slurm_testing.git_remote import GitRemoteInfo
 from cpac_slurm_testing.status._global import (
-    _COMMAND_TYPES,
-    _JOB_STATE,
-    _STATE,
+    _State,
     get_logger,
     JOB_STATES,
+    JobState,
     SBATCH_START,
     TEMPLATES,
 )
-from cpac_slurm_testing.utils import coerce_to_Path, unlink
+from cpac_slurm_testing.utils import coerce_to_Path, ExistingPath, unlink
+from cpac_slurm_testing.utils._typing import Scope
+from cpac_slurm_testing.utils.datapaths import datapaths
 
 LOGGER: Logger = get_logger(name=__name__)
 
 
-def _set_intermediate_directory(
-    directory: Path | str, intermediate: str, mkdir: bool = True
-) -> Path:
-    """Set directory between user and image.
+@dataclass
+class CpacImage:
+    """Consistently access C-PAC image name and path."""
 
-    Examples
-    --------
-    >>> str(_set_intermediate_directory('/home/user/full/image', 'lite', False))
-    '/home/user/lite/image'
-    >>> str(_set_intermediate_directory('/home/user/full/image', 'logs', False))
-    '/home/user/logs/image'
-    """
-    _parts: list[str] = str(directory).split("/")
-    path = Path("/".join([*_parts[:-2], intermediate, _parts[-1]]))
-    if mkdir and not path.exists():
-        os.makedirs(str(path), exist_ok=True)
-    return path
+    name: str
+    home_dir: Path
+
+    def __bool__(self) -> bool:
+        """Is the C-PAC image defined?"""  # noqa: D400
+        return bool(self.name)
+
+    def __str__(self) -> str:
+        """Return string representation of C-PAC image."""
+        return self.name
+
+    @property
+    def path(self) -> Path:
+        """Path to image."""
+        if self:
+            image_dir = ExistingPath(
+                self.home_dir / "automatic_tests" / "images" / self.name
+            )
+            return image_dir / f"{self.name}.sif"
+        msg = "C-PAC image not defined."
+        raise FileNotFoundError(msg)
 
 
-def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]:
+def _set_working_directory(
+    scope: Scope, wd: Optional[Path | str] = None
+) -> tuple[Path, Path]:
     """Set working directory.
 
     Priority order:
@@ -93,14 +104,14 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
         _logger = LOGGER.warning
         _log_msg = ["`wd` was not provided and `$REGTEST_LOG_DIR` is not set."]
     if wd:
-        wd = _set_intermediate_directory(coerce_to_Path(wd).absolute(), "lite")
+        wd = coerce_to_Path(wd).absolute()
     else:
         from datetime import datetime
         from time import localtime, strftime
 
         wd = (
             Path.cwd().absolute()
-            / "lite"
+            / scope
             / "".join(
                 [
                     datetime.now().strftime("%Y%m%d%H%M%S.%f%Z"),
@@ -108,26 +119,25 @@ def _set_working_directory(wd: Optional[Path | str] = None) -> tuple[Path, Path]
                 ]
             )
         )
-        for parent in reversed(wd.parents):
-            parent.mkdir(mode=0o777, exist_ok=True)
-        wd.mkdir(mode=0o777, exist_ok=True)
+    wd = ExistingPath(wd)
     os.chdir(str(wd))
     _log_msg = ["Set working directory to %s", str(wd)]
-    _logpath: Path = _set_intermediate_directory(wd, "logs")
+    _logpath = ExistingPath(wd / "logs")
     LOGGER = get_logger(name=__name__, filename=f"{_logpath}/{filename}", force=True)
     _logger = LOGGER.info
     _logger(*_log_msg)  # log info or warning as appropriate
-    return Path(wd), Path(_logpath)
+    return wd, _logpath
 
 
 class TestingPaths:
     """Working and logging path management."""
 
-    def __init__(self, wd: Optional[Path | str] = None) -> None:
+    def __init__(self, scope: Scope = "lite", wd: Optional[Path | str] = None) -> None:
         """Initialize TestingPaths."""
         self._log_dir: Path
         self._wd: Path
-        self._wd, self._log_dir = _set_working_directory(wd)
+        self._wd, self._log_dir = _set_working_directory(scope, wd)
+        self.scope = scope
 
     @property
     def log_dir(self) -> Path:
@@ -154,7 +164,7 @@ class TestingPaths:
 
     def __repr__(self) -> str:
         """Return reproducible TestingPaths."""
-        return f"TestingPaths(Path('{self.wd}'))"
+        return f"TestingPaths('{self.scope}', Path('{self.wd}'))"
 
     def __str__(self) -> str:
         """Return a string representation of TestingPaths."""
@@ -187,9 +197,7 @@ class SlurmJobStatus:
         self.dry_run: bool = dry_run
 
     @overload
-    def get(
-        self, key: Literal["JobState"], default: _JOB_STATE = "PENDING"
-    ) -> _JOB_STATE:
+    def get(self, key: Literal["JobState"], default: JobState = "PENDING") -> JobState:
         ...
 
     @overload
@@ -204,14 +212,14 @@ class SlurmJobStatus:
             return default
 
     @property
-    def job_state(self) -> _JOB_STATE:
+    def job_state(self) -> JobState:
         """Return JobState from SLURM."""
         if self.dry_run:
             return choice(list(JOB_STATES.keys()))
         return self["JobState"]
 
     @overload
-    def __getitem__(self, item: Literal["JobState"]) -> _JOB_STATE:
+    def __getitem__(self, item: Literal["JobState"]) -> JobState:
         ...
 
     @overload
@@ -257,7 +265,7 @@ class RunStatus:
     """Subject ID."""
     _total: "TotalStatus"
     """TotalStatus that includes this RunStatus."""
-    status: _STATE = "pending"
+    status: _State = "pending"
     """Success/failure/pending status of this run."""
     job_id: Optional[int] = None
     """Scheduler job ID."""
@@ -302,19 +310,19 @@ class RunStatus:
         """log directory"""
         self._total += self
 
-    def command(self, command_type: str) -> str:
-        """Return a command string for a given command_type."""
+    def command(self, scope: Scope = "lite") -> str:
+        """Return a command string for a given scope."""
         assert self._total is not None
         if not self.log_dir.exists():
             self.log_dir.mkdir(mode=0o777, exist_ok=True)
-        return TEMPLATES[command_type].format(
-            datapath=self.total.home_dir / f"DATA/reg_5mm_pack/data/{self.data_source}",
-            regdatapath=self.total.home_dir / "DATA/reg_5mm_pack",
+        return TEMPLATES[scope].format(
+            datapath=getattr(datapaths[scope](self.total.home_dir), self.data_source),
+            regdatapath=datapaths[scope](self.total.home_dir).regdatapath,
             home_dir=self.total.home_dir,
             log_dir=self.log_dir,
-            image=self.total.image("path"),
-            image_name=self.total.image("name"),
-            output=self.out("lite") / self.preconfig / self.data_source,
+            image=self.total.image.path,
+            image_name=self.total.image.name,
+            output=ExistingPath(self.out() / self.preconfig / self.data_source),
             pdsd=self.pdsd,
             pipeline=self.preconfig,
             pipeline_configs=str(
@@ -338,22 +346,11 @@ class RunStatus:
         """Return a unique key for each preconfig × data_source × subject."""  # noqa: RUF002
         return self.data_source, self.preconfig, self.subject
 
-    def launch(self, command_type: _COMMAND_TYPES) -> None:
+    def launch(self, scope: Scope) -> None:
         """Launch a SLURM job and set its job ID."""
-        _command_types: list[str] = eval(
-            str(_COMMAND_TYPES).replace(
-                str(
-                    _COMMAND_TYPES.__origin__  # type: ignore[attr-defined]
-                ),
-                "",
-            )
-        )
-        if command_type not in _command_types:
-            msg: str = f"{command_type} not in {_command_types}"
-            raise KeyError(msg)
         with NamedTemporaryFile(mode="w", encoding="utf8", delete=False) as _f:
             self._command_file = Path(_f.name)
-            _f.write(self.command(command_type))
+            _f.write(self.command(scope))
             _f.close()
             with open(_f.name, "r", encoding="utf8") as _command_file:
                 LOGGER.info(
@@ -379,9 +376,9 @@ class RunStatus:
                 )
             LOGGER.info("%s = %s", self.job_id, " ".join(command))
 
-    def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
+    def out(self) -> Path:
         """Return the path to the output directory."""
-        return self.total.out(lite_or_full)
+        return self.total.out()
 
     @property
     def job_status(self) -> str:
@@ -421,6 +418,12 @@ class RunStatus:
 class TotalStatus:
     """Store the total status of all runs for the GitHub Check."""
 
+    def _cpac_image(self, name: str) -> CpacImage:
+        """Create a C-PAC Image."""
+        if name:
+            return CpacImage(name, self.home_dir)
+        return CpacImage(name, Path())
+
     @property
     def failure(self) -> Fraction:
         """Return the fraction of runs that are failures."""
@@ -443,9 +446,10 @@ class TotalStatus:
 
     successes.__doc__ = success.__doc__
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913,PLR0915
         self,
         testing_paths: Path | str | TestingPaths,
+        scope: Scope = "lite",
         runs: Optional[list[RunStatus]] = None,
         home_dir: Optional[Path | str] = None,
         image: Optional[str] = None,
@@ -455,10 +459,11 @@ class TotalStatus:
         if isinstance(testing_paths, str):
             testing_paths = Path(testing_paths)
         if isinstance(testing_paths, Path):
-            testing_paths = TestingPaths(testing_paths)
+            testing_paths = TestingPaths(scope=scope, wd=testing_paths)
         if not isinstance(testing_paths, TestingPaths):
             msg: str = f"{testing_paths} is not an instance of {TestingPaths}"
             raise TypeError(msg)
+        self.scope: Scope = scope
         self.testing_paths: TestingPaths = testing_paths
         self.dry_run: bool = dry_run
         """Skip actually running commands?"""
@@ -467,11 +472,10 @@ class TotalStatus:
             path = Path(f"{path.name}.dry")
         self.path: Path = path
         """Path to status data on disk."""
-        self._image: str = ""
-        """Name of image."""
+        self.image: CpacImage = self._cpac_image("")
+        """C-PAC image."""
 
         if git_remote:  # We're initializing a new TotalStatus, not loading existing one
-            self._image = image if image is not None else ""
             self.owner: str = git_remote.owner
             """Owner of repository on GitHub."""
             self.repo: str = git_remote.repo
@@ -482,17 +486,21 @@ class TotalStatus:
             """GitHub PAT."""
             self.home_dir: Path = coerce_to_Path(home_dir)
             """Home directory."""
+            self.image = (
+                self._cpac_image(image) if image is not None else self._cpac_image("")
+            )
+            """C-PAC image."""
         self.runs: dict[tuple[str, str, str], RunStatus] = {}
         """Dictionary like `{(datasource, preconfig, subject): run}` of runs with individual statuses."""
         self.load()
-        initial_state: _STATE | Literal["idle"] = self.status
+        initial_state: _State | Literal["idle"] = self.status
         if runs:
             self.check_all()
             self.runs.update({run.key: run for run in runs})
         for run in self.runs.values():
             run.total = self
         self.log()
-        if self.image():
+        if self.image:
             self.write()
         if initial_state == "idle":
             if self.status != "idle" and not self.dry_run:
@@ -514,7 +522,7 @@ class TotalStatus:
         for run in self.runs.values():
             if run._command_file:
                 unlink(run._command_file)  # remove launch script
-        unlink(self.image("path"))  # remove Apptainer image
+        # unlink(self.image.path)  # remove Apptainer image
         # unlink(self.path)  # remove launch pickle
 
     @property
@@ -532,23 +540,11 @@ class TotalStatus:
         """Return a list of all unique subjects in a TotalStatus."""
         return list({subject for _, _, subject in self.runs.keys()})
 
-    @overload
-    def image(self, name_or_path: Literal["name"] = "name") -> str:
-        ...
-
-    @overload
-    def image(self, name_or_path: Literal["path"]) -> Path:
-        ...
-
-    def image(self, name_or_path: Literal["name", "path"] = "name") -> Path | str:
-        """Return the image name or path."""
-        if name_or_path == "name":
-            return self._image
-        return Path.cwd() / f"{self._image}.sif"
-
-    def out(self, lite_or_full: Literal["full", "lite"]) -> Path:
+    def out(self) -> Path:
         """Return the path to the output directory."""
-        return self.home_dir / lite_or_full / self.image("name")
+        return ExistingPath(
+            self.home_dir / "automatic_tests" / self.scope / self.image.name
+        )
 
     def check(self: "TotalStatus", args: Namespace) -> None:
         """Check a run's status."""
@@ -578,6 +574,7 @@ class TotalStatus:
             f"--error={self.testing_paths.log_dir}/check_{timestamp}.err.log",
             f"--begin={time}",
             "cpac-slurm-status",
+            self.scope,
             "check-all",
             f'--wd="{Path.cwd()}"',
         ]
@@ -594,14 +591,14 @@ class TotalStatus:
 
     def correlate(self, n_cpus: int = 4) -> None:
         """Launch correlation process."""
-        this_pipeline: Path = self.out("lite")
+        this_pipeline: Path = self.out()
         latest_ref: Path = this_pipeline.parent / self.latest
         correlations_dir: Path | str = this_pipeline / "correlations"
         assert isinstance(correlations_dir, Path)
         if not correlations_dir.exists():
             correlations_dir.mkdir(mode=0o777, exist_ok=True)
         correlations_dir = str(correlations_dir)
-        branch: str = cast(str, self.image("name"))
+        branch: str = self.image.name
         correlation_slurm_jobs: list[int] = []
         for data_source in self.datasources:
             for preconfig in self.preconfigs:
@@ -684,7 +681,7 @@ class TotalStatus:
             f"{fractions[0]} successful, {fractions[1]} failed, {fractions[2]} pending"
         )
 
-    def fraction(self, status: _STATE) -> Fraction:
+    def fraction(self, status: _State) -> Fraction:
         """Return the fraction of runs that are successful."""
         try:
             return Fraction(
@@ -722,7 +719,7 @@ class TotalStatus:
                     "dry_run",
                     "github_token",
                     "home_dir",
-                    "_image",
+                    "image",
                     "owner",
                     "path",
                     "repo",
@@ -757,11 +754,11 @@ class TotalStatus:
             state=self.status,
             target_url=target_url,
             description=self.description,
-            context="lite regression test",
+            context=f"{self.scope} regression test",
         )
 
     @property
-    def status(self) -> Union[_STATE, Literal["idle"]]:
+    def status(self) -> Union[_State, Literal["idle"]]:
         """Return the status."""
         if len(self) == 0:
             return "idle"
@@ -781,7 +778,7 @@ class TotalStatus:
             status=getattr(args, "status", "pending"),
             _total=self,
         )
-        run.launch("lite_run")
+        run.launch(args.scope)
         self += run
 
     def write(self) -> None:
@@ -807,8 +804,9 @@ class TotalStatus:
         runs.update({other.key: other})
         return TotalStatus(
             testing_paths=self.testing_paths,
+            scope=self.scope,
             runs=list(runs.values()),
-            image=self._image,
+            image=self.image.name,
             dry_run=self.dry_run,
         )
 
@@ -820,15 +818,15 @@ class TotalStatus:
 
     def __repr__(self) -> str:
         """Return reproducible string for TotalStatus."""
-        image_info = (f", image='{self.image('name')}'") if self._image else ""
+        image_info = (f", image='{self.image.name}'") if self.image else ""
         return (
-            f"TotalStatus(testing_paths={self.testing_paths!r}, runs={self.runs}"
+            f"TotalStatus(testing_paths={self.testing_paths!r}, scope={self.scope}, runs={self.runs}"
             f"{image_info}, dry_run={self.dry_run})"
         )
 
     def __str__(self) -> str:
         """Return string representation of TotalStatus."""
-        image_info: list[str] = [f"{self.image('name')}"] if self._image else []
+        image_info: list[str] = [f"{self.image.name}"] if self.image else []
         return "\n".join(
             [
                 *image_info,

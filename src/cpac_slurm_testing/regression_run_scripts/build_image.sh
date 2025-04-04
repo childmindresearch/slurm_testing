@@ -13,21 +13,23 @@ for _DIR in cache tmp
 do
     mkdir -p "${working_dir}/.apptainer/${_DIR}"
 done
+mkdir -p "${HOME_DIR}/automatic_tests/images/${SHA}"
+IMAGE_PATH="${working_dir}/${IMAGE_NAME}.sif"
 cat << TMP > "build_${IMAGE_NAME}.sh"
 #!/usr/bin/bash
 #SBATCH -N 1
 #SBATCH -p RM-shared
 #SBATCH -t 1:00:00
 #SBATCH --ntasks=4
-#SBATCH -o "${HOME_DIR}/logs/${SHA}/build.out.log"
-#SBATCH --error "${HOME_DIR}/logs/${SHA}/build.err.log"
+#SBATCH -o "${HOME_DIR}/automatic_tests/images/${SHA}/build.out.log"
+#SBATCH --error "${HOME_DIR}/automatic_tests/images/${SHA}/build.err.log"
 
 set -x
 
-export APPTAINER_CACHEDIR="${working_dir}/.apptainer/cache" \
-       APPTAINER_LOCALCACHEDIR="${working_dir}/.apptainer/tmp"
+export APPTAINER_CACHEDIR="${HOME_DIR}/.apptainer/cache" \
+       APPTAINER_LOCALCACHEDIR="${HOME_DIR}/.apptainer/tmp"
 yes | apptainer cache clean
-yes | apptainer build --force "${working_dir}/${IMAGE_NAME}.sif" "docker://${image}"
+yes | apptainer build --force "${IMAGE_PATH}" "docker://${image}"
 
 TMP
 
