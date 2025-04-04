@@ -21,7 +21,7 @@ class ExistingPath(Path):
 
     @staticmethod
     def _try_to_mk(path: Path) -> None:
-        """Try to make paths, but don't fail unless path doeesn't exist in the end."""
+        """Try to make paths, but don't fail unless path doesn't exist in the end."""
         if path.exists():
             return
         try:
